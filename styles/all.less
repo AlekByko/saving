@@ -1,9 +1,25 @@
 
 body {
     font-family: monospace;
+    margin: 0px;
+    padding: 0px;
 }
 
 
 @import './candidate.less';
 
 .off + .off { margin-left: 10px; }
+
+.app {
+}
+.toolbar {
+    position: sticky;
+    top: 0px;
+    padding: 20px;
+    background-color: white;
+}
+.candidates {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
