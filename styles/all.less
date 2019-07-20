@@ -8,16 +8,16 @@ body {
 
 @import './candidate.less';
 
-.off(@factor: 1) { margin-top: @factor * 10px; margin-left: @factor * 10px; }
+.off(@factor: 1) { margin-top: @factor * 7px; margin-left: @factor * 7px; }
 .off { .off(); }
 
 .app {
     padding-bottom: 50%;
 }
 .toolbar {
+    .off();
     position: sticky;
     top: 0px;
-    padding: 20px;
     background-color: white;
     z-index: 1;
 }
