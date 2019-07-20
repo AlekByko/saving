@@ -9,6 +9,8 @@ body {
 @import './candidate.less';
 
 @off: 7px;
+@look-through: 0.5;
+@warning-color: #a00;
 .off(@factor: 1) { margin-top: @factor * @off; margin-left: @factor * @off; }
 .off { .off(); }
 
@@ -27,4 +29,5 @@ body {
     top: 0px;
     background-color: white;
     z-index: 1;
+    padding-bottom: @off;
 }
