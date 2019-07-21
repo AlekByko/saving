@@ -17,4 +17,5 @@
     "workbench.editor.enablePreview": false,
     "workbench.editor.enablePreviewFromQuickOpen": false,
     "editor.snippetSuggestions": "bottom",
+    "typescript.tsdk": "node_modules/typescript/lib",
 }
