@@ -1,10 +1,14 @@
 <html>
-    <head>
-        <link rel="stylesheet" type="text/css" href="./styles/all.css" />
-    </head>
-    <body>
-        <div id="root"></div>
-        <script src="./require-config.js"></script>
-        <script src="./node_modules/requirejs/require.js" data-main="saving/root"></script>
-    </body>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="./styles/all.css" />
+</head>
+
+<body>
+    <div id="root"></div>
+    <webview id="hidden" name="hidden" src="about:blank" style="width:640px; height:480px"></webview>
+    <script src="./require-config.js"></script>
+    <script src="./node_modules/requirejs/require.js" data-main="saving/root"></script>
+</body>
+
 </html>
