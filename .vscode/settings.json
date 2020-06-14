@@ -12,6 +12,8 @@
         "source.fixAll": true
     },
     "typescript.preferences.renameShorthandProperties": false,
+    "editor.autoClosingBrackets": "never",
+    "editor.autoClosingQuotes": "never",
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
     "emmet.showExpandedAbbreviation": "never",
