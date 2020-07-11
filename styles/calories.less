@@ -1,0 +1,14 @@
+.intakes {
+    display: inline-flex;
+    flex-direction: column;
+}
+.intake {
+    display: flex;
+    & > *:last-child {
+        padding-left: 10px;
+        margin-left: auto;
+    }
+    &.as-bad {
+        color: #ccc;
+    }
+}
