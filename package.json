@@ -22,7 +22,7 @@
     "less": "3.9.0",
     "npm": "6.14.4",
     "tslint": "5.18.0",
-    "typescript": "4.3.0-dev.20210308",
+    "typescript": "4.3.0-dev.20210508",
     "typescript-tslint-plugin": "0.3.1"
   }
 }
