@@ -25,5 +25,6 @@
         "typescript",
         "typescriptreact"
     ],
+	"editor.insertSpaces": true,
     "workbench.colorTheme": "Default Light+",
 }
