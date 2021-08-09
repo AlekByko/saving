@@ -1,0 +1,1 @@
+start cmd /K node --unhandled-rejections=strict ./node_modules/server/server.js
