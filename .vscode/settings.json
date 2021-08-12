@@ -14,6 +14,7 @@
     "typescript.preferences.useAliasesForRenames": false,
     "editor.autoClosingBrackets": "never",
     "editor.autoClosingQuotes": "never",
+    "editor.autoSurround": "never",
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
     "emmet.showExpandedAbbreviation": "never",
