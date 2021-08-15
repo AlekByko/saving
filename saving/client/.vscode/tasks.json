@@ -5,20 +5,17 @@
             "type": "shell",
             "group": "build",
             "label": "build-client-watch",
+            "options": {
+                "cwd": "../../"
+            },
             "command": "cmd /C build-client-watch.bat",
             "problemMatcher": "$tsc-watch"
         },
         {
             "type": "shell",
             "group": "build",
-            "label": "build-server-watch",
-            "command": "cmd /C build-server-watch.bat",
-            "problemMatcher": "$tsc-watch"
-        },
-        {
-            "type": "shell",
-            "group": "build",
             "label": "build-styles",
+            "options": {"cwd": "../../"},
             "command": "cmd /C build-styles.bat"
         }
     ]
