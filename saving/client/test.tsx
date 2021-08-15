@@ -2,9 +2,6 @@ import * as tf from '@tensorflow/tfjs';
 import * as tfvis from '@tensorflow/tfjs-vis';
 import { MnistData } from './data';
 
-console.log(tf)
-console.log(tfvis);
-
 function xxx() {
 
     async function showExamples(data: MnistData) {
@@ -28,7 +25,7 @@ function xxx() {
             const canvas = document.createElement('canvas');
             canvas.width = 28;
             canvas.height = 28;
-            await tf.browser.toPixels(imageTensor, canvas);
+            await tf.browser.toPixels(imageTensor as any, canvas);
             surface.drawArea.appendChild(canvas);
 
             imageTensor.dispose();

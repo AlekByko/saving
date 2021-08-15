@@ -66,6 +66,7 @@ export function thusSurface<Defs extends LikeSurfaceDefs<Defs>>(defs: Defs) {
                     {this.props.children}
                 </div>;
             } else {
+                // @ts-expect-error
                 return <SurfaceContext.Provider value={element}>
                     <div ref={self => this.element = self} className="surface">
                         {this.props.children}
