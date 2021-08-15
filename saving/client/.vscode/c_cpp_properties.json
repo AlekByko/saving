@@ -1,0 +1,34 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/Users/me/.node-gyp/11.13.0/include/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "NODE_GYP_MODULE_NAME=binding",
+                "USING_UV_SHARED=1",
+                "USING_V8_SHARED=1",
+                "V8_DEPRECATION_WARNINGS=1",
+                "WIN32",
+                "_CRT_SECURE_NO_DEPRECATE",
+                "_CRT_NONSTDC_NO_DEPRECATE",
+                "_HAS_EXCEPTIONS=0",
+                "BUILDING_NODE_EXTENSION",
+                "DEBUG",
+                "_DEBUG",
+                "V8_ENABLE_CHECKS"
+            ],
+            "windowsSdkVersion": "10.0.17763.0",
+            "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.21.27702/bin/Hostx64/x64/cl.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "msvc-x64"
+        }
+    ],
+    "version": 4
+}

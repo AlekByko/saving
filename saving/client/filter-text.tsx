@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { inside } from './inside';
 import { Regarding } from './reacting';
-import { EmptyString } from './text';
+import { EmptyString } from './texting';
 
 export type FilterTextConcern =
     | { about: 'be-typed-text'; text: string; }
