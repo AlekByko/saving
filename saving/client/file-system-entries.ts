@@ -5,4 +5,4 @@ export interface FileSystemEntry {
     name: FileSystemEntryName;
     handle: FileSystemHandle;
 }
-export const knownTaggedImagesDirectoryEntryName = 'tagged-images' as FileSystemEntryName;
+export const knownBaseDirEntryName = 'base-dir' as FileSystemEntryName;
