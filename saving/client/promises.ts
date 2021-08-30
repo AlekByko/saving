@@ -51,9 +51,9 @@ export function toAsyncQueue<State>(
                 all.push(frame);
             }
         },
-        bufferedFeedOf<T>(
+        bulkOf<T>(
             willDo: (state: State, values: T[]) => Promise<State>,
-            maxBufferSize: number,
+            maxBulkSize: number,
             delay: number,
             title?: string,
         ) {
@@ -62,7 +62,7 @@ export function toAsyncQueue<State>(
             return async function queue(value: T) {
                 clearTimeout(scheduled);
                 buffer.push(value);
-                if (buffer.length >= maxBufferSize) {
+                if (buffer.length >= maxBulkSize) {
                     const values = [...buffer];
                     buffer = [];
                     const frame: QueueFrame<State> = state => willDo(state, values);
