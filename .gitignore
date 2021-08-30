@@ -1,5 +1,6 @@
 node_modules
-built
+built/*
+!built/package.json
 *.css
 *.reg
 *.log
