@@ -1,4 +1,4 @@
-import { isNull } from '../shared/core';
+import { isNull } from './shared/core';
 import { getStorage } from './storage';
 
 const storage = getStorage();

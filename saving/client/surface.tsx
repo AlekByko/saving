@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { isNull } from '../shared/core';
 import { insteadEach } from './each';
 import { Point } from './geometry';
+import { isNull } from './shared/core';
 
 type LikeSurfaceDefs<Defs> = { [P in keyof Defs]: React.ComponentClass<any> };
 interface FloatyProps<Key, Props> {

@@ -1,4 +1,4 @@
-import { isUndefined } from '../shared/core';
+import { isUndefined } from './shared/core';
 
 export const noChange = Symbol('no-change');
 export type NoChange = typeof noChange;

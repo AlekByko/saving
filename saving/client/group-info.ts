@@ -1,4 +1,4 @@
-import { As } from '../shared/core';
+import { As } from './shared/core';
 
 export type GroupId = number & As<'group-id'>;
 let lastGroupId = 0;

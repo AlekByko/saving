@@ -1,8 +1,8 @@
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
-import { isNull } from '../shared/core';
 import { Regarding } from './reacting';
 import { EntryInfo, willReadDir } from "./reading-files-from-browser-index-page";
+import { isNull } from './shared/core';
 
 export type FileSystemerConcern =
     | { about: 'be-picked-link'; link: string; };

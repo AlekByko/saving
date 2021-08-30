@@ -1,5 +1,5 @@
-import { same } from '../shared/core';
 import { toMapFromArray } from './maps';
+import { same } from './shared/core';
 
 export function mergeInto<T>(olderAll: T[], toKey: (value: T) => string, newerFew: T[]): T[] {
     const newerByKey = toMapFromArray(newerFew, toKey, same, same);

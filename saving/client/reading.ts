@@ -1,5 +1,5 @@
-import { isNull } from '../shared/core';
 import { eoffedFrom, jammedFrom, passedFrom, Read, Tried } from './parsed';
+import { isNull } from './shared/core';
 
 export function toWholeSubstring(_matched: string[], start: number, index: number, text: string): string {
     return text.substring(start, index);

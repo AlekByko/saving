@@ -1,14 +1,13 @@
 {
     "compilerOptions": {
         "moduleResolution": "node",
-        "outDir": "../../built",
+        "outDir": "../../built/client",
         "lib": [
             "ESNext",
             "dom"
         ],
         "module": "amd",
         "target": "esnext",
-        "rootDirs": ["."],
         "baseUrl": ".",
         "jsx": "react",
         "strictNullChecks": true,

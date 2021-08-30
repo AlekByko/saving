@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { asDefinedOr, isNull } from '../shared/core';
 import { PropsOf } from './reacting';
+import { asDefinedOr, isNull } from './shared/core';
 
 export type LikeSheetDefs<Defs> = { [K in keyof Defs]: React.ComponentClass<any> };
 export type SheetProps<Defs extends LikeSheetDefs<Defs>> = { [K in keyof Defs]: PropsOf<Defs[K]>; };

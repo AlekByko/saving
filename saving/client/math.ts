@@ -1,4 +1,4 @@
-import { fail } from '../shared/core';
+import { fail } from './shared/core';
 
 export function toBaseN(value: number, alphabet: string[], padding: number): string {
     const base = alphabet.length;

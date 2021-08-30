@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { same } from '../shared/core';
 import { Regarding } from './reacting';
+import { same } from './shared/core';
 
 export type ValuePickerConcern<T> =
     | { about: 'be-picked'; picked: T; };

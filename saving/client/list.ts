@@ -1,4 +1,4 @@
-import { isNonNull } from '../shared/core';
+import { isNonNull } from './shared/core';
 
 export type List<T> = Node<T> | null;
 export interface Node<T> {

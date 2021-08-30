@@ -1,7 +1,7 @@
-import { isNonNull, isNull } from '../shared/core';
 import { willFindAllInStoreOf, willPutAllToStoreOf } from "./databasing";
 import { FileSystemEntry, FileSystemEntryName } from "./file-system-entries";
 import { knownDbStores } from "./known-settings";
+import { isNonNull, isNull } from './shared/core';
 
 // https://web.dev/file-system-access/
 

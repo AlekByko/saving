@@ -1,4 +1,4 @@
-import { isDefined, LikeUndefined } from '../shared/core';
+import { isDefined, LikeUndefined } from './shared/core';
 
 export function buildingString(text?: string): BuildingStringing {
     return new BuildingStringing().addIfDefined(text);

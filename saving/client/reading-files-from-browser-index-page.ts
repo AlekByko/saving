@@ -1,4 +1,4 @@
-import { fail, isNull } from '../shared/core';
+import { fail, isNull } from './shared/core';
 import { stripEndOrFail } from "./texting";
 import { Timestamp } from "./time-stamping";
 
