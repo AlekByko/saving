@@ -18,7 +18,7 @@ export function toAsyncQueue<State>(
     willNeverStopExecuting(state, runBefore, willApply, willRunAfter, all);
 
     return {
-        tick(
+        onTick(
             delay: number,
             willDo: (state: State) => Promise<State | NoChange>,
             title?: string,
