@@ -148,10 +148,6 @@ export function flipOver<T, U, R>(fn: (one: T, another: U) => R) {
     };
 }
 
-export function shuffle(): number {
-    return Math.random() - 0.5;
-}
-
 export function notOver<T>(seeIf: (value: T) => boolean) {
     return function not(value: T): boolean {
         return !seeIf(value);
