@@ -1,0 +1,34 @@
+{
+    "files.exclude": {
+        "**/.git": true,
+        "node_modules": true,
+        "scripts": true,
+        "bundled": true,
+        "recorded": true,
+        "**/*.css": true
+    },
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true,
+        "source.fixAll": true
+    },
+    "typescript.preferences.useAliasesForRenames": false,
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.preferences.quoteStyle": "single",
+
+    "editor.autoClosingBrackets": "never",
+    "editor.autoClosingQuotes": "never",
+    "editor.autoSurround": "never",
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "emmet.showExpandedAbbreviation": "never",
+    "workbench.editor.enablePreview": false,
+    "workbench.editor.enablePreviewFromQuickOpen": false,
+    "editor.snippetSuggestions": "bottom",
+    "typescript.tsdk": "../../node_modules/typescript/lib",
+    "eslint.validate": [
+        "typescript",
+        "typescriptreact"
+    ],
+	"editor.insertSpaces": true,
+    "workbench.colorTheme": "Default Light+"
+}
