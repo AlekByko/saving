@@ -1,6 +1,17 @@
 node_modules
+
 built/*
 !built/package.json
+
+plugins/*
+!plugins/chaturbate.py
+!plugins/myfreecams.py
+!plugins/stripchat.py
+!plugins/bongacams.py
+!plugins/camsoda.py
+!plugins/cam4.py
+!plugins/streamate.py
+
 *.css
 *.reg
 *.log
