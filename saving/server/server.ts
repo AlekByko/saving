@@ -12,11 +12,11 @@ const server = createServer(options, async (req, res) => {
     const url = parse(req.url!, true);
     let path = asDefinedOr(url.pathname, '/index.html');
     path = path === '/' ? '/index.html' : path;
-    if (path === '/favicon.ico') return tooBad(req, res, 'Favicon.');
+    if (path === '/favicon.ico') return tooBad(404, req, res, 'Favicon.');
 
     const filepath = join(process.cwd(), path);
     console.log(path, filepath);
-    if (!existsSync(filepath)) return tooBad(req, res, 'No file: ' + filepath);
+    if (!existsSync(filepath)) return tooBad(404, req, res, 'No file: ' + filepath);
     const extension = extname(filepath);
     setContentType(res, extension);
     const file = readFileSync(filepath);
@@ -28,10 +28,11 @@ console.log(`listening at ${port}`);
 console.log(`http://localhost:${port}`);
 server.listen(port);
 
-function tooBad(req: IncomingMessage, res: ServerResponse, message: string): void {
+function tooBad(code: number, req: IncomingMessage, res: ServerResponse, message: string): void {
     console.log('unhandled:');
     console.log(req.url);
     console.log(message);
+    res.statusCode = code;
     res.setHeader('content-type', 'text/plain');
     res.write(message);
     res.end();
@@ -45,6 +46,7 @@ function setContentType(res: ServerResponse, extension: string) {
 
 function toMimeType(extension: string): string | null {
     switch(extension) {
+        case '.ico': return 'image/x-icon';
         case '.js': return 'application/javascript';
         case '.json': return 'application/json';
         case '.jpg': return 'image/jpeg';
