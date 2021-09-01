@@ -11,10 +11,16 @@
         "source.organizeImports": true,
         "source.fixAll": true
     },
+
     "typescript.preferences.useAliasesForRenames": false,
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.preferences.quoteStyle": "single",
+
     "editor.autoClosingBrackets": "never",
     "editor.autoClosingQuotes": "never",
     "editor.autoSurround": "never",
+    "editor.insertSpaces": true,
+
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
     "emmet.showExpandedAbbreviation": "never",
@@ -26,6 +32,5 @@
         "typescript",
         "typescriptreact"
     ],
-	"editor.insertSpaces": true,
     "workbench.colorTheme": "Default Dark+",
 }
