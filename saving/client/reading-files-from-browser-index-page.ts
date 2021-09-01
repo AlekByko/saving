@@ -1,6 +1,6 @@
 import { fail, isNull } from './shared/core';
-import { stripEndOrFail } from "./texting";
-import { Timestamp } from "./time-stamping";
+import { stripEndOrFail } from "./shared/texting";
+import { Timestamp } from "./shared/time-stamping";
 
 export interface FileInfo {
     type: 'file';
