@@ -34,7 +34,7 @@ interface RemoveEntryOptions { recursive: boolean; }
 interface FileSystemDirectoryHandle extends FileSystemHandleBase {
     kind: 'directory';
     name: string;
-    getDirectoryHandle(options: GetFileHandleOptions): Promise<FileSystemDirectoryHandle>;
+    getDirectoryHandle(name: string, options?: GetFileHandleOptions): Promise<FileSystemDirectoryHandle | null>;
     getFileHandle(name: string, options?: GetFileHandleOptions): Promise<FileSystemFileHandle | null>;
     keys(): any;
     values(): AsyncIterableIterator<FileSystemHandle>;

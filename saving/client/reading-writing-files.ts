@@ -48,11 +48,39 @@ export async function checkIfPermitted(handle: FileSystemHandleBase, mode: FileS
     return true;
 }
 
-export async function trySaveFile(targetDir: FileSystemDirectoryHandle | null, name: string, text: string): Promise<null | 'ok'> {
-    if (isNull(targetDir)) return null;
-    if (!await checkIfPermitted(targetDir, 'readwrite')) return null;
+export async function willTryGetDirDeep(baseDir: FileSystemDirectoryHandle | null, names: string[]): Promise<FileSystemDirectoryHandle | null> {
+    let at = baseDir;
+    if (isNull(at)) return null;
 
-    const file = await targetDir.getFileHandle(name);
+    for (const name of names) {
+        at = await tryGetDir(at, name);
+        if (isNull(at)) return null;
+    }
+
+    return at;
+}
+export async function tryGetDir(baseDir: FileSystemDirectoryHandle | null, name: string): Promise<FileSystemDirectoryHandle | null> {
+    if (isNull(baseDir)) return null;
+    if (!await checkIfPermitted(baseDir, 'readwrite')) return null;
+
+    const handle = await baseDir.getDirectoryHandle(name);
+    if (isNull(handle)) return null;
+    if (!await checkIfPermitted(handle, 'readwrite')) return null;
+
+    return handle;
+}
+const createOption: GetFileHandleOptions = { create: true };
+
+export async function willTrySaveFile(
+    baseDir: FileSystemDirectoryHandle | null,
+    name: string,
+    text: string | Blob,
+    shouldCreate: boolean
+): Promise<'ok' | null> {
+    if (isNull(baseDir)) return null;
+    if (!await checkIfPermitted(baseDir, 'readwrite')) return null;
+
+    const file = await baseDir.getFileHandle(name, shouldCreate ? createOption : undefined);
     if (isNull(file)) return null;
     if (!await checkIfPermitted(file, 'readwrite')) return null;
 
