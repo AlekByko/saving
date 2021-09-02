@@ -121,7 +121,7 @@ async function train(model: tf.Sequential, data: MnistData) {
     const TRAIN_DATA_SIZE = 5500;
     const TEST_DATA_SIZE = 1000;
 
-    const [trainXs, trainYs] = tf.tidy(() => {
+    const [trainImages, trainLabels] = tf.tidy(() => {
         const d = data.nextTrainBatch(TRAIN_DATA_SIZE);
         return [
             d.xs.reshape([TRAIN_DATA_SIZE, 28, 28, 1]),
@@ -129,7 +129,7 @@ async function train(model: tf.Sequential, data: MnistData) {
         ];
     });
 
-    const [testXs, testYs] = tf.tidy(() => {
+    const [testImages, testLabels] = tf.tidy(() => {
         const d = data.nextTestBatch(TEST_DATA_SIZE);
         return [
             d.xs.reshape([TEST_DATA_SIZE, 28, 28, 1]),
@@ -137,9 +137,9 @@ async function train(model: tf.Sequential, data: MnistData) {
         ];
     });
 
-    return model.fit(trainXs, trainYs, {
+    return model.fit(trainImages, trainLabels, {
         batchSize: BATCH_SIZE,
-        validationData: [testXs, testYs],
+        validationData: [testImages, testLabels],
         epochs: 10,
         shuffle: true,
         callbacks: fitCallbacks
