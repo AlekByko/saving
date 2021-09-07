@@ -55,3 +55,4 @@ function round(value: number, size: number): number {
 export function rgbToHex(r: number, g: number, b: number): string {
     return '#' + padZeroText(2, r.toString(16)) + padZeroText(2, g.toString(16)) + padZeroText(2, b.toString(16));
 }
+

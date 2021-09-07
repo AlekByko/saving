@@ -1,13 +1,13 @@
 import { LoadedImage } from './imaging';
 import { hslToRgb, rgbToHex, toHue } from './shared/coloring';
-import { isNull } from './shared/core';
+import { fail, isNull } from './shared/core';
 
 export interface CenterMass {
     x: number;
     y: number;
     m: number;
 }
-export function toHueWeights(steps: number, loaded: LoadedImage): CenterMass[] {
+export function calculateColorMasses(steps: number, loaded: LoadedImage): CenterMass[] {
     const { bytes } = loaded;
     const width = loaded.image.naturalWidth;
     const height = loaded.image.naturalHeight;
@@ -32,6 +32,12 @@ export function toHueWeights(steps: number, loaded: LoadedImage): CenterMass[] {
         weights.y += y;
         weights.m += 1;
     }
+
+    const mass = index / 4;
+
+    // gray comes last
+    result.push(gray);
+
     // centring
     result.forEach(weights => {
         if (weights.m > 0) {
@@ -43,8 +49,6 @@ export function toHueWeights(steps: number, loaded: LoadedImage): CenterMass[] {
         }
     });
 
-    const mass = index / 4;
-    result.push(gray);
     // normalizing
     result.forEach(weights => {
         weights.x /= width;
@@ -87,4 +91,22 @@ export function renderColorMasses(loaded: LoadedImage, masses: CenterMass[]) {
         context.strokeStyle = 'white';
         context.stroke();
     }
+}
+
+export function calculateColorMassesDistance(
+    oneMasses: CenterMass[],
+    anotherMasses: CenterMass[],
+): number {
+    if (oneMasses.length !== anotherMasses.length) return fail('Bad masses. Unable to get distance.');
+    let sum = 0;
+    for (let index = 0; index < oneMasses.length; index ++) {
+        const one = oneMasses[index];
+        const another = anotherMasses[index];
+        const dx = one.x - another.x;
+        const dy = one.y - another.y;
+        const dm = one.m - another.m;
+        sum += dx * dx + dy * dy + dm * dm;
+    }
+    const result = Math.sqrt(sum);
+    return result;
 }
