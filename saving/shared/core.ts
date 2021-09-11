@@ -169,9 +169,15 @@ declare global {
     interface Array<T> {
         toSet(): Set<T>;
     }
+    interface Set<T> {
+        toArray(): T[];
+    }
 }
 Array.prototype.toSet = function <T>(this: Array<T>) {
     return new Set(this);
+}
+Set.prototype.toArray = function <T>(this: Set<T>) {
+    return Array.from(this);
 }
 export function toArray() {
     return [];
