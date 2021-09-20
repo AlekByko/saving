@@ -25,3 +25,7 @@ export function quantify(value: number, none: string, singular: string, plural: 
 
 declare const EmptyString: unique symbol;
 export type EmptyString = typeof EmptyString;
+
+export function splitIntoNonBlankLines(text: string): string[] {
+    return text.split('\n').map(x => x.trim()).filter(x => x.length > 0);
+}
