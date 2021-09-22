@@ -6,4 +6,4 @@ export interface FileSystemEntry {
     handle: FileSystemHandle;
 }
 export const knownBaseDirEntryName = 'base-dir' as FileSystemEntryName;
-export const knownRecordedDirEntryName = 'recorded-dir' as FileSystemEntryName;
+export const knownSnapsDirEntryName = 'recorded-dir' as FileSystemEntryName;
