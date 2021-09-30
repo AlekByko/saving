@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'fs';
 import { createServer, IncomingMessage, ServerOptions, ServerResponse } from 'http';
 import { extname, join } from 'path';
 import { parse } from 'url';
-import { asDefinedOr, isNull } from './shared/core';
+import { asNonNullOr, isNull } from './shared/core';
 
 const port = 8081;
 const options: ServerOptions = {
@@ -10,7 +10,7 @@ const options: ServerOptions = {
 
 const server = createServer(options, async (req, res) => {
     const url = parse(req.url!, true);
-    let path = asDefinedOr(url.pathname, '/index.html');
+    let path = asNonNullOr(url.pathname, '/index.html');
     path = path === '/' ? '/index.html' : path;
 
     const filepath = join(process.cwd(), path);
