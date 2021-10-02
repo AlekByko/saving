@@ -109,3 +109,17 @@ export function atMapInsteadOr<K, V, T, Or>(
     const result = toValue(found);
     return result;
 }
+
+export function seeIfMapsEqual<K, V>(
+    one: Map<K, V>,
+    another: Map<K, V>,
+    areEqual: (one: V, another: V) => boolean,
+): boolean {
+    const keys = [...Array.from(one.keys()), ...Array.from(another.keys())].toSet();
+    for (const key of keys) {
+        if (!one.has(key)) return false;
+        if (!another.has(key)) return false;
+        if (!areEqual(one.get(key)!, another.get(key)!)) return false;
+    }
+    return true;
+}
