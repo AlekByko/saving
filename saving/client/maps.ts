@@ -123,3 +123,12 @@ export function seeIfMapsEqual<K, V>(
     }
     return true;
 }
+
+export function copyMap<K, V>(values: Map<K, V>, copy: (value: V) => V): Map<K, V> {
+    const result = new Map<K, V>();
+    for (const [key, value] of values) {
+        const copied = copy(value);
+        result.set(key, copied);
+    }
+    return result;
+}
