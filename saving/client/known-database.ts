@@ -4,7 +4,7 @@ export function willOpenKnownDb(): Promise<IDBDatabase> {
     return new Promise<IDBDatabase>((resolve, reject) => {
         const { name, version,
             tags, cams,
-            fs } = knownDbStores;
+            dirs } = knownDbStores;
         const request = window.indexedDB.open(name, version);
         request.onerror = function () {
             reject(this.error);
@@ -17,7 +17,7 @@ export function willOpenKnownDb(): Promise<IDBDatabase> {
             const db = this.result;
             db.createObjectStore(cams.storeName, { keyPath: cams.keyPath });
             db.createObjectStore(tags.storeName, { keyPath: tags.keyPath });
-            db.createObjectStore(fs.storeName, { keyPath: fs.keyPath });
+            db.createObjectStore(dirs.storeName, { keyPath: dirs.keyPath });
         };
     });
 }

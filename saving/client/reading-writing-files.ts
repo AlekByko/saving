@@ -1,5 +1,5 @@
 import { willFindAllInStoreOf, willPutAllToStoreOf } from "./databasing";
-import { FileSystemEntry, KnownPickedDirRef } from "./file-system-entries";
+import { KnownPickedDirEntry, KnownPickedDirRef } from "./file-system-entries";
 import { knownDbStores } from "./known-settings";
 import { isNull } from './shared/core';
 
@@ -7,12 +7,12 @@ import { isNull } from './shared/core';
 
 export async function willTryGetDirectory(
     db: IDBDatabase,
-    name: KnownPickedDirRef,
+    ref: KnownPickedDirRef,
 ): Promise<FileSystemDirectoryHandle | null> {
-    const { fs } = knownDbStores;
-    const found = await willFindAllInStoreOf<typeof fs.T>(
-        db, fs.storeName,
-        entry => entry.name === name,
+    const { dirs } = knownDbStores;
+    const found = await willFindAllInStoreOf<typeof dirs.T>(
+        db, dirs.storeName,
+        entry => entry.ref === ref,
     );
     if (found.length < 1) return null;
     const [first] = found;
@@ -21,15 +21,15 @@ export async function willTryGetDirectory(
     return handle;
 }
 
-export async function willPickAndSaveTaggedImagesDirectory(
+export async function willPickAndSaveDirAtRef(
     db: IDBDatabase,
-    name: KnownPickedDirRef,
+    ref: KnownPickedDirRef,
 ): Promise<FileSystemDirectoryHandle> {
     const handle = await window.showDirectoryPicker();
-    const { fs } = knownDbStores;
-    const entry: FileSystemEntry = { name, handle };
+    const { dirs } = knownDbStores;
+    const entry: KnownPickedDirEntry = { ref, handle };
     const entries = [entry];
-    await willPutAllToStoreOf<typeof fs.T>(db, entries, fs.storeName);
+    await willPutAllToStoreOf<typeof dirs.T>(db, entries, dirs.storeName);
     return handle;
 }
 
