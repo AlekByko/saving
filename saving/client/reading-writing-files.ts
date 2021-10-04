@@ -21,11 +21,9 @@ export async function willTryGetDirectory(
     return handle;
 }
 
-export async function willPickAndSaveDirAtRef(
-    db: IDBDatabase,
-    ref: KnownPickedDirRef,
-): Promise<FileSystemDirectoryHandle> {
-    const handle = await window.showDirectoryPicker();
+
+
+export async function willSaveDirRef(ref: KnownPickedDirRef, handle: FileSystemDirectoryHandle, db: IDBDatabase) {
     const { dirs } = knownDbStores;
     const entry: KnownPickedDirEntry = { ref, handle };
     const entries = [entry];
