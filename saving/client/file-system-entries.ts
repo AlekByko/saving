@@ -3,7 +3,7 @@ import { As } from './shared/core';
 export type KnownPickedDirRef = string & As<'known-picked-dir-ref'>;
 
 export interface KnownPickedDirEntry {
-    ref: KnownPickedDirRef;
+    name: KnownPickedDirRef;
     handle: FileSystemDirectoryHandle;
 }
 

@@ -12,7 +12,7 @@ export async function willTryGetDirectory(
     const { dirs } = knownDbStores;
     const found = await willFindAllInStoreOf<typeof dirs.T>(
         db, dirs.storeName,
-        entry => entry.ref === ref,
+        entry => entry.name === ref,
     );
     if (found.length < 1) return null;
     const [first] = found;
@@ -25,7 +25,7 @@ export async function willTryGetDirectory(
 
 export async function willSaveDirRef(ref: KnownPickedDirRef, handle: FileSystemDirectoryHandle, db: IDBDatabase) {
     const { dirs } = knownDbStores;
-    const entry: KnownPickedDirEntry = { ref, handle };
+    const entry: KnownPickedDirEntry = { name: ref, handle };
     const entries = [entry];
     await willPutAllToStoreOf<typeof dirs.T>(db, entries, dirs.storeName);
     return handle;
