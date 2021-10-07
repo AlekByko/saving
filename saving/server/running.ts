@@ -4,13 +4,18 @@ interface Ran {
     error: string;
 }
 
-export async function willRunChild(text: string, shouldBeDetached: boolean): Promise<void> {
+export async function willRunChild(text: string, shouldBeDetached: boolean) {
     const [command, ...args] = text.split(' ');
     return willRunChildExt(command, args, shouldBeDetached);
 }
 
-export async function willRunChildExt(command: string, args: string[], shouldBeDetached: boolean): Promise<void> {
-    return new Promise<void>(async resolve => {
+export interface Stdio {
+    stderr: string;
+    stdout: string;
+    code: number | null;
+}
+export async function willRunChildExt(command: string, args: string[], shouldBeDetached: boolean): Promise<Stdio | null> {
+    return new Promise<Stdio | null>(async resolve => {
         console.log(command, args);
         const options: cp.SpawnOptions = {
             detached: shouldBeDetached,
@@ -19,10 +24,39 @@ export async function willRunChildExt(command: string, args: string[], shouldBeD
             env: process.env,
             windowsHide: true,
             windowsVerbatimArguments: true,
-            stdio: shouldBeDetached ? undefined : 'inherit',
+            // below
+            // - "pipe": means stdout and stderr are non null, and parent process can listen to them
+            // - "inherit": means stdout and stderr are null, and parent process gets all output of the child to its console
+            stdio: shouldBeDetached ? undefined : 'pipe',
         };
         // https://nodejs.org/dist./v0.10.44/docs/api/child_process.html#child_process_child_stdio
         const child = cp.spawn(command, args, options);
-        resolve();
-    })
+        if (shouldBeDetached) {
+            resolve(null);
+        } else {
+
+            child.stdout!.pipe(process.stdout);
+            const stdout: string[] = [];
+            for await (const chunk of child.stdout!) {
+                stdout.push(chunk);
+            }
+
+            child.stderr!.pipe(process.stderr);
+            const stderr: string[] = [];
+            for await(const chunk of child.stderr!) {
+                stderr.push(chunk);
+            }
+
+            child.on('exit', code => {
+                child.stdout!.unpipe(undefined);
+                child.stderr!.unpipe(undefined);
+                const result: Stdio = {
+                    stderr: stderr.join(''),
+                    stdout: stdout.join(''),
+                    code,
+                };
+                resolve(result);
+            });
+        }
+    });
 }
