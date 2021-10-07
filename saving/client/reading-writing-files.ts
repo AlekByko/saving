@@ -1,7 +1,8 @@
 import { willFindAllInStoreOf, willPutAllToStoreOf } from "./databasing";
-import { KnownPickedDirEntry, KnownPickedDirRef } from "./file-system-entries";
+import { KnownPickedDirEntry } from "./file-system-entries";
 import { knownDbStores } from "./known-settings";
 import { isNull } from './shared/core';
+import { KnownPickedDirRef } from './shared/identities';
 
 // https://web.dev/file-system-access/
 

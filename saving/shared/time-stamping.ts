@@ -1,5 +1,5 @@
 import { As } from './core';
-import { padZero } from './texting';
+import { padZero, quantify } from './texting';
 
 export type Timestamp = number & As<'timestamp'>;
 
@@ -62,4 +62,18 @@ export function formatElapsed({ days, hours, minutes }: Elapsed): string {
     } else {
         return 'just now';
     }
+}
+
+const knownMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+export function formatTimestampAndElapsedDays(timestamp: Timestamp, now: Timestamp): string {
+    const elapsed = toElapsed(now - timestamp);
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
+    const hour = padZero(2, date.getHours());
+    const minute = padZero(2, date.getMinutes());
+    const days = quantify(elapsed.days, 'today',  '1 d', `${elapsed.days} d`);
+    const mon = knownMonths[month]
+    return `${days}, ${mon} ${day}, ${year}, ${hour}:${minute}`;
 }

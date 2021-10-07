@@ -1,6 +1,4 @@
-import { As } from './shared/core';
-
-export type KnownPickedDirRef = string & As<'known-picked-dir-ref'>;
+import { KnownPickedDirRef } from './shared/identities';
 
 export interface KnownPickedDirEntry {
     name: KnownPickedDirRef;

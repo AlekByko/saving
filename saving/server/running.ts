@@ -1,21 +1,18 @@
 import * as cp from 'child_process';
-interface Ran {
-    output: string;
-    error: string;
-}
 
 export async function willRunChild(text: string, shouldBeDetached: boolean) {
     const [command, ...args] = text.split(' ');
     return willRunChildExt(command, args, shouldBeDetached);
 }
 
-export interface Stdio {
+export interface AppRun {
     stderr: string;
     stdout: string;
     code: number | null;
 }
-export async function willRunChildExt(command: string, args: string[], shouldBeDetached: boolean): Promise<Stdio | null> {
-    return new Promise<Stdio | null>(async resolve => {
+
+export async function willRunChildExt(command: string, args: string[], shouldBeDetached: boolean): Promise<AppRun | null> {
+    return new Promise<AppRun | null>(async resolve => {
         console.log(command, args);
         const options: cp.SpawnOptions = {
             detached: shouldBeDetached,
@@ -50,7 +47,7 @@ export async function willRunChildExt(command: string, args: string[], shouldBeD
             child.on('exit', code => {
                 child.stdout!.unpipe(undefined);
                 child.stderr!.unpipe(undefined);
-                const result: Stdio = {
+                const result: AppRun = {
                     stderr: stderr.join(''),
                     stdout: stdout.join(''),
                     code,
