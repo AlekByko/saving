@@ -1,3 +1,19 @@
+.l-panel(@width) {
+    user-select: none;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    width: @width;
+}
+.r-panel(@left) {
+    user-select: none;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: @left;
+    right: 0px;
+}
 .t-panel(@height) {
     user-select: none;
     position: absolute;
@@ -17,14 +33,23 @@
 .divider {
     user-select: none;
     position: absolute;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    height: 2px;
     background-color: black;
     opacity: 0.0;
-    cursor: ns-resize;
     &:hover {
         opacity: 1.0;
+    }
+    &.as-vertical {
+        cursor: ns-resize;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        height: 2px;
+    }
+    &.as-horizontal {
+        cursor: ew-resize;
+        top: 0px;
+        bottom: 0px;
+        width: 2px;
+        left: 0px;
     }
 }
