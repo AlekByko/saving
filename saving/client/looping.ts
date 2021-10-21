@@ -2,8 +2,8 @@ import { wait } from './promises';
 import { isNonNull, isUndefined } from './shared/core';
 import { Timestamp, toTimestamp } from './shared/time-stamping';
 
-export type JobStep<State> = (state: State) => Promise<State>;
-export type Job<State> = (state: State) => JobStep<State>[];
+export type Task<State> = (state: State) => Promise<State>;
+export type Job<State> = (state: State) => Task<State>[];
 export interface JobController { shouldFinish: boolean; }
 export async function willBeWorking<State>(
     state: State,
@@ -24,9 +24,9 @@ export async function willBeWorking<State>(
             job = jobs.shift();
             if (isUndefined(job)) return lastState; // <-- no jobs
         }
-        const steps = job(lastState);
-        for (const step of steps) {
-            const newerState = await step(lastState);
+        const tasks = job(lastState);
+        for (const task of tasks) {
+            const newerState = await task(lastState);
             if (newerState === lastState) continue;
             await willDigest(newerState);
             lastState = newerState;
@@ -39,7 +39,7 @@ export function stepsIfOver<State>(
     seeIfShouldRun: (state: State) => boolean,
     job: Job<State>,
 ) {
-    return function stepsIf(state: State): JobStep<State>[] {
+    return function stepsIf(state: State): Task<State>[] {
         const shouldRun = seeIfShouldRun(state);
         return shouldRun
             ? job(state)
@@ -52,7 +52,7 @@ export function stepsEveryOver<State>(
     job: Job<State>,
 ) {
     let lastRunAt: Timestamp | null = null;
-    return function stepsEvery(state: State): JobStep<State>[] {
+    return function stepsEvery(state: State): Task<State>[] {
         if (isNonNull(lastRunAt)) {
             let now = toTimestamp();
             const ago = now - lastRunAt;
@@ -68,35 +68,32 @@ export function willRunEmitApplyOver<State, Stuff>(
     willEmit: () => Promise<Stuff>,
     willApply: (state: State, stuff: Stuff) => Promise<State>,
 ) {
-    return function willRunEmitApply(_state: State): JobStep<State>[] {
-        async function step(state: State): Promise<State> {
+    return function willRunEmitApply(_state: State): Task<State>[] {
+        async function task(state: State): Promise<State> {
             const stuff = await willEmit();
             state = await willApply(state, stuff);
             return state;
         }
-        return [step];
+        return [task];
     };
 }
-export function jobFor<State>(
-    willDo: Job<State> = _state => [],
-) {
-    return new JobBuilder<State>(willDo);
+export function jobFor<State>() {
+    return {
+        task(task: Task<State>) {
+            return new JobBuilder<State>(_state => [task]);
+        },
+        emit<Stuff>(
+            willEmit: () => Promise<Stuff>,
+            willApply: (state: State, stuff: Stuff) => Promise<State>
+        ) {
+            return new JobBuilder<State>(willRunEmitApplyOver(willEmit, willApply));
+        }
+    };
 }
 export class JobBuilder<State> {
     constructor(
         public job: Job<State>,
     ) {
-    }
-    emit<Stuff>(
-        willEmit: () => Promise<Stuff>,
-        willApply: (state: State, stuff: Stuff) => Promise<State>
-    ) {
-        this.job = willRunEmitApplyOver(willEmit, willApply);
-        return this;
-    }
-    step(step: JobStep<State>) {
-        this.job = () => [step];
-        return this;
     }
     runIf(seeIfShouldRun: (state: State) => boolean) {
         this.job = stepsIfOver(seeIfShouldRun, this.job);
