@@ -50,7 +50,7 @@ interface FileSystemFileHandle extends FileSystemHandleBase {
     kind: 'file';
     name: string;
     getFile(): Promise<File>;
-    createWritable(): FileSystemWritableFileStream;
+    createWritable(): Promise<FileSystemWritableFileStream>;
 }
 interface FileSystemGetFileOptions {
     create?: boolean;

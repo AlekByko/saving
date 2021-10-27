@@ -86,6 +86,9 @@ export function areNumbersEqual<N extends number>(one: N, another: N): boolean {
 export function areStringsEqual<S extends string>(one: S, another: S): boolean {
     return one === another;
 }
+export function areStringsDifferent<S extends string>(one: S, another: S): boolean {
+    return one !== another;
+}
 
 export function not(isIt: boolean): boolean {
     return !isIt;
@@ -181,4 +184,19 @@ Set.prototype.toArray = function <T>(this: Set<T>) {
 }
 export function toArray() {
     return [];
+}
+
+export function seeIfArraysDifferent<T>(
+    ones: T[],
+    anothers: T[],
+    seeIfDifferent: (one: T, another: T) => boolean,
+): boolean {
+    if (ones.length !== anothers.length) return true;
+    for (let index = 0; index < ones.length; index ++) {
+        const one = ones[index];
+        const another = anothers[index];
+        const areDifferent = seeIfDifferent(one, another);
+        if (areDifferent) return true;
+    }
+    return false;
 }
