@@ -78,12 +78,24 @@ export async function willTrySaveFile(
     if (isNull(baseDir)) return null;
     if (!await willCheckIfPermitted(baseDir, 'readwrite')) return null;
 
-    const file = await baseDir.getFileHandle(name, shouldCreate ? createOption : undefined);
+    const file = await willTryGetFile(baseDir, name, shouldCreate ? createOption : undefined);
     if (isNull(file)) return null;
     if (!await willCheckIfPermitted(file, 'readwrite')) return null;
 
-    const writable = await file.createWritable();
+    const writable = file.createWritable();
     await writable.write(text);
     await writable.close();
     return 'ok';
+}
+
+export async function willTryGetFile(
+    dir: FileSystemDirectoryHandle,
+    name: string,
+    options?: GetFileHandleOptions,
+): Promise<FileSystemFileHandle | null> {
+    try {
+        return await dir.getFileHandle(name, options);
+    } catch (e) {
+        return null; // <-- file is not there
+    }
 }
