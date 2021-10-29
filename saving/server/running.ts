@@ -133,6 +133,10 @@ export function willRunChildAttachedExt(
 
 export function willRunChildAttached(text: string): Promise<number | null> {
     const [command, ...args] = text.split(' ');
+    return willRunChildAttachedExt1(command, args);
+}
+export function willRunChildAttachedExt1(command: string, args: string[]): Promise<number | null> {
+
     console.log(command, args);
     const options: SpawnOptions = {
         detached: false,
