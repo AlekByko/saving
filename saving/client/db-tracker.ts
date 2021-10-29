@@ -87,11 +87,11 @@ export function thusDbTracker<Config, Key extends string>(
             }
         }
 
-        public put(config: Config): void {
+        public async willPut(config: Config): Promise<void> {
             const key = keyOf(config);
             this.dirty.add(key);
             this.all.set(key, config);
-            this.saveNow();
+            return this.saveNow();
         }
 
         public forEach(use: (config: Config) => void): void {
