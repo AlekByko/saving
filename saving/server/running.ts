@@ -1,12 +1,27 @@
 
 import { ChildProcess, spawn, SpawnOptions } from 'child_process';
+import { isNull } from './shared/core';
 
-
-export interface AppRun {
+export type AppRun = NoCodeAppRun | CodedAppRun | ErroredAppRun;
+export interface NoCodeAppRun {
     stderr: string;
     stdout: string;
-    code: number | null;
+    kind: 'no-code-app-run';
 }
+export interface CodedAppRun {
+    kind: 'coded-app-run';
+    stderr: string;
+    stdout: string;
+    code: number;
+}
+
+export interface ErroredAppRun {
+    kind: 'errored-app-run';
+    stderr: string;
+    stdout: string;
+    error: Error;
+}
+
 export interface RunChild { child: ChildProcess; onceDone: Promise<AppRun> }
 export function runChildDetached(text: string): ChildProcess {
     const [command, ...args] = text.split(' ');
@@ -64,18 +79,52 @@ export function willRunChildAttachedExt(
             whenChunk(chunk);
             stderr.push(chunk);
         }
-
+        child.on('disconnect', () => {
+            if (shouldWriteToConsole) {
+                child.stdout!.unpipe(undefined);
+                child.stderr!.unpipe(undefined);
+            }
+            const result: NoCodeAppRun = {
+                kind: 'no-code-app-run',
+                stderr: stderr.join(''),
+                stdout: stdout.join(''),
+            };
+            resolve(result);
+        });
+        child.on('error', error => {
+            if (shouldWriteToConsole) {
+                child.stdout!.unpipe(undefined);
+                child.stderr!.unpipe(undefined);
+            }
+            const result: ErroredAppRun = {
+                kind: 'errored-app-run',
+                stderr: stderr.join(''),
+                stdout: stdout.join(''),
+                error,
+            };
+            resolve(result);
+        });
         child.on('exit', code => {
             if (shouldWriteToConsole) {
                 child.stdout!.unpipe(undefined);
                 child.stderr!.unpipe(undefined);
             }
-            const result: AppRun = {
-                stderr: stderr.join(''),
-                stdout: stdout.join(''),
-                code,
-            };
-            resolve(result);
+            if (isNull(code)) {
+                const result: NoCodeAppRun = {
+                    kind: 'no-code-app-run',
+                    stderr: stderr.join(''),
+                    stdout: stdout.join(''),
+                };
+                resolve(result);
+            } else {
+                const result: CodedAppRun = {
+                    kind: 'coded-app-run',
+                    stderr: stderr.join(''),
+                    stdout: stdout.join(''),
+                    code,
+                };
+                resolve(result);
+            }
         });
     });
     return { child, onceDone };
