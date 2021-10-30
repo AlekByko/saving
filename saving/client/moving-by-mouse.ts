@@ -3,12 +3,10 @@ import { ignore, isNull } from './shared/core';
 export function enableMouseMoving(handleElement: HTMLElement | null, rootElementOrNull: HTMLElement | null): () => void {
     if (isNull(handleElement) || isNull(rootElementOrNull)) return ignore;
     const rootElement = rootElementOrNull;
-
     const thisRect = rootElement.getBoundingClientRect();
-    const dadsRect = rootElement.parentElement!.getBoundingClientRect();
 
-    let x = thisRect.left - dadsRect.left;
-    let y = thisRect.top - dadsRect.top;
+    let x = thisRect.left;
+    let y = thisRect.top
 
     function whenMouseUp(_e: MouseEvent): void {
         document.removeEventListener('mousemove', whenMouseMove);
