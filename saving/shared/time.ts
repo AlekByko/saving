@@ -25,7 +25,7 @@ export function toElapsedOfMiliseconds(value: number): ElapsedMiliseconds {
 
     return { miliseconds, seconds, minutes, hours };
 }
-export function toElapsedOfSeconds(value: number): ElapsedSeconds {
+export function toElapsedSeconds(value: number): ElapsedSeconds {
 
     const seconds = value % 60;
     value = (value - seconds) / 60;
@@ -42,6 +42,6 @@ export function toElapsedOfSeconds(value: number): ElapsedSeconds {
 export function pad2(value: number): string {
     return value.toFixed(0).toString().padStart(2, '0');
 }
-export function formatElapsed({hours, minutes, seconds}: ElapsedSeconds): string {
+export function formatElapsedSeconds({hours, minutes, seconds}: ElapsedSeconds): string {
     return pad2(hours) + ':' + pad2(minutes) + ':' + pad2(seconds);
 }
