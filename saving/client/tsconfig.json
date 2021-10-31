@@ -19,6 +19,12 @@
         "noUnusedLocals": true,
         "strictFunctionTypes": true,
         "noStrictGenericChecks": false,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "alwaysStrict": true,
+        "strictPropertyInitialization": true,
+        "noImplicitOverride": false, // <-- render method on react components
+        "strictBindCallApply": true,
+        "noImplicitAny": true,
+        "noUncheckedIndexedAccess": false // <-- check for undefined anywhere object[key]
     }
 }
