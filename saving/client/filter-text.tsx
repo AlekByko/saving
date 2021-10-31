@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Regarding } from './reacting';
-import { inside } from './shared/inside';
+import { safeInside } from './shared/inside';
 import { EmptyString } from './shared/texting';
 
 export type FilterTextConcern =
@@ -18,7 +18,7 @@ export interface FilterTextProps {
     criteria: FilterCriteria;
     regarding: Regarding<FilterTextConcern>;
 }
-export const inFilterTextProps = inside<FilterTextProps>();
+export const inFilterTextProps = safeInside<FilterTextProps>();
 
 export class FilterText extends React.PureComponent<FilterTextProps> {
     render() {
