@@ -2,7 +2,9 @@ import { wait } from './promises';
 import { isNonNull, isUndefined } from './shared/core';
 import { Timestamp, toTimestamp } from './shared/time-stamping';
 
-export type Task<State> = (state: State) => Promise<State>;
+export type Context = unknown;
+export type TaskResult<State> = [State, Context];
+export type Task<State> = (state: State, context: Context) => Promise<TaskResult<State>>;
 export type Job<State> = (state: State) => Task<State>[];
 export interface JobController { shouldFinish: boolean; dontWait: () => void; }
 
@@ -23,7 +25,7 @@ export async function willBeWorking<State>(
         let job = jobs.shift();
         if (isUndefined(job)) {
             if (shouldWait) {
-                console.log('waiting: ' + (x ++));
+                console.log('waiting: ' + (x++));
                 await wait(delay, controller);
             }
             refill(jobs);
@@ -32,11 +34,13 @@ export async function willBeWorking<State>(
             if (isUndefined(job)) return lastState; // <-- no jobs
         }
         const tasks = job(lastState);
+        let lastContext: Context = undefined;
         for (const task of tasks) {
-            const newerState = await task(lastState);
-            if (newerState === lastState) continue;
-            await willDigest(newerState);
-            lastState = newerState;
+            const [nextState, nextContext] = await task(lastState, lastContext);
+            lastContext = nextContext;
+            if (nextState === lastState) continue;
+            await willDigest(nextState);
+            lastState = nextState;
             shouldWait = false; // <-- we had at least one async operation resulting into state change, so no need to add a pause before refilling jobs
         }
     }
@@ -71,33 +75,59 @@ export function jobEveryOver<State>(
     };
 }
 
-export function emitJobOver<State, Stuff>(
+export function nowJobOver<State, Stuff>(
     willEmit: () => Promise<Stuff>,
     willApply: (state: State, stuff: Stuff) => Promise<State>,
 ) {
     return function emitJob(_state: State): Task<State>[] {
-        async function task(state: State): Promise<State> {
+        async function task(state: State): Promise<[State, Context]> {
             const stuff = await willEmit();
             state = await willApply(state, stuff);
-            return state;
+            return [state, undefined];
         }
         return [task];
     };
 }
-export function jobingFor<State>() {
-    return {
-        task(task: Task<State>) {
-            return new JobBuilder<State>(_state => [task]);
-        },
-        emit<Stuff>(
-            willEmit: () => Promise<Stuff>,
-            willApply: (state: State, stuff: Stuff) => Promise<State>
-        ) {
-            return new JobBuilder<State>(emitJobOver(willEmit, willApply));
+export function laterJobOver<State, Stuff>(
+    willEmit: () => Promise<Stuff>,
+) {
+    return function emitJob(_state: State): Task<State>[] {
+        async function task(state: State): Promise<[State, Context]> {
+            const stuff = await willEmit();
+            return [state, stuff];
         }
+        return [task];
     };
 }
-export class JobBuilder<State> {
+
+export function jobingFor<State>() {
+    return new JobBuilderFirst<State>();
+}
+export class JobBuilderFirst<State> {
+
+    quick(step: (state: State) => State) {
+        const task: Task<State> = async (state, context) => [step(state), context];
+        return new JobBuilderLater<State>(_state => [task]);
+    }
+
+    long(step: (state: State) => Promise<State>) {
+        const task: Task<State> = async (state, context) => [await step(state), context];
+        return new JobBuilderLater<State>(_state => [task]);
+    }
+
+    now<Stuff>(
+        willEmit: () => Promise<Stuff>,
+        willApply: (state: State, stuff: Stuff) => Promise<State>
+    ) {
+        return new JobBuilderLater<State>(nowJobOver(willEmit, willApply));
+    }
+
+    later<Stuff>(willEmit: () => Promise<Stuff>) {
+        return new JobBuilderLater<State>(laterJobOver(willEmit));
+    }
+
+}
+export class JobBuilderLater<State> {
     constructor(
         public job: Job<State>,
     ) {
@@ -114,7 +144,7 @@ export class JobBuilder<State> {
         this.job = alterOver(this.job, alter);
         return this;
     }
-    overTo<R>(over: (builder: JobBuilder<State>) => R): R {
+    overTo<R>(over: (builder: JobBuilderLater<State>) => R): R {
         return over(this);
     }
 }
