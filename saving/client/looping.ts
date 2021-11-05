@@ -154,11 +154,11 @@ export class JobBuilderLater<State> {
 
 export class TaskCollector<State, ContextIn> {
     constructor(
-        public tasks: Task<State, ContextIn>[],
+        public tasks: Task<State>[],
     ) {
     }
     task<ContextOut>(task: Task<State, ContextIn, ContextOut>) : TaskCollector<State, ContextOut>{
-        this.tasks.push(task);
+        this.tasks.push(task as any);
         return this as any;
     }
 }
