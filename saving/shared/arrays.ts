@@ -100,6 +100,17 @@ module arrays {
         }
         return true;
     }
+    export function countsOfThatInArray<T, U>(values: T[], of: (value: T) => U, isThat: (value: U) => boolean): number {
+        let count = 0;
+        for (let index = 0; index < values.length; index ++) {
+            const value = values[index];
+            const that = of(value);
+            if (isThat(that)) {
+                count += 1;
+            }
+        }
+        return count;
+    }
 
     export function countAllThat<T>(values: T[], isThat: (value: T) => boolean): number {
         let count = 0;
