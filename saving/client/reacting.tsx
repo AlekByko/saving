@@ -1,10 +1,14 @@
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import { Point, pointFrom } from './geometry';
+import { isDefined } from './shared/core';
 
 export type Regarding<Concern> = (concern: Concern) => void;
 export function addClassIf(shouldAdd: boolean, className: string): string {
     return shouldAdd ? ' ' + className : '';
+}
+export function addClassIfDefined(className: string | undefined): string {
+    return isDefined(className) ? ' ' + className : '';
 }
 let lastKey = 0;
 export function toNextKey(): string {

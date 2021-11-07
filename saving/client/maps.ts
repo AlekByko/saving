@@ -132,3 +132,10 @@ export function copyMap<K, V>(values: Map<K, V>, copy: (value: V) => V): Map<K, 
     }
     return result;
 }
+
+export function setAllInMap<K, V>(values: Map<K, V>, defaultValue: V): void {
+    const keys = values.keys();
+    for (const key of keys) {
+        values.set(key, defaultValue);
+    }
+}
