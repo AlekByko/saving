@@ -14,7 +14,7 @@ export function enableSelecting<At, Item>(
         selected.set(at, flipped);
     }
 
-    function whenShiftClickedCap(at: At, all: Item[], selected: Map<At, boolean>): void {
+    function whenShiftClickedCap(at: At, all: Item[], selected: Map<At, boolean>, shouldForce: boolean): void {
         const isSelected = selected.get(at)!;
         if (isNonNull(startAt)) {
             const firstAt = seeWhichComesFirst(startAt, at);
@@ -25,12 +25,18 @@ export function enableSelecting<At, Item>(
                 const at = atOf(item);
                 if (at === firstAt) {
                     isIn = true;
-                    selected.set(at, flipped);
+                    if (!selected.has(at) || shouldForce) {
+                        selected.set(at, flipped);
+                    }
                 } else if (at === lastAt) {
                     isIn = false;
-                    selected.set(at, flipped);
+                    if (!selected.has(at) || shouldForce) {
+                        selected.set(at, flipped);
+                    }
                 } else if (isIn) {
-                    selected.set(at, flipped);
+                    if (!selected.has(at) || shouldForce) {
+                        selected.set(at, flipped);
+                    }
                 } else {
                     // do nothing
                 }
