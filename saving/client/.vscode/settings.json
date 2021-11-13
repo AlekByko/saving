@@ -26,7 +26,7 @@
     "emmet.showExpandedAbbreviation": "never",
     "workbench.editor.enablePreview": false,
     "workbench.editor.enablePreviewFromQuickOpen": false,
-    "editor.snippetSuggestions": "bottom",
+    "editor.snippetSuggestions": "none",
     "typescript.tsdk": "../../node_modules/typescript/lib",
     "eslint.validate": [
         "typescript",
