@@ -1,49 +1,85 @@
 import { isNonNull } from './shared/core';
 
-export function enableSelecting<At, Item>(
-    atOf: (item: Item) => At,
-    seeWhichComesFirst: (one: At, another: At) => At,
-    seeWhichComesLast: (one: At, another: At) => At,
+export function enableSelecting<Order, Item>(
+    orderOf: (item: Item) => Order,
+    coordsOf: (item: Item) => [number, number],
+    seeWhichComesFirst: (one: Order, another: Order) => Order,
+    seeWhichComesLast: (one: Order, another: Order) => Order,
 ) {
 
-    let startAt: At | null = null;
-    function whenClickedCap(at: At, selected: Map<At, boolean>) {
-        startAt = at;
-        const isSelected = selected.get(at)!;
+    let startItem: Item | null = null;
+    function whenClickedCap(item: Item, selected: Map<Order, boolean>) {
+        startItem = item;
+        const order = orderOf(item);
+        const isSelected = selected.get(order)!;
         const flipped = !isSelected;
-        selected.set(at, flipped);
+        selected.set(order, flipped);
     }
 
-    function whenShiftClickedCap(at: At, all: Item[], selected: Map<At, boolean>, shouldForce: boolean): void {
-        const isSelected = selected.get(at)!;
-        if (isNonNull(startAt)) {
-            const firstAt = seeWhichComesFirst(startAt, at);
-            const lastAt = seeWhichComesLast(startAt, at);
-            const flipped = !isSelected;
-            let isIn = false;
-            for (const item of all) {
-                const at = atOf(item);
-                if (at === firstAt) {
-                    isIn = true;
-                    if (!selected.has(at) || shouldForce) {
-                        selected.set(at, flipped);
+    function whenShiftClickedCap(
+        item: Item,
+        all: Item[],
+        selected: Map<Order, boolean>,
+        shouldForce: boolean,
+        shouldSquare: boolean,
+    ): void {
+        if (isNonNull(startItem)) {
+            if (shouldSquare) {
+                // doing square range
+                const endItem = item;
+                const [startCol, startRow] = coordsOf(startItem);
+                const [endCol, endRow] = coordsOf(endItem);
+                const firstCol = Math.min(startCol, endCol);
+                const firstRow = Math.min(startRow, endRow);
+                const lastCol = Math.max(startCol, endCol);
+                const lastRow = Math.max(startRow, endRow);
+                for (const item of all) {
+                    const [col, row] = coordsOf(item);
+                    const isIn =col >= firstCol && col <= lastCol && row >= firstRow && row <= lastRow;
+                    if (isIn) {
+                        const order = orderOf(item);
+                        if (!selected.get(order) || shouldForce) {
+                            selected.set(order, true);
+                        }
+                    } else {
+                        // do nothing
                     }
-                } else if (at === lastAt) {
-                    isIn = false;
-                    if (!selected.has(at) || shouldForce) {
-                        selected.set(at, flipped);
+                }
+            } else {
+                // doing order range
+                const startOrder = orderOf(startItem);
+                const endOrder = orderOf(item);
+                const firstOrder = seeWhichComesFirst(startOrder, endOrder);
+                const lastOrder = seeWhichComesLast(startOrder, endOrder);
+                const isSelected = selected.get(endOrder)!;
+                const flipped = !isSelected;
+                let isIn = false;
+                for (const nextItem of all) {
+                    const order = orderOf(nextItem);
+                    if (order === firstOrder) {
+                        isIn = true;
+                        if (!selected.get(order) || shouldForce) {
+                            selected.set(order, flipped);
+                        }
+                    } else if (order === lastOrder) {
+                        isIn = false;
+                        if (!selected.get(order) || shouldForce) {
+                            selected.set(order, flipped);
+                        }
+                    } else if (isIn) {
+                        if (!selected.get(order) || shouldForce) {
+                            selected.set(order, flipped);
+                        }
+                    } else {
+                        // do nothing
                     }
-                } else if (isIn) {
-                    if (!selected.has(at) || shouldForce) {
-                        selected.set(at, flipped);
-                    }
-                } else {
-                    // do nothing
                 }
             }
         } else {
-            startAt = at;
-            selected.set(at, true);
+            // doing single
+            startItem = item;
+            const order = orderOf(item);
+            selected.set(order, true);
         }
     }
 
