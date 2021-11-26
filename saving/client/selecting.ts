@@ -36,10 +36,11 @@ export function enableSelecting<Order, Item>(
                 const lastRow = Math.max(startRow, endRow);
                 for (const item of all) {
                     const [col, row] = coordsOf(item);
-                    const isIn =col >= firstCol && col <= lastCol && row >= firstRow && row <= lastRow;
+                    const isSet = isSetOf(item);
+                    const isIn = col >= firstCol && col <= lastCol && row >= firstRow && row <= lastRow;
                     if (isIn) {
                         const order = orderOf(item);
-                        if (!selected.get(order) || shouldForce) {
+                        if (seeIfCanSet(isSet, shouldForce)) {
                             selected.set(order, true);
                         }
                     } else {
@@ -57,19 +58,19 @@ export function enableSelecting<Order, Item>(
                 let isIn = false;
                 for (const nextItem of all) {
                     const order = orderOf(nextItem);
-                    const isSet = isSetOf(item)
+                    const isSet = isSetOf(item);
                     if (order === firstOrder) {
                         isIn = true;
-                        if (!isSet || shouldForce) {
+                        if (seeIfCanSet(isSet, shouldForce)) {
                             selected.set(order, flipped);
                         }
                     } else if (order === lastOrder) {
                         isIn = false;
-                        if (!isSet || shouldForce) {
+                        if (seeIfCanSet(isSet, shouldForce)) {
                             selected.set(order, flipped);
                         }
                     } else if (isIn) {
-                        if (!isSet || shouldForce) {
+                        if (seeIfCanSet(isSet, shouldForce)) {
                             selected.set(order, flipped);
                         }
                     } else {
@@ -87,3 +88,7 @@ export function enableSelecting<Order, Item>(
 
     return { whenClickedCap, whenShiftClickedCap };
 }
+function seeIfCanSet(isSet: boolean, shouldForce: boolean) {
+    return !isSet || shouldForce;
+}
+
