@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import { Point, pointFrom } from './geometry';
-import { isDefined } from './shared/core';
+import { isDefined, isNonNull } from './shared/core';
 
 export type Regarding<Concern> = (concern: Concern) => void;
 export function addClassIf(shouldAdd: boolean, className: string): string {
@@ -35,7 +35,7 @@ export function willRerenderOver<Props>(Root: ReactConstructor<Props>, rootEleme
     return function willRender(props: Props): Promise<void> {
         return new Promise<void>(resolve => {
             ReactDom.render(
-                <Root { ...props } />, rootElement,
+                <Root {...props} />, rootElement,
                 () => resolve(),
             );
         });
@@ -47,4 +47,12 @@ export function openLink(url: string) {
     link.href = url;
     link.target = 'hidden';
     link.click();
+}
+
+export function seeIfReffed<Element>(
+    ref: React.Ref<Element>,
+): ref is React.RefObject<Element> & { current: Element; } {
+    return isNonNull(ref)
+    && !(ref instanceof Function)
+    && isNonNull(ref.current)
 }
