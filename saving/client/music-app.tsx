@@ -18,19 +18,19 @@ const ns = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
 const just = [1, 1.0417, 1.1250, 1.2000, 1.2500, 1.3333, 1.4063, 1.5000, 1.6000, 1.6667, 1.8000, 1.8750];
 const tempered = iterate(0, 1, 12, i => Math.pow(a, i));
 void just, tempered;
-const scale = just;
+const scale = tempered;
 
 const NoteCircle = thusNoteCircle(ns, scale, startFreq);
 
 export class MusicApp extends React.Component<MusicAppProps> {
-
+    private picked: number[] = [];
     regardingNoteCircle: Regarding<NoteCircleConcern> = concern => {
 
         if (isNull(this.controller)) return;
 
         switch (concern.about) {
             case 'be-sampled-note': {
-                this.controller.makeOscillator(concern.i);
+                this.picked.push(concern.i);
                 return;
             }
             default: return broke(concern.about);
@@ -44,9 +44,19 @@ export class MusicApp extends React.Component<MusicAppProps> {
         this.controller = new AudioController(scale, startFreq);
         this.forceUpdate();
     };
-
+    whenGo = () => {
+        const {picked, controller} = this;
+        if (isNull(controller)) return;
+        controller.makeChord(picked);
+    }
     render() {
         if (isNull(this.controller)) return <div><button onClick={this.whenStart}>Start</button></div>;
-        return <NoteCircle regarding={this.regardingNoteCircle} />;
+
+        return <div>
+            <NoteCircle regarding={this.regardingNoteCircle} />
+            <div>
+                <button onClick={this.whenGo}>Go</button>
+            </div>
+        </div>;
     }
 }

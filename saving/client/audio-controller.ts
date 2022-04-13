@@ -8,6 +8,19 @@ export class AudioController {
     ) {
     }
 
+    makeChord(picked: number[]) {
+        const { audioCtx, audioCtx: { currentTime }, scale, startFreq } = this;
+        picked.forEach(i => {
+
+            const oscillator = audioCtx.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.connect(audioCtx.destination);
+            const freq = startFreq * scale[i];
+            oscillator.frequency.setValueAtTime(freq, currentTime);
+            oscillator.start();
+
+        });
+    }
     makeOscillator(i: number) {
         const { audioCtx, scale, startFreq } = this;
         const oscillator = audioCtx.createOscillator();
