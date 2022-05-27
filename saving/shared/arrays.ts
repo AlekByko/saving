@@ -143,6 +143,17 @@ module arrays {
         return instead(values[values.length - 1]);
     }
 
+    export function iterate<T>(start: number, step: number, count: number, make: (at: number) => T): T[] {
+        const result: T[] = [];
+        let i = 0;
 
+        while(i < count) {
+            const at = start + step * i;
+            const value = make(at);
+            result.push(value);
+            i += 1;
+        }
+        return result;
+    }
 }
 export = arrays;

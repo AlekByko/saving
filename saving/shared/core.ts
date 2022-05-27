@@ -220,3 +220,35 @@ export const emptySet: Set<never> = {
     // @ts-ignore
     values() { }
 }
+
+
+/**
+     * Performs a binary search, finding the index at which an object with `key` occurs in `array`.
+     * If no such index is found, returns the 2's-complement of first index at which
+     * `array[index]` exceeds `key`.
+     */
+export function binarySearch<T, U>(
+    array: T[],
+    key: U,
+    keyOf: (v: T, i: number) => U,
+    compareKeys: Compare<U>,
+    low: number,
+): number {
+
+    let high = array.length - 1;
+    while (low <= high) {
+        const middle = low + ((high - low) >> 1);
+        const midKey = keyOf(array[middle], middle);
+        const compared = compareKeys(midKey, key);
+        if (compared < 0) {
+            low = middle + 1;
+            continue;
+        }
+        if (compared > 0) {
+            high = middle - 1;
+            continue;
+        }
+        return middle;
+    }
+    return ~low;
+}
