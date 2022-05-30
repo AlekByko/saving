@@ -223,10 +223,10 @@ export const emptySet: Set<never> = {
 
 
 /**
-     * Performs a binary search, finding the index at which an object with `key` occurs in `array`.
-     * If no such index is found, returns the 2's-complement of first index at which
-     * `array[index]` exceeds `key`.
-     */
+ * Performs a binary search, finding the index at which an object with `key` occurs in `array`.
+ * If no such index is found, returns the 2's-complement of first index at which
+ * `array[index]` exceeds `key`.
+ */
 export function binarySearch<T, U>(
     array: T[],
     key: U,

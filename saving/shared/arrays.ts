@@ -106,6 +106,10 @@ module arrays {
         return values.length > 0 ? values.some(isThat) : or;
     }
 
+    export function hasAnyAlikeOr<T, Or>(values: T[], sample: T, areAlike: (one: T, another: T) => boolean, or: Or): boolean | Or {
+        return hasAnyThatOr(values, value => areAlike(value, sample), or);
+    }
+
     export function hasAllThatOr<T, Or>(values: T[], isThat: (value: T) => boolean, or: Or): boolean | Or {
         if (values.length <= 0) return or;
         for (let index = 0; index < values.length; index++) { // <-- must be from first to last, because used for boolean operations, where this very order is a must
