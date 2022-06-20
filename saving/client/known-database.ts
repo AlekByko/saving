@@ -1,5 +1,5 @@
 import { knownDbStores } from "./known-settings";
-import { CamConfig } from './shared/cam-config';
+import { camConfigNames } from './shared/cam-config';
 import { isNonNull, isNull } from './shared/core';
 import { StoreName } from './shared/identities';
 
@@ -38,8 +38,7 @@ export function willOpenKnownDb(): Promise<IDBDatabase> {
 
             const store = tryGetStore(transation, knownDbStores.cams.storeName);
             if (isNull(store)) return;
-            const keyName: keyof CamConfig = 'rank';
-            store.createIndex('rank', keyName, { unique: false });
+            store.createIndex(camConfigNames.rank, camConfigNames.rank, { unique: false });
         };
     });
 }

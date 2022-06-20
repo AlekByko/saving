@@ -1,6 +1,7 @@
 import { willFindAllInStoreOf, willFindOneInStoreOf, willPutAllToStoreOf } from './databasing';
+import { camConfigNames } from './shared/cam-config';
 import { fail, isUndefined, same } from './shared/core';
-import { StoreName } from './shared/identities';
+import { CamRank, StoreName } from './shared/identities';
 
 export function thusDbTracker<Config, Key extends string>(
     storeName: StoreName,
@@ -13,15 +14,15 @@ export function thusDbTracker<Config, Key extends string>(
 
         constructor(private db: IDBDatabase) { }
 
-        public async willPullAll(keys: Set<Key>): Promise<void> {
+        public async willPullAll(keys: Set<Key>, rank: CamRank | null): Promise<void> {
             this.saveNow();
             const configs = await willFindAllInStoreOf<Config>(
-                this.db, storeName, config => keys.has(keyOf(config)), undefined,
-                // store => {
-                //     const index = store.index(camConfigNames.rank);
-                //     const range = IDBKeyRange.only(rank);
-                //     return index.openCursor(range);
-                // }
+                this.db, storeName, config => keys.has(keyOf(config)),
+                store => {
+                    const index = store.index(camConfigNames.rank);
+                    const range = IDBKeyRange.only(rank);
+                    return index.openCursor(range);
+                }
             );
             configs.forEach(config => {
                 this.all.set(keyOf(config), config);
