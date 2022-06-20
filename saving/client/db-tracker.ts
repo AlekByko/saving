@@ -14,7 +14,7 @@ export function thusDbTracker<Config, Key extends string>(
 
         constructor(private db: IDBDatabase) { }
 
-        public async willPullAll(keys: Set<Key>, rank: CamRank | null): Promise<void> {
+        public async willPullAll(keys: Set<Key>, rank: CamRank | null | undefined): Promise<void> {
             this.saveNow();
             const configs = await willFindAllInStoreOf<Config>(
                 this.db, storeName, config => keys.has(keyOf(config)),
