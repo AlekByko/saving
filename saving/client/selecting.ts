@@ -9,7 +9,8 @@ export function enableSelecting<Order, Item>(
 ) {
 
     let startItem: Item | null = null;
-    function whenClickedCap(item: Item, selected: Map<Order, boolean>) {
+
+    function whenClicked(item: Item, selected: Map<Order, boolean>) {
         startItem = item;
         const order = orderOf(item);
         const isSelected = selected.get(order)!;
@@ -17,7 +18,7 @@ export function enableSelecting<Order, Item>(
         selected.set(order, flipped);
     }
 
-    function whenShiftClickedCap(
+    function whenShiftClicked(
         item: Item,
         all: Item[],
         selected: Map<Order, boolean>,
@@ -53,25 +54,23 @@ export function enableSelecting<Order, Item>(
                 const endOrder = orderOf(item);
                 const firstOrder = seeWhichComesFirst(startOrder, endOrder);
                 const lastOrder = seeWhichComesLast(startOrder, endOrder);
-                const isSelected = selected.get(endOrder)!;
-                const flipped = !isSelected;
                 let isIn = false;
                 for (const nextItem of all) {
                     const order = orderOf(nextItem);
-                    const isSet = isSetOf(item);
+                    const isSet = isSetOf(nextItem);
                     if (order === firstOrder) {
                         isIn = true;
                         if (seeIfCanSet(isSet, shouldForce)) {
-                            selected.set(order, flipped);
+                            selected.set(order, true);
                         }
                     } else if (order === lastOrder) {
                         isIn = false;
                         if (seeIfCanSet(isSet, shouldForce)) {
-                            selected.set(order, flipped);
+                            selected.set(order, true);
                         }
                     } else if (isIn) {
                         if (seeIfCanSet(isSet, shouldForce)) {
-                            selected.set(order, flipped);
+                            selected.set(order, true);
                         }
                     } else {
                         // do nothing
@@ -86,9 +85,9 @@ export function enableSelecting<Order, Item>(
         }
     }
 
-    return { whenClickedCap, whenShiftClickedCap };
+    return { whenClicked, whenShiftClicked };
 }
-function seeIfCanSet(isSet: boolean, shouldForce: boolean) {
+function seeIfCanSet(isSet: boolean, shouldForce: boolean): boolean {
     return !isSet || shouldForce;
 }
 
