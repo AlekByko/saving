@@ -1,12 +1,14 @@
 import { willFindAllInStoreOf, willFindOneInStoreOf, willPutAllToStoreOf } from './databasing';
 import { fail, isUndefined, same } from './shared/core';
 import { StoreName } from './shared/identities';
+import { Timestamp, toTimestamp } from './shared/time-stamping';
 
 export function thusDbTracker<Config, Key extends string, Query>(
     storeName: StoreName,
     delay: number,
     keyOf: (config: Config) => Key,
     openCursor: (store: IDBObjectStore, query: Query) => IDBRequest<IDBCursorWithValue | null>,
+    setLastSaved: (config: Config, now: Timestamp) => void,
 ) {
     return class DbTracker {
         private dirty = new Set<Key>();
@@ -127,6 +129,10 @@ export function thusDbTracker<Config, Key extends string, Query>(
             if (this.isSaving) return;
             this.isSaving = true;
             const configs = this.toUnsavedConfigs();
+            const now = toTimestamp();
+            configs.forEach(config => {
+                setLastSaved(config, now);
+            });
             await willPutAllToStoreOf(this.db, configs, storeName);
             console.log('saved to db', configs);
             this.isSaving = false;
