@@ -1,0 +1,1 @@
+call taskkill.exe /F /IM python.exe
