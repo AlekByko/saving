@@ -39,8 +39,8 @@ export function readReg<T>(
     text: string, index: number, regexp: RegExp,
     parse: (matched: RegExpExecArray) => T,
 ): Choked | Read<T> {
-    if (!regexp.global) return fail('Regexp has to be global (and sticky) .../gy: ' + regexp.source);
-    if (!regexp.sticky) return fail('Regexp has to be sticky (and global) .../gy: ' + regexp.source);
+    if (!regexp.global) return fail('Regexp has to be global to update the lastIndex./gy: ' + regexp.source);
+    if (!regexp.sticky) return fail('Regexp has to be sticky to respect the lastIndex./gy: ' + regexp.source);
     regexp.lastIndex = index;
     const matched = regexp.exec(text);
     if (isNull(matched)) return chokedFrom(index);
