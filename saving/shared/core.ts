@@ -252,3 +252,8 @@ export function binarySearch<T, U>(
     }
     return ~low;
 }
+
+export function why(message: string): void {
+    console.log(message);
+    return;
+}
