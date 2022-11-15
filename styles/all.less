@@ -65,6 +65,25 @@ body {
 @import './caps.less';
 @import './telegram.less';
 
+
+.surface {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+}
+
+.dialog {
+    @width: 400px;
+    position: absolute;
+    top: 200px;
+    width: @width;
+    left: 50%;
+    margin-left: -@width/2;
+    background-color: aqua;
+}
+
 label {
     cursor: pointer;
 }
