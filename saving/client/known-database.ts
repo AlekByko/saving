@@ -35,10 +35,17 @@ export function willOpenKnownDb(): Promise<IDBDatabase> {
             if (!hasStore(transation, knownDbStores.dirs.storeName)) {
                 db.createObjectStore(knownDbStores.dirs.storeName, { keyPath: knownDbStores.dirs.keyPath });
             }
+            if (!hasStore(transation, knownDbStores.words.storeName)) {
+                db.createObjectStore(knownDbStores.words.storeName, { keyPath: knownDbStores.words.keyPath });
+            }
 
             const store = tryGetStore(transation, knownDbStores.cams.storeName);
             if (isNull(store)) return;
-            store.createIndex(camConfigNames.rank, camConfigNames.rank, { unique: false });
+
+            const rankIndexName = camConfigNames.rank;
+            if (!store.indexNames.contains(rankIndexName)) {
+                store.createIndex(rankIndexName, camConfigNames.rank, { unique: false });
+            }
         };
     });
 }
