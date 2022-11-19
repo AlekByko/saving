@@ -253,7 +253,7 @@ export function binarySearch<T, U>(
     return ~low;
 }
 
-export function why(message: string): void {
+export function why(message: string): undefined {
     console.log(message);
-    return;
+    return undefined;
 }
