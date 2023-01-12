@@ -1,0 +1,20 @@
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="./styles/all.css" />
+    <script type="text/javascript">
+        window.onload = function() {
+            const element = document.createElement('script');
+            element.src = './node_modules/requirejs/require.js';
+            element.setAttribute('data-main', window.location.search.replace('?', ''));
+            document.body.appendChild(element);
+        }        
+    </script>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script src="./require-config.js"></script>
+</body>
+
+</html>
