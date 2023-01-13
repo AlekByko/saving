@@ -171,6 +171,7 @@ export function isObject<T extends object>(value: unknown): value is T {
 declare global {
     interface Array<T> {
         toSet(): Set<T>;
+        toSetInstead<U>(instead: (value: T) => U): Set<U>;
     }
     interface Set<T> {
         toArray(): T[];
@@ -178,6 +179,13 @@ declare global {
 }
 Array.prototype.toSet = function <T>(this: Array<T>) {
     return new Set(this);
+}
+Array.prototype.toSetInstead = function <T, U>(this: Array<T>, instead: (value: T) => U): Set<U> {
+    const result = new Set<U>();
+    for (let index = 0; index < this.length; index ++) {
+        result.add(instead(this[index]));
+    }
+    return result;
 }
 Set.prototype.toArray = function <T>(this: Set<T>) {
     return Array.from(this);
