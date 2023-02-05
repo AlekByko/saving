@@ -3,7 +3,7 @@ import { to } from './shared/core';
 
 export interface NumbericValueEditortProps {
     value: number;
-    context: unknown;
+    context: any;
     onChange: (value: number) => void;
 }
 
