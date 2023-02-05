@@ -1,20 +1,23 @@
 @cap-width: 360px;
 @cap-height: 270px;
 
-html, body {
+html,
+body {
     overflow-y: visible;
 }
+
 body {
     font-family: monospace;
     margin: 0px;
     padding: 0px;
-	padding-bottom: 50%;
+    padding-bottom: 50%;
 }
 
 .bar {
     display: flex;
     flex-direction: row;
 }
+
 .dip {
     flex: 1;
 }
@@ -23,8 +26,20 @@ body {
 @look-through: 0.5;
 @warning-color: #a00;
 @welcome-color: #080;
-.off(@factor: 1) { margin-top: @factor * @off; margin-left: @factor * @off; }
-.off { .off(); }
+
+.off(@factor: 1) {
+    margin-top: @factor * @off;
+    margin-left: @factor * @off;
+}
+
+.off {
+    .off();
+}
+
+.off:first-child {
+    margin-left: 0px;
+}
+
 .wall {
     .off();
     border-left: solid 1px gray;
