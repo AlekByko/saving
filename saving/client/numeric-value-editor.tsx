@@ -11,23 +11,26 @@ interface State {
     text: string;
 }
 
-export class NumericValueEditor extends React.Component<NumbericValueEditortProps> {
-    state = to<State>({ text: String(this.props.value) });
-    render() {
-        const { onChange } = this.props;
-        const { text } = this.state;
-        return <input
-            value={text}
-            onChange={e => {
-                const text = e.currentTarget.value;
-                this.setState({ text });
-            }}
-            onBlur={e => {
-                const text = e.currentTarget.value
-                const value = Number(text);
-                if (!isFinite(value)) return;
-                onChange(value);
-            }}
-        />;
-    }
+export function thusNumericValueEditor(size: number) {
+    return class NumericValueEditor extends React.Component<NumbericValueEditortProps> {
+        state = to<State>({ text: String(this.props.value) });
+        render() {
+            const { onChange } = this.props;
+            const { text } = this.state;
+            return <input
+                value={text}
+                size={size}
+                onChange={e => {
+                    const text = e.currentTarget.value;
+                    this.setState({ text });
+                }}
+                onBlur={e => {
+                    const text = e.currentTarget.value
+                    const value = Number(text);
+                    if (!isFinite(value)) return;
+                    onChange(value);
+                }}
+            />;
+        }
+    };
 }
