@@ -275,3 +275,13 @@ export function because<R>(message: string, also: unknown, result: R): R {
 }
 
 export type OneOrFew<T> = T | T[];
+
+export type Sign = -1 | 1;
+export const defaultSign = 1;
+export function flipSign(sign: Sign): Sign {
+    switch (sign) {
+        case 1: return -1;
+        case -1: return 1;
+        default: return broke(sign);
+    }
+}
