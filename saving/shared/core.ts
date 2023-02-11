@@ -185,7 +185,7 @@ Array.prototype.toSet = function <T>(this: Array<T>) {
 }
 Array.prototype.toSetInstead = function <T, U>(this: Array<T>, instead: (value: T) => U): Set<U> {
     const result = new Set<U>();
-    for (let index = 0; index < this.length; index ++) {
+    for (let index = 0; index < this.length; index++) {
         result.add(instead(this[index]));
     }
     return result;
