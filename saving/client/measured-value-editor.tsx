@@ -6,8 +6,8 @@ export interface MeasuredValue<Value, Unit> {
     unit: Unit;
 }
 
-export interface MeasuredValueEditorProps<Value, Unit, Context> {
-    measured: MeasuredValue<Value, Unit>;
+export interface MeasuredEditorProps<Value, Unit, Context> {
+    value: MeasuredValue<Value, Unit>;
     context: Context;
     onChange: (measured: MeasuredValue<Value, Unit>) => void;
 }
@@ -24,13 +24,13 @@ interface UnitEditorProps<Unit, Context> { // should not be exported, for intern
     onChange: (value: Unit) => void;
 }
 
-export function thusMeasuredValueEditor<Value, Unit, Context>(
+export function thusMeasuredEditor<Value, Unit, Context>(
     ValueEditor: ReactConstructor<ValueEditorProps<Value, Context>>,
     UnitEditor: ReactConstructor<UnitEditorProps<Unit, Context>>,
 ) {
-    return class MeasuredValueEditor extends React.Component<MeasuredValueEditorProps<Value, Unit, Context>> {
+    return class MeasuredEditor extends React.Component<MeasuredEditorProps<Value, Unit, Context>> {
         render() {
-            const { measured: { value, unit }, context, onChange } = this.props;
+            const { value: { value, unit }, context, onChange } = this.props;
             return <span>
                 <ValueEditor
                     value={value}
