@@ -1,4 +1,3 @@
-import { fail } from './shared/core';
 
 export function willHttpGet(url: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
@@ -14,13 +13,13 @@ export function willHttpGet(url: string): Promise<string> {
     });
 }
 
-export async function willParseResponseAsJson(response: Response): Promise<any> {
+export async function willParseResponseAsJsonOr<T, Or>(response: Response, or: Or): Promise<T | Or> {
+    const text = await response.text();
     try {
-        return await response.json();
+        return JSON.parse(text);
     } catch (e) {
         console.error(e);
-        const text = await response.text();
         console.warn(text);
-        return fail('Unable to parse JSON');
+        return or;
     }
 }
