@@ -11,6 +11,10 @@
         "source.organizeImports": true,
         "source.fixAll": true
     },
+    "search.exclude": {
+        "node_modules": true,
+        "saving/client/hls/**/*": true
+    },
 
     "typescript.preferences.useAliasesForRenames": false,
     "typescript.preferences.importModuleSpecifier": "relative",
