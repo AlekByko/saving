@@ -12,6 +12,8 @@
         "source.fixAll": true
     },
 
+    "typescript.preferences.jsxAttributeCompletionStyle": "none", // <-- there is no option for double quotes
+
     "typescript.preferences.useAliasesForRenames": false,
     "typescript.preferences.importModuleSpecifier": "relative",
     "typescript.preferences.quoteStyle": "single",

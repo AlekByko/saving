@@ -6,7 +6,7 @@ import { KnownPickedDirRef } from './shared/identities';
 
 // https://web.dev/file-system-access/
 
-export async function willTryGetDirectory(
+export async function willTryGetDirFromDb(
     db: IDBDatabase,
     ref: KnownPickedDirRef,
 ): Promise<FileSystemDirectoryHandle | null> {
