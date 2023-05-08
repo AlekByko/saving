@@ -285,3 +285,6 @@ export function flipSign(sign: Sign): Sign {
         default: return broke(sign);
     }
 }
+export function areNotSame<T, U extends T>(one: T, another: U): boolean {
+    return one !== another;
+}
