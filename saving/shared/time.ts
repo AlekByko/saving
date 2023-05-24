@@ -46,7 +46,7 @@ export function toElapsedDays(value: number): ElapsedDays {
 export function pad2(value: number): string {
     return value.toFixed(0).toString().padStart(2, '0');
 }
-export function formatElapsedSeconds({hours, minutes, seconds}: ElapsedDays): string {
+export function formatElapsedSeconds({ hours, minutes, seconds }: ElapsedDays): string {
     return pad2(hours) + ':' + pad2(minutes) + ':' + pad2(seconds);
 }
 
