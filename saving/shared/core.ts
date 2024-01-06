@@ -322,3 +322,7 @@ export function keepScheduling(act: () => void, delay: number): void {
     }
     setTimeout(schedule, delay);
 }
+
+export function seeIfObjectsSame<T extends object, U extends T>(one: T, another: U): boolean {
+    return one === another;
+}
