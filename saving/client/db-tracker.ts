@@ -96,7 +96,12 @@ export function thusDbTracker<Config, Key extends string, Query>(
             }
         }
 
-
+        public takeAll(configs: Config[]) {
+            configs.forEach(config => {
+                const key = keyOf(config);
+                this.all.set(key, config);
+            });
+        }
         public across(
             key: Key,
             across: (found: Config) => Config,
