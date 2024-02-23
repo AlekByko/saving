@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'fs';
 import { IncomingMessage, ServerOptions, ServerResponse, createServer } from 'http';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { extname, join } from 'path';
 import { parse } from 'url';
 import { CamConfig } from './shared/cam-config';
@@ -24,7 +24,6 @@ async function run() {
     console.log(`http://localhost:${port}`);
 
     const server = createServer(options, async (req, res) => {
-        res.setDefaultEncoding('utf-8');
         req.setEncoding('utf-8');
 
         const url = parse(req.url!, true);
@@ -33,19 +32,22 @@ async function run() {
 
         const filepath = join(process.cwd(), path);
         if (req.method === 'GET') {
-            if (path.startsWith('/cam/')) {
+            if (path.startsWith('/cams/')) {
                 // geting cam config
-                const name = path.substring(5);
+                const name = path.substring(6);
                 console.log('pulling cam config:', name);
                 const config: CamConfig | null = await db.collection('cams').findOne({ name }) as any;
                 if (isNull(config)) {
                     const message = 'No config for cam:' + name;
                     console.log(message);
-                    return tooBad(404, req, res, message);
+                    res.write('null', 'utf-8');
+                    res.statusCode = 200;
+                    res.end();
                 } else {
                     const json = JSON.stringify(config, null, 4);
                     console.log('Cam config for', name, json);
                     res.write(json);
+                    res.statusCode = 200;
                     res.end();
                 }
             } else {
@@ -59,10 +61,29 @@ async function run() {
             }
         } else if (req.method === 'POST') {
             console.log('POST', path);
-            if (path === '/cam') {
-                const text = req.read();
-                const data: CamConfig[] = JSON.parse(text);
-                console.log(data);
+            if (path === '/cams') {
+                const text = await willReadBody(req);
+                const configs: CamConfig[] = JSON.parse(text);
+                console.log('saving cam configs', configs);
+                const ids = {} as any;
+                for (const config of configs) {
+                    if ('_id' in config) {
+                        // after deserializing from JSON we have _id as string
+                        // but in order for update it has to be of type ObjectId
+                        const _id = new ObjectId(config._id as any);
+                        config._id = _id;
+                        const replaced = await db.collection('cams').replaceOne({ '_id': _id }, config);
+                        console.log('replaced', replaced);
+                    } else {
+                        const inserted = await db.collection('cams').insertOne(config);
+                        console.log('inserted', inserted);
+                        ids[config.name] = inserted.insertedId;
+                    }
+                }
+                const json = JSON.stringify(ids);
+                res.write(json, 'utf-8');
+                res.statusCode = 200;
+                res.end();
             }
         }
     });
@@ -70,9 +91,20 @@ async function run() {
     server.listen(port);
 }
 
+// function:
+function willReadBody(req: IncomingMessage) {
+    return new Promise<string>(resolve => {
+        const chunks: string[] = [];
+        req.on('data', (chunk) => {
+            chunks.push(chunk);
+        }).on('end', () => {
+            const text = chunks.join('');
+            resolve(text);
+        });
+    });
+}
 
-
-
+run();
 
 
 function tooBad(code: number, req: IncomingMessage, res: ServerResponse, message: string): void {

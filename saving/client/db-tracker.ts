@@ -6,7 +6,7 @@ export function thusDbTracker<Config, Key extends string, Context>(
     keyOf: (config: Config) => Key,
     setLastSaved: (config: Config, now: Timestamp) => void,
     willPull: (context: Context, key: Key) => Promise<Config | null>,
-    willSave: (context:Context, configs: Config[]) => Promise<void>,
+    willSave: (context: Context, configs: Config[]) => Promise<void>,
 ) {
     return class DbTracker {
         private dirty = new Set<Key>();
@@ -16,7 +16,7 @@ export function thusDbTracker<Config, Key extends string, Context>(
             private context: Context,
         ) { }
 
-        public async willPullOneOr<Or>(key: Key, or: Or): Promise<Config| Or> {
+        public async willPullOneOr<Or>(key: Key, or: Or): Promise<Config | Or> {
             const config = await willPull(this.context, key);
             if (isNull(config)) return or;
             this.all.set(keyOf(config), config);
@@ -88,7 +88,7 @@ export function thusDbTracker<Config, Key extends string, Context>(
             const key = keyOf(config);
             this.dirty.add(key);
             this.all.set(key, config);
-            return this.saveNow();
+            await this.saveNow();
         }
 
         public forEach(use: (config: Config) => void): void {
