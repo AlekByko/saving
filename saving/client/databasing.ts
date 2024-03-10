@@ -40,7 +40,7 @@ export function willFindOneInStoreOr<T, Or>(
 ): Promise<T | Or> {
     const transaction = db.transaction([storeName], 'readonly');
     const store = transaction.objectStore(storeName);
-    const request = store.get<T>(key);
+    const request = store.get(key);
     return new Promise<T | Or>((resolve, reject) => {
         transaction.onerror = reject;
         transaction.onabort = reject;
@@ -65,7 +65,7 @@ export function willFindOneInStoreOrOtherwise<T, Or, W>(
 ): Promise<T | W> {
     const transaction = db.transaction([storeName], 'readonly');
     const store = transaction.objectStore(storeName);
-    const request = store.get<T>(key);
+    const request = store.get(key);
     return new Promise<T | W>((resolve, reject) => {
         transaction.onerror = reject;
         transaction.onabort = reject;
