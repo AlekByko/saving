@@ -26,3 +26,12 @@ export function extractAt<Or>(regexp: RegExp, text: string, index: number, or: O
     if (isUndefined(found)) return or;
     return found;
 }
+
+export function extractBetweenOr<Or>(text: string, start: string, end: string, or: Or): string | Or {
+    const foundAt = text.indexOf(start, 0);
+    if (foundAt < 0) return or;
+    const startsAt = foundAt + start.length;
+    const endsAt = text.indexOf(end, startsAt);
+    const value = text.substring(startsAt, endsAt);
+    return value;
+}
