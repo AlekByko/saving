@@ -2,9 +2,10 @@ import { wait } from './promises';
 import { isNonNull, isUndefined } from './shared/core';
 import { Timestamp, toTimestamp } from './shared/time-stamping';
 
-export type DefaultCountext = unknown;
-export type TaskResult<State, Context = DefaultCountext> = [State, Context];
-export type Task<State, ContextIn = DefaultCountext, ContextOut = DefaultCountext> = (state: State, context: ContextIn) => Promise<TaskResult<State, ContextOut>>;
+export type DefaultContext = unknown;
+export type TaskResult<State, Context = DefaultContext> = [State, Context];
+export type Task<State, ContextIn = DefaultContext, ContextOut = DefaultContext> =
+    (state: State, context: ContextIn) => Promise<TaskResult<State, ContextOut>>;
 export type Job<State> = (state: State) => Task<State>[];
 export interface JobController { shouldFinish: boolean; dontWait: () => void; }
 
@@ -13,7 +14,7 @@ export async function willBeWorking<State>(
     willDigest: (state: State) => Promise<void>,
     jobs: Job<State>[],
     controller: JobController,
-    refill: (jobs: Job<State>[]) => void,
+    replenish: (jobs: Job<State>[]) => void,
     delay: number,
 ): Promise<State> {
     let lastState = state;
@@ -21,25 +22,41 @@ export async function willBeWorking<State>(
     await willDigest(lastState); // <-- first rerender
     while (true) {
         if (controller.shouldFinish) return lastState;
+
+        // trying get the last job
         let job = jobs.shift();
         if (isUndefined(job)) {
+
+            // there are no jobs
             if (shouldWait) {
                 await wait(delay, controller);
             }
-            refill(jobs);
+
+            replenish(jobs);
+
             shouldWait = true; // <-- assuming the worse
             job = jobs.shift();
             if (isUndefined(job)) return lastState; // <-- no jobs
         }
+
+        // there is a job, so we can get tasks
         const tasks = job(lastState);
-        let lastContext: DefaultCountext = undefined;
+        let lastContext: DefaultContext = undefined;
         for (const task of tasks) {
             const [nextState, nextContext] = await task(lastState, lastContext);
             lastContext = nextContext;
+
+            // if a tasks gives the same state, then we skip
             if (nextState === lastState) continue;
+
+            // if a task give a different state we render it
             await willDigest(nextState);
+
             lastState = nextState;
-            shouldWait = false; // <-- we had at least one async operation resulting into state change, so no need to add a pause before refilling jobs
+
+            shouldWait = false; // <-- we had at least one async operation resulting into state change, so no need to add a pause before replenishing jobs
+
+            // ...going to next task
         }
     }
 }
@@ -78,7 +95,7 @@ export function nowJobOver<State, Stuff>(
     willApply: (state: State, stuff: Stuff) => Promise<State>,
 ) {
     return function emitJob(_state: State): Task<State>[] {
-        async function task(state: State): Promise<[State, DefaultCountext]> {
+        async function task(state: State): Promise<[State, DefaultContext]> {
             const stuff = await willEmit();
             state = await willApply(state, stuff);
             return [state, undefined];
@@ -90,7 +107,7 @@ export function laterJobOver<State, Stuff>(
     willEmit: () => Promise<Stuff>,
 ) {
     return function emitJob(_state: State): Task<State>[] {
-        async function task(state: State): Promise<[State, DefaultCountext]> {
+        async function task(state: State): Promise<[State, DefaultContext]> {
             const stuff = await willEmit();
             return [state, stuff];
         }
