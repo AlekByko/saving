@@ -76,6 +76,10 @@ export function broke(never: never): never {
     console.log(never);
     return fail('This cannot be.');
 }
+export function brokeBecause(never: never, reason: string): never {
+    console.log(never);
+    return fail('This cannot be. ' + reason);
+}
 export function to<T>(value: T): T { return value; }
 export type AreEqual<T> = (one: T, another: T) => boolean;
 
