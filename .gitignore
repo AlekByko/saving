@@ -32,3 +32,5 @@ nodus/build
 caps.html
 venv
 __pycache__
+*.pyc
+

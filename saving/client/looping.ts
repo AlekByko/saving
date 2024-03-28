@@ -73,19 +73,29 @@ export function jobIfOver<State>(
     };
 }
 
+export interface JobTimingController {
+    delay: number;
+    lastRunAt: number | null;
+    update(now: Timestamp): void;
+}
+
 export function jobEveryOver<State>(
-    delay: number,
+    controller: JobTimingController,
     job: Job<State>,
 ) {
-    let lastRunAt: Timestamp | null = null;
     return function jobEvery(state: State): Task<State>[] {
-        if (isNonNull(lastRunAt)) {
-            let now = toTimestamp();
-            const ago = now - lastRunAt;
-            if (ago < delay) return [];
+        let now = toTimestamp();
+
+        if (isNonNull(controller.lastRunAt)) {
+            const ago = now - controller.lastRunAt;
+            if (ago < controller.delay) {
+                controller.update(now);
+                return [];
+            }
         }
         const steps = job(state);
-        lastRunAt = toTimestamp();
+        controller.lastRunAt = now;
+        controller.update(now);
         return steps;
     };
 }
@@ -151,8 +161,8 @@ export class JobBuilderLater<State> {
         this.job = jobIfOver(seeIfShouldRun, this.job);
         return this;
     }
-    runEvery(delay: number) {
-        this.job = jobEveryOver(delay, this.job);
+    runEvery(controller: JobTimingController) {
+        this.job = jobEveryOver(controller, this.job);
         return this;
     }
     alter(alter: (tasks: Task<State>[]) => Task<State>[]) {
@@ -162,7 +172,7 @@ export class JobBuilderLater<State> {
     overTo<R>(over: (builder: JobBuilderLater<State>) => R): R {
         return over(this);
     }
-    inContextOf<Context>() : TaskCollector<State, Context> {
+    inContextOf<Context>(): TaskCollector<State, Context> {
         return new TaskCollector<State, Context>([]);
     }
 }
@@ -172,7 +182,7 @@ export class TaskCollector<State, ContextIn> {
         public tasks: Task<State>[],
     ) {
     }
-    task<ContextOut>(task: Task<State, ContextIn, ContextOut>) : TaskCollector<State, ContextOut>{
+    task<ContextOut>(task: Task<State, ContextIn, ContextOut>): TaskCollector<State, ContextOut> {
         this.tasks.push(task as any);
         return this as any;
     }
