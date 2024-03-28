@@ -21,3 +21,23 @@
     line-height: 24px;
     overflow-y: auto;
 }
+
+.toolbar-job-timer {
+    &.as-soon {
+        color: red;
+        font-weight: bold;
+        animation: blinker 1s linear infinite;
+    }
+    &.as-almost-now {
+        color: white;
+        background-color: red;
+        font-weight: bold;
+        animation: blinker 0.5s linear infinite;
+    }
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}
