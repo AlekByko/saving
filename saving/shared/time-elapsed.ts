@@ -46,7 +46,7 @@ export function formatElapsedUptoSeconds({ days, hours, minutes, seconds }: Elap
     return daysText + padZero(2, hours) + ':' + padZero(2, minutes) + ':' + padZero(2, seconds);
 }
 
-export function formatElapsedNaturally({ days, hours, minutes }: Elapsed): string {
+export function formatElapsedToMinutes({ days, hours, minutes }: Elapsed): string {
     if (days > 0) {
         return 'forever';
     } else if (hours > 0) {
@@ -59,6 +59,21 @@ export function formatElapsedNaturally({ days, hours, minutes }: Elapsed): strin
         return `${minutes} m`;
     } else {
         return 'just now';
+    }
+}
+export function formatElapsedToSeconds({ days, hours, minutes, seconds }: Elapsed): string {
+    if (days > 0) {
+        return 'forever';
+    } else if (hours > 0) {
+        if (minutes > 0) {
+            return `${hours} hr ${minutes} m`;
+        } else {
+            return `${hours} hr`;
+        }
+    } else if (minutes > 0) {
+            return `${minutes} m ${seconds} s`;
+    } else {
+        return `${seconds} s`;
     }
 }
 
