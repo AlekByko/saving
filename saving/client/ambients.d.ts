@@ -55,3 +55,6 @@ interface FileSystemGetFileOptions {
 }
 type USVString = string;
 
+interface Window {
+    isSandbox: boolean;
+}
