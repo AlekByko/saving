@@ -5,7 +5,8 @@
         "scripts": true,
         "bundled": true,
         "recorded": true,
-        "**/*.css": true
+        "**/*.css": true,
+        "hls": true
     },
 
     "search.exclude": {
