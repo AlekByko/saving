@@ -1,12 +1,14 @@
 import { isNonNull } from './shared/core';
 
-export function enableSelecting<Order, Item>(
-    orderOf: (item: Item) => Order,
-    coordsOf: (item: Item) => [number, number],
-    isSetOf: (item: Item) => boolean,
-    seeWhichComesFirst: (one: Order, another: Order) => Order,
-    seeWhichComesLast: (one: Order, another: Order) => Order,
-) {
+export function enableSelecting<Order, Item>(defaults: {
+    orderOf: (item: Item) => Order;
+    coordsOf: (item: Item) => [number, number];
+    isSetOf: (item: Item) => boolean;
+    seeWhichComesFirst: (one: Order, another: Order) => Order;
+    seeWhichComesLast: (one: Order, another: Order) => Order;
+}) {
+
+    const { orderOf, coordsOf, isSetOf, seeWhichComesFirst, seeWhichComesLast } = defaults;
 
     let startItem: Item | null = null;
 
@@ -89,7 +91,7 @@ export function enableSelecting<Order, Item>(
         }
     }
 
-    return { whenClicked, whenShiftClicked, setDefault};
+    return { whenClicked, whenShiftClicked, setDefault };
 }
 function seeIfCanSet(isSet: boolean, shouldForce: boolean): boolean {
     return !isSet || shouldForce;
