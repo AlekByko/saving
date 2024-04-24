@@ -1,12 +1,14 @@
 import { isNonNull } from './shared/core';
 
-export function enableSelecting<Order, Item>(defaults: {
+export interface SelectingDefaults<Order, Item>{
     orderOf: (item: Item) => Order;
     coordsOf: (item: Item) => [number, number];
     isSetOf: (item: Item) => boolean;
     seeWhichComesFirst: (one: Order, another: Order) => Order;
     seeWhichComesLast: (one: Order, another: Order) => Order;
-}) {
+}
+
+export function enableSelecting<Order, Item>(defaults: SelectingDefaults<Order, Item>) {
 
     const { orderOf, coordsOf, isSetOf, seeWhichComesFirst, seeWhichComesLast } = defaults;
 
