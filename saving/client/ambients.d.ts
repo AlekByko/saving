@@ -58,3 +58,6 @@ type USVString = string;
 interface Window {
     isSandbox: boolean;
 }
+interface ForEachable<T> {
+    forEach(xx: (value: T) => void): void;
+}
