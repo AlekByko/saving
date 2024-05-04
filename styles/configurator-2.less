@@ -1,19 +1,23 @@
 .configurator-presenter {
     line-height: 30px;
 }
+.configurator-presenter+.configurator-presenter {
+    margin-top: 0px;
+}
 
 .configurator-presenter.as-required {
     background-color: #cdc;
 }
 .configurator-presenter.as-unwanted {
-    background-color: #ccc;
+    background-color: #999;
+    color: white;
 }
 .configurator-presenter.as-unknown {
     background-color: #999;
     color: white;
 }
 
-.configurator-presenter+.configurator-presenter {}
+
 
 configurator-radio-list {}
 
