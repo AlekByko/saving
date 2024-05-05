@@ -1,6 +1,6 @@
-import { toArrayFromSet } from "../sets";
 import { foldArray } from "./arrays";
 import { fail, isDefined, isNonNull } from './core';
+import { toArrayFromSet } from "./sets";
 
 export type Buckets<N, B> = Map<N, B>;
 
