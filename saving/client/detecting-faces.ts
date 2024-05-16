@@ -1,6 +1,13 @@
+// @ts-nocheck
+
 // <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.15.1/dist/ort.min.js"></script>
 // <script src="https://cdn.jsdelivr.net/npm/opencv.js-webassembly@4.2.0/opencv.min.js"></script>
 
+// https://github.com/Cvartel/Open-Source-Face-SDK/tree/main/sdk
+import { isNull } from './shared/core';
+
+declare var ort: any;
+declare var cv: any;
 
 const detectionModelURL = 'face_detector/face.onnx';
 const nmsModelURL = 'face_detector/nms.onnx';
@@ -11,17 +18,40 @@ const iouThreshold = 0.5;
 const nmsThreshold = 0.0;
 const confThreshold = 0.3;
 
-var detectorInferenceSession;
-var nmsInferenceSession;
+var detectorInferenceSession: {
+    run(images: any): Promise<{
+        output: any;
+    }>;
+};
+var nmsInferenceSession: {
+    run(args: {
+        detection: unknown,
+        config: unknown,
+    }): Promise<{
+        selected_idx: {
+            data: {
+                forEach: (callback: (idx: number) => void) => void;
+            };
+        };
+    }>;
+};
 
 async function initialise_models() {
     detectorInferenceSession = await ort.InferenceSession.create(detectionModelURL);
     nmsInferenceSession = await ort.InferenceSession.create(nmsModelURL);
 };
 
-function renderBoxes(canvas, boxes) {
+interface Box {
+    label: string;
+    probability: number;
+    bounding: [x1: number, y1: number, width: number, height: number];
+};
+
+function renderBoxes(canvas: HTMLCanvasElement, boxes: Box[]) {
     const ctx = canvas.getContext("2d");
-    boxes.forEach((box) => {
+    if (isNull(ctx)) return;
+
+    boxes.forEach(box => {
         const color = "#FF3838";
         const [x1, y1, width, height] = box.bounding;
         ctx.strokeStyle = color;
@@ -30,8 +60,14 @@ function renderBoxes(canvas, boxes) {
     });
 };
 
-async function detectImage(canvas, topk, iouThreshold,
-    nmsThreshold, confThreshold, inputShape) {
+async function detectImage(
+    canvas: HTMLCanvasElement,
+    topk: number,
+    iouThreshold: number,
+    nmsThreshold: number,
+    confThreshold: number,
+    inputShape: number[],
+) {
     const modelWidth = inputShape[3];
     const modelHeight = inputShape[2];
     // read, pad and resize image for inference
@@ -49,11 +85,11 @@ async function detectImage(canvas, topk, iouThreshold,
         scale = mat.rows / modelHeight;
         dw = (mat.rows * modelWidth) / modelHeight - mat.cols;
     }
-    var top = Math.floor(dh / 2);
-    var bottom = Math.floor(dh - top);
-    var left = Math.floor(dw / 2);
-    var right = Math.floor(dw - left);
-    var matPad = new cv.Mat();
+    const top = Math.floor(dh / 2);
+    const bottom = Math.floor(dh - top);
+    const left = Math.floor(dw / 2);
+    const right = Math.floor(dw - left);
+    const matPad = new cv.Mat();
     cv.copyMakeBorder(matC3, matPad, top, bottom, left, right, cv.BORDER_CONSTANT, [0, 0, 0, 127]);
     const input = cv.blobFromImage(
         matPad,
@@ -63,14 +99,16 @@ async function detectImage(canvas, topk, iouThreshold,
         true,
         false
     );
+
     // inference and NMS
     const tensor = new ort.Tensor("float32", input.data32F, inputShape);
     const config = new ort.Tensor("float32", new Float32Array([topk, iouThreshold, nmsThreshold]));
     const { output } = await detectorInferenceSession.run({ images: tensor });
     const { selected_idx } = await nmsInferenceSession.run({ detection: output, config: config });
+
     // postprocess results
-    const boxes = [];
-    selected_idx.data.forEach((idx) => {
+    const boxes: Box[] = [];
+    selected_idx.data.forEach(idx => {
         const data = output.data.slice(idx * output.dims[2], (idx + 1) * output.dims[2]);
         const [x, y, w, h] = data.slice(0, 4);
         const confidence = data[4];
@@ -98,11 +136,11 @@ async function detectImage(canvas, topk, iouThreshold,
 
 initialise_models();
 
-
-
-let imgInput = document.getElementById('image_form');
-imgInput.addEventListener('change', async function (e) {
-    if (e.target.files) {
+function run() {
+    let imgInput = document.getElementById('image_form');
+    if (isNull(imgInput)) return;
+    imgInput.addEventListener('change', async function (e) {
+        if (e.target.files.length < 0) return;
         let imageFile = e.target.files[0];
         var reader = new FileReader();
         reader.readAsDataURL(imageFile);
@@ -110,17 +148,20 @@ imgInput.addEventListener('change', async function (e) {
             var uploadImage = new Image();
             uploadImage.src = e.target.result;
             uploadImage.onload = function (ev) {
-                const canvasTag = document.getElementById("canvas");
-                var context = canvasTag.getContext("2d");
-                canvasTag.width = uploadImage.width;
-                canvasTag.height = uploadImage.height;
+                const canvasElement = document.getElementById("canvas") as HTMLCanvasElement | null;
+                if (isNull(canvasElement)) return;
+                const context = canvasElement.getContext("2d");
+                if (isNull(context)) return;
+                canvasElement.width = uploadImage.width;
+                canvasElement.height = uploadImage.height;
                 context.drawImage(uploadImage, 0, 0);
-                let imgData = canvasTag.toDataURL("image/jpeg", 0.75);
-                detectImage(canvasTag, topk, iouThreshold, nmsThreshold, confThreshold, modelInputShape);
+                // let imgData = canvasElement.toDataURL("image/jpeg", 0.75);
+                detectImage(canvasElement, topk, iouThreshold, nmsThreshold, confThreshold, modelInputShape);
             }
         }
-    }
-});
+    });
+}
+run();
 
 let closeInput = document.getElementById('close_btn');
 closeInput.addEventListener("click", function (e) {
