@@ -1,6 +1,6 @@
 import { fail } from './core';
 
-export function safeRound(olderFavors: number, delta: number, magnitude: number) {
+export function safeRoundDeltaApply(olderFavors: number, delta: number, magnitude: number) {
     return Math.round((olderFavors + delta) * magnitude) / magnitude;
 }
 
