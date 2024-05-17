@@ -2,7 +2,12 @@ import { toTimestamp } from './shared/time-stamping';
 
 export function startTrackingIdle(
     timeout: number,
-    whenIdle: (left: number, readiness: number) => void
+    whenIdle: (
+        /** Percent: 0.0 - 1.0 */
+        readiness: number,
+        /** Milliseconds */
+        left: number,
+    ) => void
 ) {
     let idlingSince = toTimestamp();
     const resetIdling = () => {
