@@ -92,3 +92,9 @@ export function formatTimestampAndElapsedDays(timestamp: Timestamp, now: Timesta
     const mon = knownMonths[month]
     return `${days}, ${mon} ${day}, ${year}, ${hour}:${minute}`;
 }
+
+export function formatElapsedDays(timestamp: Timestamp, now: Timestamp): string {
+    const elapsed = toElapsedFromMiliseconds(now - timestamp);
+    const days = quantify(elapsed.days, 'today', '1 d', `${elapsed.days} d`);
+    return days;
+}

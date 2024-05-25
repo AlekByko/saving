@@ -7,6 +7,9 @@ export function toTimestamp(): Timestamp {
     return new Date().getTime() as Timestamp;
 }
 
+export function formatTimestampNice(timestamp: Timestamp): string {
+    return new Date(timestamp).toDateString().toLowerCase();
+}
 export function formatTimestamp(timestamp: Timestamp): string {
     const date = new Date(timestamp);
     const year = date.getFullYear();
