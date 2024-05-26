@@ -10,7 +10,7 @@
     },
 
     "search.exclude": {
-        "hls/**/*": true
+        "hls/**/*": true,
     },
 
     "editor.codeActionsOnSave": {

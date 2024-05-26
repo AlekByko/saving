@@ -15,7 +15,8 @@
         // these a local ./ settings, for workspaces like client and server
         // these settings need to be set in their local .vscode/setting.json file
         "node_modules": true,
-        "saving/client/hls/**/*": true
+        "saving/client/hls/**/*": true,
+        "**/*.css": true
     },
 
     "typescript.preferences.useAliasesForRenames": false,
