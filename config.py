@@ -16,7 +16,7 @@ class Tile:
 class Config:
     def __init__(self, data) -> None:
         self.data = data
-        tiles = []
+        tiles: list[Tile] = []
         for config in data["caps"]:
             tile = Tile(config)
             tiles.append(tile)

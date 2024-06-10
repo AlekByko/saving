@@ -15,7 +15,6 @@ def make_coders():
     encoder_output = tf.keras.layers.Dense(latent_dim, name='encoder_output')(x)
 
     encoder = tf.keras.models.Model(encoder_input, encoder_output, name='encoder')
-    encoder.summary()
 
     # Define the decoder
     decoder_input = tf.keras.layers.Input(shape=(latent_dim,), name='decoder_input')
@@ -29,7 +28,6 @@ def make_coders():
 
     # Define the autoencoder model
     decoder = tf.keras.models.Model(decoder_input, decoder_output, name='decoder')
-    decoder.summary()
 
     autoencoder = tf.keras.models.Model(encoder_input, decoder(encoder_output), name='autoencoder')
 
@@ -46,3 +44,7 @@ class Coders:
         self.autoencoder = autoencoder
         self.encoder = encoder
         self.decoder = decoder
+
+def dump_coder_summaries(coders: Coders):
+    coders.encoder.summary()
+    coders.decoder.summary()
