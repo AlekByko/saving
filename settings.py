@@ -11,6 +11,7 @@ def read_settings():
     parser.add_argument("--weights-path", type=str)
     parser.add_argument("--image-path", type=str)
     parser.add_argument("--config-path", type=str)
+    parser.add_argument("--epochs", type=int)
     args = parser.parse_args()
     settings = Settings(args)
     return settings
@@ -29,6 +30,8 @@ class Snap:
 
 def make_snaps(pattern: str) -> Generator[Any, Snap, None]:
     pathes: list[str] = glob.glob(pattern)
+    # print(pattern)
+    # print(pathes)
     for path in pathes:
         if path.endswith('.json'):
             clear_path = path.replace('.json', '')
@@ -75,3 +78,7 @@ class Settings:
     @property
     def sample_size(self) -> int:
         return self.args.sample_size
+
+    @property
+    def epochs(self) -> int:
+        return self.args.epochs
