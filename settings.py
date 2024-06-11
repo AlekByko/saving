@@ -10,6 +10,7 @@ def read_settings():
     parser.add_argument("--sample-size", type=int)
     parser.add_argument("--weights-path", type=str)
     parser.add_argument("--image-path", type=str)
+    parser.add_argument("--snap-path", type=str)
     parser.add_argument("--config-path", type=str)
     parser.add_argument("--epochs", type=int)
     args = parser.parse_args()
@@ -63,6 +64,13 @@ class Settings:
         if image_path is None:
             raise Exception("No image path.")
         return image_path
+
+    @property
+    def snap_path(self):
+        snap_path = self.args.snap_path
+        if snap_path is None:
+            raise Exception("No snap path.")
+        return snap_path
 
     @property
     def config_path(self):
