@@ -1,9 +1,8 @@
 import numpy as np
 from PIL import Image
 
-
 from autoencoder import dump_coder_summaries, make_coders
-from config import load_config
+from config import load_config, save_config
 from gpu import reset_gpu
 from loading import load_tiles_from_image_ext
 from settings import Settings
@@ -28,7 +27,8 @@ def run_snapping(args: Settings):
 
     for i in range(len(config.tiles)):
         tile_config = config.tiles[i]
-        lanent = latents[i]
+        latent = latents[i]
+        tile_config.data['latent'] = latent.tolist()
         cap_data = caps[i]
         cap_data = (cap_data * 255).astype(np.uint8)
         cap_image = Image.fromarray(cap_data, 'RGB')
@@ -36,5 +36,6 @@ def run_snapping(args: Settings):
         snap.paste(cap_image, pos)
 
     snap.save(args.snap_path)
+    save_config(args.config_path, config)
 
 
