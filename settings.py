@@ -42,7 +42,7 @@ class Settings:
         self.args = args
 
     @property
-    def snaps(self) -> Generator[Any, Snap, None]:
+    def snaps(self) -> Generator[Snap, Any, None]:
         pattern = self.args.path
 
         if pattern.find(".") > 0:
