@@ -1,0 +1,1 @@
+python load-images.py --mode vae-train --epochs 90 --weights-path %1.hdf5 --path %1*

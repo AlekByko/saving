@@ -24,9 +24,8 @@ def make_coders():
     x = tf.keras.layers.UpSampling2D((2, 2))(x)
     x = tf.keras.layers.Conv2DTranspose(32, 3, activation='relu', padding='same')(x)
     x = tf.keras.layers.UpSampling2D((2, 2))(x)
-    decoder_output = tf.keras.layers.Conv2DTranspose(3, 3, activation='sigmoid', padding='same')(x)
 
-    # Define the autoencoder model
+    decoder_output = tf.keras.layers.Conv2DTranspose(3, 3, activation='sigmoid', padding='same')(x)
     decoder = tf.keras.models.Model(decoder_input, decoder_output, name='decoder')
 
     autoencoder = tf.keras.models.Model(encoder_input, decoder(encoder_output), name='autoencoder')
