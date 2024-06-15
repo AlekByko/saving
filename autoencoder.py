@@ -10,6 +10,7 @@ def make_coders():
     latent_dim = 64 #  loss: 0.0025
     # latent_dim = 128 #  loss: 0.0023
     # latent_dim = 256 #  loss: 0.0023
+    # going 128, 64, 32 (instead of 32, 64, 128), at latent_dim 64 requires more time with loss: 0.0032
 
     # Define the encoder
     encoder_input = layers.Input(shape=(180, 320, 3), name='encoder_input')
@@ -35,17 +36,17 @@ def make_coders():
 
     # Define the decoder
     decoder_input = layers.Input(shape=(latent_dim,), name='decoder_input')
-    x = layers.Dense(15 * 40 * 128, activation='relu')(decoder_input)
-    x = layers.Reshape((15, 40, 128))(x)
+    x = layers.Dense(15 * 40 * 32, activation='relu')(decoder_input)
+    x = layers.Reshape((15, 40, 32))(x)
 
     # CNN 128 should stay:
-    x = layers.Conv2DTranspose(128, by3x3, activation='relu', padding='same')(x)
+    x = layers.Conv2DTranspose(32, by3x3, activation='relu', padding='same')(x)
     x = layers.UpSampling2D(by2x2)(x)
 
     x = layers.Conv2DTranspose(64, by3x3, activation='relu', padding='same')(x)
     x = layers.UpSampling2D(by3x2)(x) # <---- 3x2
 
-    x = layers.Conv2DTranspose(32, by3x3, activation='relu', padding='same')(x)
+    x = layers.Conv2DTranspose(128, by3x3, activation='relu', padding='same')(x)
     x = layers.UpSampling2D(by2x2)(x)
 
     decoder_output = layers.Conv2DTranspose(3, by3x3, activation='sigmoid', padding='same')(x)
