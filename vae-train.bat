@@ -1,1 +1,1 @@
-python load-images.py --mode vae-train --epochs 40 --batch 4 --weights-path %1.hdf5 --path %1*
+python start.py --mode vae-train --epochs 40 --batch 4 --weights-path %1.hdf5 --path %1*
