@@ -17,6 +17,7 @@ def read_settings():
     parser.add_argument("--latent-dim", type=int)
     parser.add_argument("--train-val-spit-at", type=float)
     parser.add_argument("--samples-dir", type=str)
+    parser.add_argument("--max-samples", type=int)
     args = parser.parse_args()
     settings = Settings(args)
     print(settings)
@@ -120,9 +121,16 @@ class Settings:
         if value is None:
             raise Exception("No latent dimension.")
         return value
+
     @property
     def samples_dir(self) -> str:
         value = self.args.samples_dir
         if value is None:
             raise Exception("No samples.")
+        return value
+    @property
+    def max_samples(self) -> int:
+        value = self.args.max_samples
+        if value is None:
+            raise Exception("Max number of samples.")
         return value
