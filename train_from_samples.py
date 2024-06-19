@@ -56,6 +56,9 @@ def make_dataset(args: Settings, samples):
 
 
     def generator_samples():
+
+        # ADD SHUFFLING HERE?
+
         for idx in range(len(samples)):
             sample = samples[idx]
             sample_tensor = tf.convert_to_tensor(sample, dtype=tf.float32)
