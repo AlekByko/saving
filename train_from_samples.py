@@ -4,7 +4,7 @@
 import tensorflow as tf
 from keras.callbacks import ModelCheckpoint
 
-from autoencoder_320x240_one_conv import make_320x240_coders
+from autoencoder_320x240_vae import make_320x240_vae
 from gpu import reset_gpu
 from loading import load_samples_as_list
 from settings import Settings
@@ -14,7 +14,7 @@ def run_training_from_samples(args: Settings):
 
     reset_gpu()
 
-    coders = make_320x240_coders()
+    coders = make_320x240_vae()
 
     samples = load_samples_as_list(args)
 
@@ -32,6 +32,7 @@ def run_training_from_samples(args: Settings):
         filepath=args.weights_path,
         save_weights_only=True,
         save_freq='epoch',
+        monitor='val_loss',
         period=5,
     )
 
