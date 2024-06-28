@@ -45,5 +45,8 @@ def run_scaling_images(args: Settings):
         target_path = os.path.join(dir_path, file_name)
         resized.save(target_path)
 
+        resized.close()
+        image.close()
+
         print(f"Resized: {dir_name}: {file_name}")
 

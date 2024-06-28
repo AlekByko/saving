@@ -65,11 +65,14 @@ def load_samples_as_list(args: Settings) -> List[Any]:
         if len(bytes.shape) != 3 or bytes.shape[2] != 1:
             print(f"Bad shape: {bytes.shape}, skipping...")
             continue
+
         bytes = np.expand_dims(bytes, axis=-1)
 
 
         floats = bytes / 255.0
         floats = floats.astype(np.float32)
         samples.append(floats)
+        image.close()
+
     print(f"Loading images: {length} 100% ")
     return samples

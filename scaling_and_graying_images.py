@@ -1,8 +1,9 @@
 import glob
 import os
 
-from PIL import Image
+from PIL import Image, ImageOps, UnidentifiedImageError
 
+from handling_files import maybe_move_file
 from settings import Settings
 
 
@@ -23,33 +24,54 @@ def run_scaling_and_graying_images(args: Settings):
     dir_name = f"{target_width}x{target_height}"
 
     is_dir_checked = False
-
+    i = 0
+    length = len(pathes)
     for path in pathes:
+        i += 1
         if os.path.isdir(path):
             continue
 
         file_name = os.path.splitext(os.path.basename(path))[0] + ".png"
-        image = Image.open(path)
-        width, height = image.size
-        if expected_width != width or expected_height != height:
-            print(f"Bad width {width}x{height} of {file_name}, should be {expected_width}x{expected_height}.")
+        dir_path = os.path.join(args.samples_dir, dir_name)
+        target_path = os.path.join(dir_path, file_name)
+
+        if os.path.exists(target_path):
+            print(f"{file_name} exists skipping...")
             continue
 
-        resized = image.resize((target_width, target_height), resample=Image.LANCZOS)
+        try:
+            image = Image.open(path)
+            width, height = image.size
+            if expected_width != width or expected_height != height:
+                print(f"Bad width {width}x{height} of {file_name}, should be {expected_width}x{expected_height}.")
+                continue
 
-        image = image.convert('L')
+            resized = image.resize((target_width, target_height), resample=Image.LANCZOS)
+            grayed = resized.convert('L')
+            leveled = ImageOps.autocontrast(grayed)
 
-        dir_path = os.path.join(args.samples_dir, dir_name)
-        if not is_dir_checked:
-            is_dir_checked = True
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path)
+            if not is_dir_checked:
+                is_dir_checked = True
+                if not os.path.exists(dir_path):
+                    os.makedirs(dir_path)
 
-        target_path = os.path.join(dir_path, file_name)
-        resized.save(target_path)
+            leveled.save(target_path)
+            print(f"Resized and grayed: {dir_name}: {file_name}")
 
-        print(f"Resized: {dir_name}: {file_name}")
+            if i % 100 == 0:
+                print(f"Processed: {i} {int(100*i/length)}% ")
 
-        print(f"Resized: {dir_name}: {file_name}")
+
+            image.close()
+            resized.close()
+            grayed.close()
+            leveled.close()
+
+        except (OSError, UnidentifiedImageError):
+            dir_name = "bad"
+            maybe_move_file(args.samples_dir, dir_name, path)
+            print(f"Moved {dir_name}: {path}")
+            pass
+
 
 
