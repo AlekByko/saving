@@ -4,17 +4,22 @@
 import tensorflow as tf
 from keras.callbacks import ModelCheckpoint
 
-from autoencoder_160x120 import make_160x120_coders
+from autoencoder_160x120 import make_autoencoder
 from gpu import reset_gpu
 from loading_images import load_samples_as_list
 from settings import Settings
 
+image_shape = (160, 120, 1)
+latent_dim = 256
 
 def run_training_from_samples(args: Settings):
 
     reset_gpu()
+    # https://aws.amazon.com/what-is/overfitting
+    # needs at least 50 000 samples better 100 000
 
-    coders = make_160x120_coders()
+
+    coders = make_autoencoder(image_shape, latent_dim)
 
     samples = load_samples_as_list(args)
 
@@ -49,8 +54,6 @@ def run_training_from_samples(args: Settings):
     )
 
     coders.autoencoder.save_weights(args.weights_path, overwrite=True)
-
-image_shape = (240, 320, 1)
 
 def make_dataset(args: Settings, samples):
     # https://github.com/tensorflow/tensorflow/issues/35264#issuecomment-1363177995

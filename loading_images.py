@@ -62,11 +62,11 @@ def load_samples_as_list(args: Settings) -> List[Any]:
         image = Image.open(path)
 
         bytes = np.array(image)
+
+        bytes = np.expand_dims(bytes, axis=-1)
         if len(bytes.shape) != 3 or bytes.shape[2] != 1:
             print(f"Bad shape: {bytes.shape}, skipping...")
             continue
-
-        bytes = np.expand_dims(bytes, axis=-1)
 
 
         floats = bytes / 255.0
