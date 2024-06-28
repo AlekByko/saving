@@ -6,7 +6,7 @@ from keras.callbacks import ModelCheckpoint
 
 from autoencoder_320x240_one_conv import make_320x240_coders
 from gpu import reset_gpu
-from loading import load_samples_as_list
+from loading_images import load_samples_as_list
 from settings import Settings
 
 

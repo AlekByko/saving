@@ -2,7 +2,7 @@
 
 from autoencoder_one_conv import make_coders
 from gpu import reset_gpu
-from loading import load_tiles_from_snaps
+from loading_images import load_tiles_from_snaps
 from settings import Settings
 from training import train
 

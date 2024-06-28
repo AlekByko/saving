@@ -4,7 +4,7 @@ from PIL import Image
 from autoencoder import Coders, dump_coder_summaries, make_coders
 from config import load_config, save_config
 from gpu import reset_gpu
-from loading import load_tiles_from_image_ext
+from loading_images import load_tiles_from_image_ext
 from settings import Settings
 
 

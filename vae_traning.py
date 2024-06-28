@@ -2,9 +2,8 @@
 import numpy as np
 
 from gpu import reset_gpu
-from loading import load_tiles_from_snaps
+from loading_images import load_tiles_from_snaps
 from settings import Settings
-from showing import show
 from vae import make_vae
 
 

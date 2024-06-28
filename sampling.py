@@ -3,7 +3,7 @@ import numpy as np
 
 from autoencoder import dump_coder_summaries, make_coders
 from gpu import reset_gpu
-from loading import load_tiles_from_image
+from loading_images import load_tiles_from_image
 from settings import Settings
 from showing import show
 

@@ -1,6 +1,7 @@
 import sys
 
 from sampling import run_sampling
+from scaling_and_graying_images import run_scaling_and_graying_images
 from scaling_images import run_scaling_images
 from settings import read_settings
 from snapping import run_snapping_for_all
@@ -34,6 +35,8 @@ def run():
             run_image_sorter(args)
         case "scale-images":
             run_scaling_images(args)
+        case "scale-and-gray-images":
+            run_scaling_and_graying_images(args)
         case _:
             raise Exception(f"Unexpected mode: {args.mode}")
 
