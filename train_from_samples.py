@@ -4,7 +4,7 @@
 import tensorflow as tf
 from keras.callbacks import ModelCheckpoint
 
-from autoencoder_320x240_vae import make_320x240_vae
+from autoencoder_320x240_one_conv import make_320x240_coders
 from gpu import reset_gpu
 from loading import load_samples_as_list
 from settings import Settings
@@ -14,7 +14,7 @@ def run_training_from_samples(args: Settings):
 
     reset_gpu()
 
-    coders = make_320x240_vae()
+    coders = make_320x240_coders()
 
     samples = load_samples_as_list(args)
 
