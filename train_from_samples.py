@@ -9,7 +9,7 @@ from gpu import reset_gpu
 from loading_images import load_samples_as_list
 from settings import Settings
 
-image_shape = (160, 120, 1)
+image_shape = (120, 160, 1)
 latent_dim = 256
 
 def run_training_from_samples(args: Settings):
