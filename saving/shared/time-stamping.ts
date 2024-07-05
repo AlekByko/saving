@@ -1,4 +1,3 @@
-import { As } from './core';
 import { padZero } from './texting';
 
 export type Timestamp = number & As<'timestamp'>;
