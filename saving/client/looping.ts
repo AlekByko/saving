@@ -64,8 +64,11 @@ export async function willBeWorking<State>(
 export function jobIfOver<State>(
     seeIfShouldRun: (state: State) => boolean,
     job: Job<State>,
+    controller: JobTimingController,
 ) {
     return function jobIf(state: State): Task<State>[] {
+        const now = toTimestamp();
+        controller.update(now);
         const shouldRun = seeIfShouldRun(state);
         return shouldRun
             ? job(state)
@@ -157,8 +160,8 @@ export class JobBuilderLater<State> {
         public job: Job<State>,
     ) {
     }
-    runIf(seeIfShouldRun: (state: State) => boolean) {
-        this.job = jobIfOver(seeIfShouldRun, this.job);
+    runIf(seeIfShouldRun: (state: State) => boolean, controller: JobTimingController) {
+        this.job = jobIfOver(seeIfShouldRun, this.job, controller);
         return this;
     }
     runEvery(controller: JobTimingController) {

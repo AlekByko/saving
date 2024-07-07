@@ -1,4 +1,4 @@
-import { toTimestamp } from './shared/time-stamping';
+import { Timestamp, toTimestamp } from './shared/time-stamping';
 
 export function startTrackingIdle(
     timeout: number,
@@ -21,8 +21,12 @@ export function startTrackingIdle(
         const now = toTimestamp();
         const since = now - idlingSince;
         const ago = Math.min(since, timeout);
-        const ready = ago / timeout;
+        const readiness = ago / timeout;
         const left = timeout - ago;
-        whenIdle(ready, left);
+        whenIdle(readiness, left);
     }, 250);
+    return function idle(): void {
+        const now = toTimestamp();
+        idlingSince = now - timeout as Timestamp;
+    };
 }
