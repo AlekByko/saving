@@ -177,6 +177,7 @@ export function isObject<T extends object>(value: unknown): value is T {
 declare global {
     interface Array<T> {
         toSet(): Set<T>;
+        toMap<K, V>(keyOf: (value: T) => K, valueOf: (value: T) => V, resolve: (newer: V, older: V, key: K) => V): Map<K, V>;
         toSetInstead<U>(instead: (value: T) => U): Set<U>;
         sortOf<V>(copy: (values: T[]) => T[], of: (value: T) => V, compare: (one: V, another: V) => number): T[];
     }
@@ -189,6 +190,24 @@ declare global {
 }
 Array.prototype.toSet = function <T>(this: Array<T>) {
     return new Set(this);
+}
+Array.prototype.toMap = function <T, K, V>(this: Array<T>, keyOf: (value: T) => K, valueOf: (value: T) => V, resolve: (newer: V, older: V, key: K) => V) {
+    const result = new Map<K, V>();
+    for (let index = 0; index < this.length; index ++) {
+        const item = this[index];
+        const key = keyOf(item);
+        const value = valueOf(item);
+        if (result.has(key)) {
+            const older = result.get(key)!;
+            const resolved = resolve(value, older, key);
+            if (resolved === older) continue;
+            result.set(key, resolved);
+        } else {
+            result.set(key, value);
+        }
+
+    }
+    return result;
 }
 Array.prototype.toSetInstead = function <T, U>(this: Array<T>, instead: (value: T) => U): Set<U> {
     const result = new Set<U>();
