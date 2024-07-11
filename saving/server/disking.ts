@@ -27,3 +27,7 @@ export function filterDir(
 export function filterFilesInDir(dir: string): DirFile[] {
     return filterDir(dir, path => !lstatSync(path).isDirectory());
 }
+
+export function removeFileExtension(fileName: string) {
+    return fileName.replace(/\.[^/.]+$/, '');
+}
