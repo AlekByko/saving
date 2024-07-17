@@ -348,7 +348,7 @@ export function seeIfObjectsSame<T extends object, U extends T>(one: T, another:
 }
 
 
-interface Deferred<T> {
+export interface Deferred<T> {
     resolve: (value: T) => void;
     reject: (error: any) => void;
     once: Promise<T>;
