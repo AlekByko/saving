@@ -49,3 +49,7 @@ export function seeIfBeingWrittenTo(path: string): boolean {
         }
     }
 }
+
+export function forceBackslashes(text: string): string {
+    return text.replace(/\//ig, '\\');
+}
