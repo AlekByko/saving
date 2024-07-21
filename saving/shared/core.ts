@@ -178,6 +178,7 @@ declare global {
     interface Array<T> {
         toSet(): Set<T>;
         toMap<K, V>(keyOf: (value: T) => K, valueOf: (value: T) => V, resolve: (newer: V, older: V, key: K) => V): Map<K, V>;
+        toLookup<K, V>(keyOf: (value: T) => K, valueOf: (value: T) => V): Map<K, V[]>;
         toSetInstead<U>(instead: (value: T) => U): Set<U>;
         sortOf<V>(copy: (values: T[]) => T[], of: (value: T) => V, compare: (one: V, another: V) => number): T[];
     }
@@ -193,7 +194,7 @@ Array.prototype.toSet = function <T>(this: Array<T>) {
 }
 Array.prototype.toMap = function <T, K, V>(this: Array<T>, keyOf: (value: T) => K, valueOf: (value: T) => V, resolve: (newer: V, older: V, key: K) => V) {
     const result = new Map<K, V>();
-    for (let index = 0; index < this.length; index ++) {
+    for (let index = 0; index < this.length; index++) {
         const item = this[index];
         const key = keyOf(item);
         const value = valueOf(item);
@@ -206,6 +207,22 @@ Array.prototype.toMap = function <T, K, V>(this: Array<T>, keyOf: (value: T) => 
             result.set(key, value);
         }
 
+    }
+    return result;
+}
+Array.prototype.toLookup = function <T, K, V>(this: Array<T>, keyOf: (value: T) => K, valueOf: (value: T) => V) {
+    const result = new Map<K, V[]>();
+    for (let index = 0; index < this.length; index++) {
+        const item = this[index];
+        const key = keyOf(item);
+        const value = valueOf(item);
+        if (result.has(key)) {
+            const values = result.get(key)!;
+            values.push(value)
+        } else {
+            const values = [value];
+            result.set(key, values);
+        }
     }
     return result;
 }
@@ -373,6 +390,6 @@ declare global {
     }
 }
 Object.realKeys = Object.keys as any;
-String.prototype.over = function<T>(this: string, over: (value: string) => T): T {
+String.prototype.over = function <T>(this: string, over: (value: string) => T): T {
     return over(this);
 }
