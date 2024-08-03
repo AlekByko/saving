@@ -1,3 +1,4 @@
+import { isUndefined } from './shared/core';
 
 export function toBucketMapFromArray<T, K, V, B>(
     items: T[],
@@ -147,4 +148,19 @@ export function seeIfHasAnyInMap<K, V>(
         if (isThat(value, key)) return true;
     }
     return false;
+}
+
+export function claimInMap<K, V>(
+    values: Map<K, V>,
+    key: K,
+    make: (key: K) => V,
+): V {
+    const found = values.get(key);
+    if (isUndefined(found)) {
+        const value = make(key);
+        values.set(key, value);
+        return value;
+    } else {
+        return found;
+    }
 }
