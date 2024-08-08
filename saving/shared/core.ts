@@ -393,3 +393,5 @@ Object.realKeys = Object.keys as any;
 String.prototype.over = function <T>(this: string, over: (value: string) => T): T {
     return over(this);
 }
+
+export function cast<S extends string>(_name: string): asserts _name is S { }
