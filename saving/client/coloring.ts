@@ -1,5 +1,9 @@
-type XYZ = [number, number, number] & As<'xyz'>;
-type LAB = [number, number, number] & As<'lab'>;
+export type Xyz = [number, number, number] & As<'xyz'>;
+export type Lab = [number, number, number] & As<'lab'>;
+
+export function makeLab(): Lab {
+    return [0, 0, 0] as Lab;
+}
 
 function xxx(x: number): number {
     x = x / 255;
@@ -9,7 +13,8 @@ function xxx(x: number): number {
     x = x * 100;
     return x;
 }
-export function RGBtoXYZ(r: number, g: number, b: number): XYZ {
+
+export function rgbToXyz(r: number, g: number, b: number): Xyz {
     const var_R = xxx(r);
     const var_G = xxx(g);
     const var_B = xxx(b);
@@ -19,7 +24,7 @@ export function RGBtoXYZ(r: number, g: number, b: number): XYZ {
     const y = var_R * 0.2126 + var_G * 0.7152 + var_B * 0.0722;
     const z = var_R * 0.0193 + var_G * 0.1192 + var_B * 0.9505;
 
-    return [x, y, z] as XYZ;
+    return [x, y, z] as Xyz;
 }
 
 /*
@@ -47,7 +52,7 @@ const ref_X = 95.047;
 const ref_Y = 100.000;
 const ref_Z = 108.883;
 
-export function XYZtoLAB([x, y, z]: XYZ): LAB {
+export function setLabByXyz([x, y, z]: Xyz, lab: Lab): void {
     const [var_X, var_Y, var_Z] = [x / ref_X, y / ref_Y, z / ref_Z]
         .map(a => a > 0.008856
             ? Math.pow(a, 1 / 3)
@@ -56,8 +61,9 @@ export function XYZtoLAB([x, y, z]: XYZ): LAB {
     const CIE_L = (116 * var_Y) - 16;
     const CIE_a = 500 * (var_X - var_Y);
     const CIE_b = 200 * (var_Y - var_Z);
-
-    return [CIE_L, CIE_a, CIE_b] as LAB;
+    lab[0] = CIE_L;
+    lab[1] = CIE_a;
+    lab[2] = CIE_b;
 }
 
 /*
