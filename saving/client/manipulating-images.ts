@@ -16,6 +16,18 @@ export function pickHow(mode: Mode) {
     }
 }
 
+/** mutates the given array */
+function normalizeInPlace(values: number[]): void {
+    let sum = 0;
+    for (let i = 0; i < values.length; i++) {
+        sum += values[i];
+    }
+    for (let i = 0; i < values.length; i++) {
+        values[i] /= sum;
+    }
+}
+
+
 const gauss7x7 = [
     0.0007, 0.0018, 0.0043, 0.0077, 0.0043, 0.0018, 0.0007,
     0.0018, 0.0046, 0.0109, 0.0191, 0.0109, 0.0046, 0.0018,
@@ -24,7 +36,8 @@ const gauss7x7 = [
     0.0043, 0.0109, 0.0256, 0.0440, 0.0256, 0.0109, 0.0043,
     0.0018, 0.0046, 0.0109, 0.0191, 0.0109, 0.0046, 0.0018,
     0.0007, 0.0018, 0.0043, 0.0077, 0.0043, 0.0018, 0.0007,
-  ];
+];
+normalizeInPlace(gauss7x7);
 
 function gauss(imda: ImageData, imageWidth: number): void {
     weighted(imda);
@@ -52,7 +65,7 @@ function gaussRGray(imda: ImageData, stride: number, imageWidth: number, kernel:
                 const ky = (ki - kx) / kernelSize;
                 const skx = sx - kernelHalf + kx;
                 const sky = sy - kernelHalf + ky;
-                let ski = (sky * imageWidth + skx) * stride + 1;  // we only care about R in [R, G, B, A]
+                let ski = (sky * imageWidth + skx) * stride + 0;  // we only care about R in [R, G, B, A]
                 let sk = 0;
                 if (ski >= 0 && ski < data.length) {
                     sk = data[ski];
