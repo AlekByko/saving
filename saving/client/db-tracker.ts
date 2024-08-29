@@ -1,11 +1,11 @@
-import { fail, isNull, isUndefined, same } from './shared/core';
+import { fail, isUndefined, same } from './shared/core';
 import { Timestamp, toTimestamp } from './shared/time-stamping';
 
 export function thusDbTracker<Config, Key extends string, Context>(
     delay: number,
     keyOf: (config: Config) => Key,
     setLastSaved: (config: Config, now: Timestamp) => void,
-    willPull: (context: Context, key: Key) => Promise<Config | null>,
+    willPull: (context: Context, key: Key[]) => Promise<Config[]>,
     willSave: (context: Context, configs: Config[]) => Promise<void>,
 ) {
     return class DbTracker {
@@ -16,11 +16,12 @@ export function thusDbTracker<Config, Key extends string, Context>(
             private context: Context,
         ) { }
 
-        public async willPullOneOr<Or>(key: Key, or: Or): Promise<Config | Or> {
-            const config = await willPull(this.context, key);
-            if (isNull(config)) return or;
-            this.all.set(keyOf(config), config);
-            return config;
+        public async willPull(keys: Key[]): Promise<Config[]> {
+            const configs = await willPull(this.context, keys);
+            for (const config of configs) {
+                this.all.set(keyOf(config), config);
+            }
+            return configs;
         }
 
         public atOr<Or>(key: Key, or: Or): Config | Or {

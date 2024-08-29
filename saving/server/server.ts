@@ -3,6 +3,7 @@ import { IncomingMessage, ServerOptions, ServerResponse, createServer } from 'ht
 import { MongoClient, ObjectId } from 'mongodb';
 import { extname, join } from 'path';
 import { parse } from 'url';
+import { willLoadConfigsFromDb } from './databasing';
 import { CamConfig } from './shared/cam-config';
 import { asNonNullOr, isNull } from './shared/core';
 import { setConsoleTitle } from './utils';
@@ -61,7 +62,17 @@ async function run() {
             }
         } else if (req.method === 'POST') {
             console.log('POST', path);
-            if (path === '/cams') {
+            if (path === '/cams/pull') {
+                const text = await willReadBody(req);
+                const names: GlobalCamName[] = JSON.parse(text);
+                console.log('pulling cam configs:', names.join(', '));
+                const configs = await willLoadConfigsFromDb(db, names);
+                const json = JSON.stringify(configs, null, 4);
+                console.log('Cam configs for', names.join(', '), json);
+                res.write(json);
+                res.statusCode = 200;
+                res.end();
+            } else if (path === '/cams/save') {
                 const text = await willReadBody(req);
                 const configs: CamConfig[] = JSON.parse(text);
                 console.log('saving cam configs', configs);
