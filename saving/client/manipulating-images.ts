@@ -13,6 +13,7 @@ export function pickHow(mode: Mode): ProcessImageData {
         case 'gauss7': return gauss7;
         case 'gauss9': return gauss9;
         case 'gauss11': return gauss11;
+        case 'fastGauss13': return fastGauss13;
         case 'gauss13': return gauss13;
         case 'gauss51': return gauss51;
         case 'gauss101': return gauss101;
@@ -81,6 +82,22 @@ function gauss13(sourceImda: ImageData, makeImda: () => ImageData): ImageData {
     applyKernelToR(sourceImda, targetImda, gaussKernel13, 13);
     return targetImda;
 }
+function fastGauss13(sourceImda: ImageData, makeImda: () => ImageData): ImageData {
+    weighted(sourceImda);
+    const tempImda = makeImda();
+    const start = 6 * 13;
+    const end = start + 13;
+    const kernel = gaussKernel13.slice(start, end);
+
+    // dumpKernel(gaussKernel13, 13);
+    // console.log(kernel.slice());
+
+    normalizeInPlace(kernel);
+    // console.log(kernel);
+
+    const resultImda = fastGauss(sourceImda, tempImda, kernel);
+    return resultImda;
+}
 function gauss51(sourceImda: ImageData, makeImda: () => ImageData): ImageData {
     weighted(sourceImda);
     const targetImda = makeImda();
@@ -122,6 +139,7 @@ function makeGaussianKernel(size: number): number[] {
 void dumpKernel;
 function dumpKernel(kernel: number[], size: number) {
     let row: number[] = [];
+    console.group(size);
     for (let i = 0; i < kernel.length; i++) {
         if (row.length === size) {
             console.log(row);
@@ -132,21 +150,84 @@ function dumpKernel(kernel: number[], size: number) {
     if (row.length > 0) {
         console.log(row);
     }
+    console.groupEnd();
 }
 
+function fastGauss(sourceImda: ImageData, tempImda: ImageData, kernel: number[]): ImageData {
 
+    if (sourceImda.width !== tempImda.width) return fail('Width of source and target does not match.');
+    if (sourceImda.height !== tempImda.height) return fail('Height of source and target does not match.');
+
+    const stride = 4;
+    let { data: target } = tempImda;
+    let { data: source, width: imageWidth, height: imageHeight } = sourceImda;
+
+    const kernelHalf = (kernel.length - 1) / 2;
+    for (let sy = 0; sy < imageHeight; sy++) {
+        for (let sx = 0; sx < imageWidth; sx++) {
+            let s = 0;
+            for (let ki = 0; ki < kernel.length; ki++) {
+                const k = kernel[ki];
+                const skx = sx - kernelHalf + ki;
+
+                let sk = 0; // anything outside the image is black
+                if (skx >= 0 && skx < imageWidth) {
+                    const ski = (sy * imageWidth + skx) * stride + 0;  // we only care about R in [R, G, B, A]
+                    sk = source[ski];
+                }
+
+                s += sk * k;
+            }
+            s = Math.round(s);
+            const si = (sy * imageWidth + sx) * stride;
+            target[si + 0] = s;
+            target[si + 1] = s;
+            target[si + 2] = s;
+            target[si + 3] = 255;
+        }
+    }
+
+    let temp = source;
+    source = target;
+    target = temp;
+
+    for (let sx = 0; sx < imageWidth; sx++) {
+        for (let sy = 0; sy < imageHeight; sy++) {
+            let s = 0;
+            for (let ki = 0; ki < kernel.length; ki++) {
+                const k = kernel[ki];
+                const sky = sy - kernelHalf + ki;
+
+                let sk = 0; // anything outside the image is black
+                if (sky >= 0 && sky < imageHeight) {
+                    const ski = (sky * imageWidth + sx) * stride + 0;  // we only care about R in [R, G, B, A]
+                    sk = source[ski];
+                }
+
+                s += sk * k;
+            }
+            s = Math.round(s);
+            const si = (sy * imageWidth + sx) * stride;
+            target[si + 0] = s;
+            target[si + 1] = s;
+            target[si + 2] = s;
+            target[si + 3] = 255;
+        }
+    }
+
+    return sourceImda;
+}
 
 /** assuming gray image only applying the kernel to R in [R, G, B, A] */
-function applyKernelToR(sourceImDa: ImageData, targetImDa: ImageData, kernel: number[], kernelSize: number): void {
+function applyKernelToR(sourceImda: ImageData, targetImda: ImageData, kernel: number[], kernelSize: number): void {
 
-    if (sourceImDa.width !== targetImDa.width) return fail('Width of source and target does not match.');
-    if (sourceImDa.height !== targetImDa.height) return fail('Height of source and target does not match.');
+    if (sourceImda.width !== targetImda.width) return fail('Width of source and target does not match.');
+    if (sourceImda.height !== targetImda.height) return fail('Height of source and target does not match.');
 
     const stride = 4; // [R, G, B, A]
-    const { data: source, width: imageWidth } = sourceImDa;
-    const { data: target } = targetImDa;
+    const { data: source, width: imageWidth, height: imageHeight } = sourceImda;
+    const { data: target } = targetImda;
 
-    const imageHeight = source.length / stride / imageWidth;
     const kernelHalf = (kernelSize - 1) / 2;
     for (let sy = 0; sy < imageHeight; sy++) {
         for (let sx = 0; sx < imageWidth; sx++) {
@@ -165,10 +246,10 @@ function applyKernelToR(sourceImDa: ImageData, targetImDa: ImageData, kernel: nu
                 const ky = (ki - kx) / kernelSize;
                 const skx = sx - kernelHalf + kx;
                 const sky = sy - kernelHalf + ky;
-                let ski = (sky * imageWidth + skx) * stride + 0;  // we only care about R in [R, G, B, A]
 
                 let sk = 0; // anything outside the image is black
-                if (ski >= 0 && ski < source.length) {
+                if (skx >= 0 && skx < imageWidth && sky >= 0 && sky < imageHeight) {
+                    const ski = (sky * imageWidth + skx) * stride + 0;  // we only care about R in [R, G, B, A]
                     sk = source[ski];
                 }
 
@@ -179,7 +260,7 @@ function applyKernelToR(sourceImDa: ImageData, targetImDa: ImageData, kernel: nu
             target[si + 0] = s;
             target[si + 1] = s;
             target[si + 2] = s;
-            // data[si + 3] = 0;
+            target[si + 3] = 255;
         }
     }
 }
@@ -278,6 +359,7 @@ const allModes = [
     'gauss9',
     'gauss11',
     'gauss13',
+    'fastGauss13',
     'gauss51',
     'gauss101',
     'averaged', 'weighted', 'LABed', 'adaptive'] as const;
