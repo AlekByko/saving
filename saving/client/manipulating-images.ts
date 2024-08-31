@@ -1,5 +1,5 @@
 import { makeLab, makeXyz, setLabByXyz, setXyzByRgb } from './coloring';
-import { fail } from './shared/core';
+import { fail, isNull } from './shared/core';
 
 const sqrt2Pi = Math.sqrt(2 * Math.PI); // do not move, since processed first come first go
 
@@ -69,35 +69,62 @@ export function dumpKernel(kernel: number[], size: number) {
     console.groupEnd();
 }
 
-export function makeMinMaxBySlidingWindow(imda: ImageData, size: number): number[] {
-    if (size % 2 === 0) return fail(`Bad size ${size}. Has to be odd.`);
+export function makeMinMaxBySlidingWindow(imda: ImageData, windowSize: number): number[] {
     const minmax: number[] = [];
+    foreachPxCollectInWindow({
+        imda, windowSize, storage: minmax,
+        makeCollected: value => ({ min: value, max: value }),
+        collect: (pxv, collected) => {
+            if (pxv > collected.max) collected.max = pxv;
+            if (pxv < collected.min) collected.min = pxv;
+        },
+        store: (collected, storage) => {
+            storage.push(collected.min);
+            storage.push(collected.max);
+        }
+    });
+    return minmax;
+}
+
+type Data = Uint8ClampedArray;
+
+export function foreachPxCollectInWindow<Storage, Collected>(
+    defaults: {
+        imda: ImageData,
+        windowSize: number,
+        storage: Storage,
+        makeCollected: (value: number, data: Data, index: number) => Collected,
+        collect: (value: number, collected: Collected, data: Data, index: number) => void,
+        store: (collected: Collected, storage: Storage) => void,
+    }
+): void {
+    const {
+        imda, windowSize, storage, makeCollected, collect, store,
+    } = defaults;
+    assert(checkSlidingWindowSize(windowSize));
+
     const stride = 4;
     const { data, width, height } = imda;
-    const half = (size - 1) / 2;
+    const half = (windowSize - 1) / 2;
     let i = -stride;
     for (let sy = 0; sy < height; sy++) {
         for (let sx = 0; sx < width; sx++) {
             i += stride;
-            let min = data[i];
-            let max = min;
-            for (let ky = 0; ky < size; ky++) {
+            const collected = makeCollected(data[i], data, i);
+            for (let ky = 0; ky < windowSize; ky++) {
                 const sky = sy - half + ky;
                 if (sky < 0 || sky >= height) continue;
-                for (let kx = 0; kx < size; kx++) {
+                for (let kx = 0; kx < windowSize; kx++) {
                     const skx = sx - half + kx;
                     if (skx < 0 || skx >= width) continue;
                     const si = (sky * width + skx) * stride + 0;
                     const s = data[si];
-                    if (s > max) max = s;
-                    if (s < min) min = s;
+                    collect(s, collected, data, i);
                 }
             }
-            minmax.push(min)
-            minmax.push(max);
+            store(collected, storage);
         }
     }
-    return minmax;
 }
 
 export function checkTempImda(imda: ImageData, temp: ImageData) {
@@ -109,6 +136,18 @@ export function checkTempImda(imda: ImageData, temp: ImageData) {
 export function checkSlidingWindowSize(size: number) {
     if (size % 2 === 0) return { code: 'sliding-window-of-even-size', text: 'Bad size.' } as const;
     return null;
+}
+type Checked = null | CheckedBad;
+interface CheckedBad {
+    text: string;
+    code: string;
+}
+export function assert(checked: Checked): void | never {
+    if (isNull(checked)) return;
+    const { code, text } = checked;
+    console.log(code, text);
+    debugger;
+    return fail(`${code}: ${text}`);
 }
 
 export function dynamicThreshold(imda: ImageData, minmax: number[]) {
