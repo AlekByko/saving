@@ -1,35 +1,8 @@
 import { makeLab, makeXyz, setLabByXyz, setXyzByRgb } from './coloring';
-import { broke, fail } from './shared/core';
+import { fail } from './shared/core';
 
 const sqrt2Pi = Math.sqrt(2 * Math.PI); // do not move, since processed first come first go
 
-export type ProcessImageData = (imda: ImageData, makeImageData: () => ImageData) => ImageData;
-
-export function pickHow(mode: Mode): ProcessImageData {
-    switch (mode) {
-        case 'nothing': return nothing;
-        case 'gauss3': return gauss3;
-        case 'gauss5': return gauss5;
-        case 'gauss7': return gauss7;
-        case 'gauss9': return gauss9;
-        case 'gauss11': return gauss11;
-        case 'fastGauss13': return fastGauss13;
-        case 'dynamicThreshold3': return dynamicThresholdOver(3);
-        case 'dynamicThreshold5': return dynamicThresholdOver(5);
-        case 'dynamicThreshold7': return dynamicThresholdOver(7);
-        case 'dynamicThreshold9': return dynamicThresholdOver(9);
-        case 'dynamicThreshold11': return dynamicThresholdOver(11);
-        case 'dynamicThreshold13': return dynamicThresholdOver(13);
-        case 'gauss13': return gauss13;
-        case 'gauss51': return gauss51;
-        case 'gauss101': return gauss101;
-        case 'averaged': return averaged;
-        case 'weighted': return imda => (weighted(imda), imda)
-        case 'LABed': return LABed;
-        case 'adaptive': return adaptive;
-        default: return broke(mode);
-    }
-}
 
 /** mutates the given array */
 function normalizeInPlace(values: number[]): void {
@@ -43,52 +16,7 @@ function normalizeInPlace(values: number[]): void {
 }
 
 
-const gaussKernel3 = makeGaussianKernel(3);
-const gaussKernel5 = makeGaussianKernel(5);
-const gaussKernel7 = makeGaussianKernel(7);
-const gaussKernel9 = makeGaussianKernel(9);
-const gaussKernel11 = makeGaussianKernel(11);
-const gaussKernel13 = makeGaussianKernel(13);
-const gaussKernel51 = makeGaussianKernel(51);
-const gaussKernel101 = makeGaussianKernel(101);
-
-function gauss3(sourceImda: ImageData, makeImageData: () => ImageData): ImageData {
-    weighted(sourceImda);
-    const targetImda = makeImageData();
-    applyKernelToR(sourceImda, targetImda, gaussKernel3, 3);
-    return targetImda;
-}
-function gauss5(sourceImda: ImageData, makeImda: () => ImageData): ImageData {
-    weighted(sourceImda);
-    const targetImda = makeImda();
-    applyKernelToR(sourceImda, targetImda, gaussKernel5, 5);
-    return targetImda;
-}
-function gauss7(sourceImda: ImageData, makeImda: () => ImageData): ImageData {
-    weighted(sourceImda);
-    const targetImda = makeImda();
-    applyKernelToR(sourceImda, targetImda, gaussKernel7, 7);
-    return targetImda;
-}
-function gauss9(sourceImda: ImageData, makeImda: () => ImageData): ImageData {
-    weighted(sourceImda);
-    const targetImda = makeImda();
-    applyKernelToR(sourceImda, targetImda, gaussKernel9, 9);
-    return targetImda;
-}
-function gauss11(sourceImda: ImageData, makeImda: () => ImageData): ImageData {
-    weighted(sourceImda);
-    const targetImda = makeImda();
-    applyKernelToR(sourceImda, targetImda, gaussKernel11, 11);
-    return targetImda;
-}
-function gauss13(sourceImda: ImageData, makeImda: () => ImageData): ImageData {
-    weighted(sourceImda);
-    const targetImda = makeImda();
-    applyKernelToR(sourceImda, targetImda, gaussKernel13, 13);
-    return targetImda;
-}
-function pullKernelMiddleRow(kernel: number[]): number[] {
+export function pullKernelMiddleRow(kernel: number[]): number[] {
     let size = Math.sqrt(kernel.length);
     if (size !== (~~size)) return fail(`Bad kernel length: ${kernel.length}.`);
     if (size % 2 === 0) return fail(`Bad kernel size: ${size}. Needs to be odd.`);
@@ -99,27 +27,9 @@ function pullKernelMiddleRow(kernel: number[]): number[] {
     normalizeInPlace(row);
     return row;
 }
-function fastGauss13(imda: ImageData, makeImda: () => ImageData): ImageData {
-    weighted(imda);
-    const tempImda = makeImda();
-    const kernel = pullKernelMiddleRow(gaussKernel13);
-    fastGauss(imda, tempImda, kernel);
-    return imda;
-}
-function gauss51(sourceImda: ImageData, makeImda: () => ImageData): ImageData {
-    weighted(sourceImda);
-    const targetImda = makeImda();
-    applyKernelToR(sourceImda, targetImda, gaussKernel51, 51);
-    return targetImda;
-}
-function gauss101(sourceImda: ImageData, makeImda: () => ImageData): ImageData {
-    weighted(sourceImda);
-    const targetImda = makeImda();
-    applyKernelToR(sourceImda, targetImda, gaussKernel101, 101);
-    return targetImda;
-}
 
-function makeGaussianKernel(size: number): number[] {
+
+export function makeGaussianKernel(size: number): number[] {
     if (size % 2 === 0) return fail(`Kernel size ${size} must be an odd number.`);
 
     const sigma = (size - 1) / 6; // magic numbers
@@ -143,9 +53,7 @@ function makeGaussianKernel(size: number): number[] {
     return kernel;
 };
 
-
-void dumpKernel;
-function dumpKernel(kernel: number[], size: number) {
+export function dumpKernel(kernel: number[], size: number) {
     let row: number[] = [];
     console.group(size);
     for (let i = 0; i < kernel.length; i++) {
@@ -161,7 +69,7 @@ function dumpKernel(kernel: number[], size: number) {
     console.groupEnd();
 }
 
-function makeMinMaxBySlidingWindow(imda: ImageData, size: number): number[] {
+export function makeMinMaxBySlidingWindow(imda: ImageData, size: number): number[] {
     if (size % 2 === 0) return fail(`Bad size ${size}. Has to be odd.`);
     const minmax: number[] = [];
     const stride = 4;
@@ -192,7 +100,7 @@ function makeMinMaxBySlidingWindow(imda: ImageData, size: number): number[] {
     return minmax;
 }
 
-function dynamicThreshold(imda: ImageData, minmax: number[]) {
+export function dynamicThreshold(imda: ImageData, minmax: number[]) {
     const sstride = 4;
     const mstride = 2;
 
@@ -213,22 +121,7 @@ function dynamicThreshold(imda: ImageData, minmax: number[]) {
     }
 }
 
-function dynamicThresholdOver(size: number) {
-    return function dynamicThresholdUnder(imda: ImageData, makeImda: () => ImageData): ImageData {
-
-        weighted(imda);
-        const tempImda = makeImda();
-        const kernel = pullKernelMiddleRow(gaussKernel13);
-
-        fastGauss(imda, tempImda, kernel);
-        const minmax = makeMinMaxBySlidingWindow(imda, size);
-        dynamicThreshold(imda, minmax);
-
-        return imda;
-    }
-}
-
-function fastGauss(sourceImda: ImageData, tempImda: ImageData, kernel: number[]): void {
+export function fastGauss(sourceImda: ImageData, tempImda: ImageData, kernel: number[]): void {
 
     if (sourceImda.width !== tempImda.width) return fail('Width of source and target does not match.');
     if (sourceImda.height !== tempImda.height) return fail('Height of source and target does not match.');
@@ -292,7 +185,7 @@ function fastGauss(sourceImda: ImageData, tempImda: ImageData, kernel: number[])
 }
 
 /** assuming gray image only applying the kernel to R in [R, G, B, A] */
-function applyKernelToR(sourceImda: ImageData, targetImda: ImageData, kernel: number[], kernelSize: number): void {
+export function applyKernelToR(sourceImda: ImageData, targetImda: ImageData, kernel: number[], kernelSize: number): void {
 
     if (sourceImda.width !== targetImda.width) return fail('Width of source and target does not match.');
     if (sourceImda.height !== targetImda.height) return fail('Height of source and target does not match.');
@@ -338,12 +231,8 @@ function applyKernelToR(sourceImda: ImageData, targetImda: ImageData, kernel: nu
     }
 }
 
-function nothing(imda: ImageData): ImageData {
-    // do nothing
-    return imda;
-}
 
-function averaged(imda: ImageData): ImageData {
+export function averaged(imda: ImageData): ImageData {
     // do nothing
     const { data } = imda;
     for (let i = 0; i < data.length; i += 4) {
@@ -358,7 +247,7 @@ function averaged(imda: ImageData): ImageData {
     }
     return imda;
 }
-function weighted(imda: ImageData): void {
+export function weighted(imda: ImageData): void {
     // do nothing
     const { data } = imda;
     for (let i = 0; i < data.length; i += 4) {
@@ -373,7 +262,7 @@ function weighted(imda: ImageData): void {
     }
 
 }
-function adaptive(imda: ImageData): ImageData {
+export function adaptive(imda: ImageData): ImageData {
     weighted(imda);
     const { data } = imda;
     const stride = 4;
@@ -383,11 +272,11 @@ function adaptive(imda: ImageData): ImageData {
     }
     return imda;
 }
-interface Xy {
+export interface Xy {
     x: number;
     y: number;
 }
-function setXyAt(index: number, at: Xy, width: number, stride: number): void {
+export function setXyAt(index: number, at: Xy, width: number, stride: number): void {
     const remainder = index % stride;
     index -= remainder;
     index /= stride;
@@ -397,13 +286,13 @@ function setXyAt(index: number, at: Xy, width: number, stride: number): void {
     at.x = x;
     at.y = y;
 }
-void setXyAt;
-function xyAt(x: number, y: number, width: number, stride: number): number {
+
+export function xyAt(x: number, y: number, width: number, stride: number): number {
     const at = (y * width + x) * stride;
     return at;
 }
-void xyAt;
-function LABed(imda: ImageData): ImageData {
+
+export function LABed(imda: ImageData): ImageData {
     // do nothing
     const { data } = imda;
     const lab = makeLab();
@@ -424,23 +313,3 @@ function LABed(imda: ImageData): ImageData {
     }
     return imda;
 }
-const allModes = [
-    'nothing',
-    'gauss3',
-    'gauss5',
-    'gauss7',
-    'gauss9',
-    'gauss11',
-    'gauss13',
-    'fastGauss13',
-    'dynamicThreshold3',
-    'dynamicThreshold5',
-    'dynamicThreshold7',
-    'dynamicThreshold9',
-    'dynamicThreshold11',
-    'dynamicThreshold13',
-    'gauss51',
-    'gauss101',
-    'averaged', 'weighted', 'LABed', 'adaptive'] as const;
-export type Mode = typeof allModes[number];
-export const modes = [...allModes];
