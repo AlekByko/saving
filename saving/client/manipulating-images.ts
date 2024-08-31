@@ -86,7 +86,7 @@ export function makeMinMaxBySlidingWindow(imda: ImageData, windowSize: number): 
     return minmax;
 }
 
-export function toMaxVoting(imda: ImageData, windowSize: number, or: number): number[] {
+export function makeMaxVoting(imda: ImageData, windowSize: number, defaulted: number): number[] {
     const voted: number[] = [];
     foreachPxCollectInWindow({
         imda, windowSize, storage: voted,
@@ -103,7 +103,7 @@ export function toMaxVoting(imda: ImageData, windowSize: number, or: number): nu
             if (offCount> onCount) {
                 stored.push(0);
             }
-            stored.push(or);
+            stored.push(defaulted);
         }
     });
     return voted;
