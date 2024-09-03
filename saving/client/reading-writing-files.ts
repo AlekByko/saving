@@ -1,11 +1,19 @@
 import { willFindAllInStoreOf, willPutAllToStoreOf } from "./databasing";
 import { KnownPickedDirEntry } from "./file-system-entries";
 import { knownDbStores } from "./known-settings";
-import { isNull } from './shared/core';
+import { alwaysTrue, isNull } from './shared/core';
 import { KnownPickedDirRef } from './shared/identities';
 
 // https://web.dev/file-system-access/
-
+export async function willTryGetAllDirsFromDb(db: IDBDatabase): Promise<KnownPickedDirEntry[]> {
+    const { dirs } = knownDbStores;
+    const found = await willFindAllInStoreOf<typeof dirs.T, {}>(
+        db, dirs.storeName, alwaysTrue, {}, store => {
+            return store.openCursor();
+        }
+    );
+    return found;
+}
 export async function willTryGetDirFromDb(
     db: IDBDatabase,
     ref: KnownPickedDirRef,
