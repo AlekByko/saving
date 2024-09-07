@@ -49,7 +49,7 @@ export type ModConfig =
     | KMeansClusteringModConfig;
 
 export interface MorphFlowModConfig {
-    kind: 'morph-flow-modder';
+    kind: 'morph-flow-mod';
     key: string;
     morphs: MorphConfig[];
 }

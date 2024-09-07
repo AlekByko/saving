@@ -67,7 +67,7 @@ export class Visionary extends React.Component<VisionaryProps, State> {
                 {modders.map(modder => {
                     const { key } = modder;
                     switch (modder.kind) {
-                        case 'morph-flow-modder': return <MorphFlowModder key={key} config={modder} regarding={this.regardingModder} />;
+                        case 'morph-flow-mod': return <MorphFlowModder key={key} config={modder} regarding={this.regardingModder} />;
                         case 'k-means-clustering-mod': return <KMeansClusteringModder key={key} config={modder} regarding={this.regardingModder} />;
                         default: return broke(modder);
                     }
