@@ -1,5 +1,5 @@
 import React, { ChangeEventHandler, MouseEventHandler } from 'react';
-import { BeAppliedConfig, BeReplacedConfigConcern } from './editing-morphs';
+import { BeAppliedConfig, BeReplacedConfigConcern } from './editing-configs';
 import { KMeansClusteringModConfig } from './morphs';
 import { Regarding } from './reacting';
 import { $on, safeInside } from './shared/inside';

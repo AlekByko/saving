@@ -1,5 +1,5 @@
 import React, { ChangeEventHandler } from 'react';
-import { BeReplacedConfigConcern, UpDown } from './editing-morphs';
+import { BeReplacedConfigConcern, UpDown } from './editing-configs';
 import { GaussBlurMorphConfig } from './morphs';
 import { Regarding } from './reacting';
 

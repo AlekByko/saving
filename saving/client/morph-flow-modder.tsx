@@ -1,5 +1,5 @@
 import React, { MouseEventHandler } from 'react';
-import { BeAppliedConfig, BeReplacedConfigConcern, faceListerConcern } from './editing-morphs';
+import { BeAppliedConfig, BeReplacedConfigConcern, faceListerConcern } from './editing-configs';
 import { MorphLister, MorphListerConcern } from './morph-lister';
 import { MorphFlowModConfig } from './morphs';
 import { Regarding } from './reacting';

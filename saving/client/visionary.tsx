@@ -1,5 +1,5 @@
 import React from 'react';
-import { faceListerConcern, willOpenVisionary, willTrySaveVisionary } from './editing-morphs';
+import { faceListerConcern, willOpenVisionary, willTrySaveVisionary } from './editing-configs';
 import { HorzVertBitHistoModder } from './horz-vert-bit-histo-morph-editor';
 import { KMeansClusteringModder } from './k-means-clustering-modder';
 import { MorphFlowModder } from './morph-flow-modder';
