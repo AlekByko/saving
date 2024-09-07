@@ -1,5 +1,6 @@
 import React from 'react';
 import { faceListerConcern, willOpenVisionary, willTrySaveVisionary } from './editing-morphs';
+import { KMeansClusteringModder } from './k-means-clustering-modder';
 import { MorphFlowModder } from './morph-flow-modder';
 import { VisionaryConfig } from './morphs';
 import { enableMoving } from './moving-by-mouse';
@@ -8,9 +9,12 @@ import { AboutAllBut, broke, isNull, to } from './shared/core';
 import { safeInside } from './shared/inside';
 
 export type VisionaryConcern =
-    | AboutAllBut<typeof MorphFlowModder.Concern, 'be-replaced-config'>;
+    | AboutAllBut<ModderConcern, 'be-replaced-config'>;
+
 type ModderConcern =
-    | typeof MorphFlowModder.Concern;
+    | typeof MorphFlowModder.Concern
+    | typeof KMeansClusteringModder.Concern;
+
 export interface VisionaryProps {
     baseDir: FileSystemDirectoryHandle;
     regarding: Regarding<VisionaryConcern>;
@@ -41,7 +45,7 @@ export class Visionary extends React.Component<VisionaryProps, State> {
     regardingModder: Regarding<ModderConcern> = concern => {
         let { config } = this.state;
         if (isNull(config)) return;
-        switch(concern.about) {
+        switch (concern.about) {
             case 'be-applied-config': return this.props.regarding(concern);
             default: {
                 config = faceListerConcern(inConfig.modders, config, concern);
@@ -64,7 +68,8 @@ export class Visionary extends React.Component<VisionaryProps, State> {
                     const { key } = modder;
                     switch (modder.kind) {
                         case 'morph-flow-modder': return <MorphFlowModder key={key} config={modder} regarding={this.regardingModder} />;
-                        default: return broke(modder.kind);
+                        case 'k-means-clustering-mod': return <KMeansClusteringModder key={key} config={modder} regarding={this.regardingModder} />;
+                        default: return broke(modder);
                     }
                 })}
             </div>

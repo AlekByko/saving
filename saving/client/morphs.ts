@@ -45,12 +45,18 @@ export interface MaxVotingMorphConfig {
 }
 
 export type ModConfig =
-    | MorphFlowModConfig;
+    | MorphFlowModConfig
+    | KMeansClusteringModConfig;
 
 export interface MorphFlowModConfig {
     kind: 'morph-flow-modder';
     key: string;
     morphs: MorphConfig[];
+}
+export interface KMeansClusteringModConfig {
+    kind: 'k-means-clustering-mod';
+    key: string;
+    k: number;
 }
 
 export interface VisionaryConfig {
