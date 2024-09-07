@@ -3,15 +3,7 @@ export type MorphConfig =
     | GaussBlurMorphConfig
     | WeighedGrayMorphConfig
     | DynamicThrescholdMorphConfig
-    | MaxVotingMorphConfig
-    | HorzVertBitHistoMorphConfig;
-
-export interface HorzVertBitHistoMorphConfig {
-    kind: 'horz-vert-bit-histo-morph';
-    key: string;
-    isEnabled: boolean;
-    vectorSize: number;
-}
+    | MaxVotingMorphConfig;
 
 export interface GaussBlurMorphConfig {
     kind: 'gauss-blur-morph';
@@ -46,6 +38,7 @@ export interface MaxVotingMorphConfig {
 
 export type ModConfig =
     | MorphFlowModConfig
+    | HorzVertBitHistoModConfig
     | KMeansClusteringModConfig;
 
 export interface MorphFlowModConfig {
@@ -53,6 +46,13 @@ export interface MorphFlowModConfig {
     key: string;
     morphs: MorphConfig[];
 }
+
+export interface HorzVertBitHistoModConfig {
+    kind: 'horz-vert-bit-histo-mod';
+    key: string;
+    featureVectorSize: number;
+}
+
 export interface KMeansClusteringModConfig {
     kind: 'k-means-clustering-mod';
     key: string;

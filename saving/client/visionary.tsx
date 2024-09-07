@@ -1,5 +1,6 @@
 import React from 'react';
 import { faceListerConcern, willOpenVisionary, willTrySaveVisionary } from './editing-morphs';
+import { HorzVertBitHistoModder } from './horz-vert-bit-histo-morph-editor';
 import { KMeansClusteringModder } from './k-means-clustering-modder';
 import { MorphFlowModder } from './morph-flow-modder';
 import { VisionaryConfig } from './morphs';
@@ -13,7 +14,8 @@ export type VisionaryConcern =
 
 type ModderConcern =
     | typeof MorphFlowModder.Concern
-    | typeof KMeansClusteringModder.Concern;
+    | typeof KMeansClusteringModder.Concern
+    | typeof HorzVertBitHistoModder.Concern;
 
 export interface VisionaryProps {
     baseDir: FileSystemDirectoryHandle;
@@ -69,6 +71,7 @@ export class Visionary extends React.Component<VisionaryProps, State> {
                     switch (modder.kind) {
                         case 'morph-flow-mod': return <MorphFlowModder key={key} config={modder} regarding={this.regardingModder} />;
                         case 'k-means-clustering-mod': return <KMeansClusteringModder key={key} config={modder} regarding={this.regardingModder} />;
+                        case 'horz-vert-bit-histo-mod': return <HorzVertBitHistoModder key={key} config={modder} regarding={this.regardingModder} />
                         default: return broke(modder);
                     }
                 })}

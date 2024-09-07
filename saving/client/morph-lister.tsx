@@ -1,7 +1,6 @@
 import React from 'react';
 import { DynamicThrescholdMorphEditor } from './dynamic-threschold-morph-editor';
 import { GaussBlurMorphEditor } from './gauss-blur-morph-editor';
-import { HorzVertBitHistoMorphEditor } from './horz-vert-bit-histo-morph-editor';
 import { MaxVotingMorphEditor } from './max-voting-morph-editor';
 import { MorphConfig } from './morphs';
 import { Regarding } from './reacting';
@@ -12,8 +11,7 @@ export type MorphListerConcern =
     | typeof WeighedGrayMorphEditor.Concern
     | typeof GaussBlurMorphEditor.Concern
     | typeof DynamicThrescholdMorphEditor.Concern
-    | typeof MaxVotingMorphEditor.Concern
-    | typeof HorzVertBitHistoMorphEditor.Concern;
+    | typeof MaxVotingMorphEditor.Concern;
 
 export interface MorphListerProps {
     morphs: MorphConfig[];
@@ -32,7 +30,6 @@ export class MorphLister extends React.PureComponent<MorphListerProps> {
                     case 'gauss-blur-morph': return <GaussBlurMorphEditor key={key} config={morph} regarding={regarding} />;
                     case 'dynamic-threschold-morph': return <DynamicThrescholdMorphEditor key={key} config={morph} regarding={regarding} />;
                     case 'max-voting-morph': return <MaxVotingMorphEditor key={key} config={morph} regarding={regarding} />;
-                    case 'horz-vert-bit-histo-morph': return <HorzVertBitHistoMorphEditor key={key} config={morph} regarding={regarding} />;
                     default: return broke(morph);
                 }
             })}
