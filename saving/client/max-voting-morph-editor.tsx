@@ -1,14 +1,14 @@
 import React, { ChangeEventHandler } from 'react';
-import { BeReplacedMorphConcern, UpDown } from './editing-morphs';
-import { MaxVotingMorph } from './morphs';
-import { Regarding, toNextKey } from './reacting';
+import { BeReplacedConfigConcern, UpDown } from './editing-morphs';
+import { MaxVotingMorphConfig } from './morphs';
+import { Regarding } from './reacting';
 
 export type MaxVotingMorphEditorConcern =
-    | BeReplacedMorphConcern<MaxVotingMorph>
+    | BeReplacedConfigConcern<MaxVotingMorphConfig>
     | typeof UpDown.Concern;
 
 export interface MaxVotingMorphEditorProps {
-    morph: MaxVotingMorph;
+    config: MaxVotingMorphConfig;
     regarding: Regarding<MaxVotingMorphEditorConcern>;
 }
 
@@ -16,12 +16,10 @@ export class MaxVotingMorphEditor extends React.PureComponent<MaxVotingMorphEdit
 
     static Concern: MaxVotingMorphEditorConcern;
 
-    transform = (change: (morph: MaxVotingMorph) => MaxVotingMorph) => {
-        let { morph, regarding } = this.props;
-        const { key } = morph;
-        morph = change(morph);
-        morph.key = toNextKey();
-        regarding({ about: 'be-replaced-morph', key, morph });
+    transform = (change: (morph: MaxVotingMorphConfig) => MaxVotingMorphConfig) => {
+        let { config, regarding } = this.props;
+        config = change(config);
+        regarding({ about: 'be-replaced-config', config });
     }
     whenToggled: ChangeEventHandler<HTMLInputElement> = e => {
         this.transform(morph => ({ ...morph, isEnabled: e.currentTarget.checked }));
@@ -30,7 +28,7 @@ export class MaxVotingMorphEditor extends React.PureComponent<MaxVotingMorphEdit
         this.transform(morph => ({ ...morph, windowSize: parseInt(e.currentTarget.value, 10) }));
     };
     render() {
-        const { morph: { isEnabled, windowSize, key }, regarding } = this.props;
+        const { config: { isEnabled, windowSize, key }, regarding } = this.props;
         return <div className="morph">
             <div className="morph-name">
                 <label><input type="checkbox" checked={isEnabled} onChange={this.whenToggled} /> max voting</label> <span>

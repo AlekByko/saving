@@ -1,14 +1,14 @@
 import React, { ChangeEventHandler } from 'react';
-import { BeReplacedMorphConcern, UpDown } from './editing-morphs';
-import { WeighedGrayMorph } from './morphs';
-import { Regarding, toNextKey } from './reacting';
+import { BeReplacedConfigConcern, UpDown } from './editing-morphs';
+import { WeighedGrayMorphConfig } from './morphs';
+import { Regarding } from './reacting';
 
 export type WeighedGrayMorphEditorConcern =
-    | BeReplacedMorphConcern<WeighedGrayMorph>
+    | BeReplacedConfigConcern<WeighedGrayMorphConfig>
     | typeof UpDown.Concern;
 
 export interface WeighedGrayMorphEditorProps {
-    morph: WeighedGrayMorph;
+    config: WeighedGrayMorphConfig;
     regarding: Regarding<WeighedGrayMorphEditorConcern>;
 }
 
@@ -16,12 +16,10 @@ export class WeighedGrayMorphEditor extends React.PureComponent<WeighedGrayMorph
 
     static Concern: WeighedGrayMorphEditorConcern;
 
-    transform = (change: (morph: WeighedGrayMorph) => WeighedGrayMorph) => {
-        let { morph, regarding } = this.props;
-        const { key } = morph;
-        morph = change(morph);
-        morph.key = toNextKey();
-        regarding({ about: 'be-replaced-morph', key, morph });
+    transform = (change: (morph: WeighedGrayMorphConfig) => WeighedGrayMorphConfig) => {
+        let { config, regarding } = this.props;
+        config = change(config);
+        regarding({ about: 'be-replaced-config', config });
     }
     whenToggled: ChangeEventHandler<HTMLInputElement> = e => {
         this.transform(morph => ({
@@ -30,7 +28,7 @@ export class WeighedGrayMorphEditor extends React.PureComponent<WeighedGrayMorph
         }));
     };
     render() {
-        const { morph: { key, isEnabled }, regarding } = this.props;
+        const { config: { key, isEnabled }, regarding } = this.props;
         return <div className="morph">
             <div className="morph-name">
                 <label><input type="checkbox" checked={isEnabled} onChange={this.whenToggled} /> weighed gray</label> <span>

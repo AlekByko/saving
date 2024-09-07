@@ -1,14 +1,14 @@
 import React, { ChangeEventHandler } from 'react';
-import { BeReplacedMorphConcern, UpDown } from './editing-morphs';
-import { GaussBlurMorph } from './morphs';
-import { Regarding, toNextKey } from './reacting';
+import { BeReplacedConfigConcern, UpDown } from './editing-morphs';
+import { GaussBlurMorphConfig } from './morphs';
+import { Regarding } from './reacting';
 
 export type GaussBlurMorphEditorConcern =
-    | BeReplacedMorphConcern<GaussBlurMorph>
+    | BeReplacedConfigConcern<GaussBlurMorphConfig>
     | typeof UpDown.Concern;
 
 export interface GaussBlurMorphEditorProps {
-    morph: GaussBlurMorph;
+    config: GaussBlurMorphConfig;
     regarding: Regarding<GaussBlurMorphEditorConcern>;
 }
 
@@ -16,12 +16,10 @@ export class GaussBlurMorphEditor extends React.PureComponent<GaussBlurMorphEdit
 
     static Concern: GaussBlurMorphEditorConcern;
 
-    transform = (change: (morph: GaussBlurMorph) => GaussBlurMorph) => {
-        let { morph, regarding } = this.props;
-        const { key } = morph;
-        morph = change(morph);
-        morph.key = toNextKey();
-        regarding({ about: 'be-replaced-morph', key, morph });
+    transform = (change: (morph: GaussBlurMorphConfig) => GaussBlurMorphConfig) => {
+        let { config, regarding } = this.props;
+        config = change(config);
+        regarding({ about: 'be-replaced-config', config });
     }
     whenToggled: ChangeEventHandler<HTMLInputElement> = e => {
         this.transform(morph => ({
@@ -36,7 +34,7 @@ export class GaussBlurMorphEditor extends React.PureComponent<GaussBlurMorphEdit
         }));
     };
     render() {
-        const { morph: { isEnabled, kernelSize, key }, regarding } = this.props;
+        const { config: { isEnabled, kernelSize, key }, regarding } = this.props;
         return <div className="morph">
             <div className="morph-name">
                 <label><input type="checkbox" checked={isEnabled} onChange={this.whenToggled} /> gauss blur</label>  <span>

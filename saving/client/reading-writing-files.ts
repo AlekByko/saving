@@ -116,6 +116,19 @@ export async function willTryGetFile(
     }
 }
 
+export async function willOpenJsonFile(
+    dir: FileSystemDirectoryHandle,
+    name: string,
+): Promise<any> {
+    const handle = await willTryGetFile(dir, name, false);
+    if (isNull(handle)) return null;
+    const file = await handle.getFile();
+    const json = await file.text();
+    return JSON.parse(json);
+}
+
+
+
 export async function willSaveFile(
     file: FileSystemFileHandle,
     stuff: string | Blob,
@@ -124,6 +137,8 @@ export async function willSaveFile(
     await writable.write(stuff);
     await writable.close();
 }
+
+
 
 export async function willPickAndSaveDirRef(
     db: IDBDatabase,

@@ -1,14 +1,14 @@
 import React, { ChangeEventHandler } from 'react';
-import { BeReplacedMorphConcern, UpDown } from './editing-morphs';
-import { DynamicThrescholdMorph } from './morphs';
-import { Regarding, toNextKey } from './reacting';
+import { BeReplacedConfigConcern, UpDown } from './editing-morphs';
+import { DynamicThrescholdMorphConfig } from './morphs';
+import { Regarding } from './reacting';
 
 export type DynamicThrescholdMorphEditorConcern =
-    | BeReplacedMorphConcern<DynamicThrescholdMorph>
+    | BeReplacedConfigConcern<DynamicThrescholdMorphConfig>
     | typeof UpDown.Concern;
 
 export interface DynamicThrescholdMorphEditorProps {
-    morph: DynamicThrescholdMorph;
+    config: DynamicThrescholdMorphConfig;
     regarding: Regarding<DynamicThrescholdMorphEditorConcern>;
 }
 
@@ -16,12 +16,10 @@ export class DynamicThrescholdMorphEditor extends React.PureComponent<DynamicThr
 
     static Concern: DynamicThrescholdMorphEditorConcern;
 
-    transform = (change: (morph: DynamicThrescholdMorph) => DynamicThrescholdMorph) => {
-        let { morph, regarding } = this.props;
-        const { key } = morph;
-        morph = change(morph);
-        morph.key = toNextKey();
-        regarding({ about: 'be-replaced-morph', key, morph });
+    transform = (change: (morph: DynamicThrescholdMorphConfig) => DynamicThrescholdMorphConfig) => {
+        let { config, regarding } = this.props;
+        config = change(config);
+        regarding({ about: 'be-replaced-config', config });
     }
 
     whenToggled: ChangeEventHandler<HTMLInputElement> = e => {
@@ -41,8 +39,8 @@ export class DynamicThrescholdMorphEditor extends React.PureComponent<DynamicThr
     };
 
     render() {
-        const { morph, regarding } = this.props;
-        const { isEnabled, dynamicWindowSize, gaussKernelSize, minDynamicRange, shouldUseMinDynamicRange, key } = morph;
+        const { config, regarding } = this.props;
+        const { isEnabled, dynamicWindowSize, gaussKernelSize, minDynamicRange, shouldUseMinDynamicRange, key } = config;
         return <div className="morph">
             <div className="morph-name">
                 <label><input type="checkbox" checked={isEnabled} onChange={this.whenToggled} /> dynamic threschold</label> <span>

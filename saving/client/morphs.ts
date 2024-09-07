@@ -1,76 +1,59 @@
-import { thusStorageTrackerOf } from './storage-tracker';
 
 export type MorphConfig =
     | GaussBlurMorphConfig
     | WeighedGrayMorphConfig
     | DynamicThrescholdMorphConfig
     | MaxVotingMorphConfig
-    | HorzVertBitHistoMorpgConfig;
+    | HorzVertBitHistoMorphConfig;
 
-export type Morph =
-    | GaussBlurMorph
-    | WeighedGrayMorph
-    | DynamicThrescholdMorph
-    | MaxVotingMorph
-    | HorzVertBitHistoMorph;
-
-export interface HorzVertBitHistoMorpgConfig {
+export interface HorzVertBitHistoMorphConfig {
     kind: 'horz-vert-bit-histo-morph';
+    key: string;
     isEnabled: boolean;
     vectorSize: number;
-}
-export interface HorzVertBitHistoMorph
-    extends HorzVertBitHistoMorpgConfig {
-    key: string;
 }
 
 export interface GaussBlurMorphConfig {
     kind: 'gauss-blur-morph';
+    key: string;
     isEnabled: boolean;
     kernelSize: number;
 }
 
-export interface GaussBlurMorph
-    extends GaussBlurMorphConfig {
-    key: string;
-}
-
 export interface WeighedGrayMorphConfig {
     kind: 'weighed-gray-morph';
+    key: string;
     isEnabled: boolean;
 }
-export interface WeighedGrayMorph
-    extends WeighedGrayMorphConfig {
-    key: string;
-}
+
 
 export interface DynamicThrescholdMorphConfig {
     kind: 'dynamic-threschold-morph';
+    key: string;
     isEnabled: boolean;
     gaussKernelSize: number;
     minDynamicRange: number;
     dynamicWindowSize: number;
     shouldUseMinDynamicRange: boolean;
 }
-export interface DynamicThrescholdMorph
-    extends DynamicThrescholdMorphConfig {
-    key: string;
-}
 
 export interface MaxVotingMorphConfig {
     kind: 'max-voting-morph';
+    key: string;
     isEnabled: boolean;
     windowSize: number;
 }
-export interface MaxVotingMorph
-    extends MaxVotingMorphConfig {
-    key: string;
-}
 
-export interface MorphFlowConfig {
-    name: string;
+export type ModConfig =
+    | MorphFlowModConfig;
+
+export interface MorphFlowModConfig {
+    kind: 'morph-flow-modder';
+    key: string;
+    isApplied: boolean;
     morphs: MorphConfig[];
 }
 
-export const StorageTracker = thusStorageTrackerOf<MorphFlowConfig, string>('morph', 100, x => x.name);
-
+export interface VisionaryConfig {
+    modders: ModConfig[];
+}
