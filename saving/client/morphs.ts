@@ -4,13 +4,25 @@ export type MorphConfig =
     | GaussBlurMorphConfig
     | WeighedGrayMorphConfig
     | DynamicThrescholdMorphConfig
-    | MaxVotingMorphConfig;
+    | MaxVotingMorphConfig
+    | HorzVertBitHistoMorpgConfig;
 
 export type Morph =
     | GaussBlurMorph
     | WeighedGrayMorph
     | DynamicThrescholdMorph
-    | MaxVotingMorph;
+    | MaxVotingMorph
+    | HorzVertBitHistoMorph;
+
+export interface HorzVertBitHistoMorpgConfig {
+    kind: 'horz-vert-bit-histo-morph';
+    isEnabled: boolean;
+    vectorSize: number;
+}
+export interface HorzVertBitHistoMorph
+    extends HorzVertBitHistoMorpgConfig {
+    key: string;
+}
 
 export interface GaussBlurMorphConfig {
     kind: 'gauss-blur-morph';

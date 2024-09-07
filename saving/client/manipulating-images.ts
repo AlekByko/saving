@@ -10,8 +10,12 @@ export function normalizeInPlace(values: number[]): void {
     for (let i = 0; i < values.length; i++) {
         sum += values[i];
     }
+    normalizeInPlaceByTotal(values, sum);
+}
+
+export function normalizeInPlaceByTotal(values: number[], total: number): void {
     for (let i = 0; i < values.length; i++) {
-        values[i] /= sum;
+        values[i] /= total;
     }
 }
 
@@ -499,4 +503,49 @@ export function LABed(imda: ImageData): void {
         data[i + 1] = l;
         data[i + 2] = l;
     }
+}
+
+export function makeHorzVertVector(imda: ImageData, vectorSize: number): number[] {
+    const stride = 4;
+    const { data, width, height } = imda;
+    const sourceLength = width + height;
+    const vector = new Array(vectorSize) as number[];
+    vector.fill(0);
+
+    let si = -1; // source index
+
+    // adding sums by row to the result vector
+    for (let y = 0; y < height; y++) {
+        si += 1;
+        let row = 0;
+        for (let x = 0; x < width; x++) {
+            const i = (y * width + x) * stride;
+            const d = data[i];
+            row += d > 128 ? 1 : 0;
+        }
+        const vi = convertSourceIndexToTargetIndex(sourceLength, si, vectorSize);
+        vector[vi] += row;
+    }
+
+    // adding sums by column to the result vector
+    for (let x = 0; x < width; x++) {
+        si += 1;
+        let column = 0;
+        for (let y = 0; y < height; y++) {
+            const i = (y * width + x) * stride;
+            const d = data[i];
+            column += d > 128 ? 1 : 0;
+        }
+        const vi = convertSourceIndexToTargetIndex(sourceLength, si, vectorSize);
+        vector[vi] += column;
+    }
+
+
+    return vector;
+}
+
+function convertSourceIndexToTargetIndex(sourceLength: number, sourceIndex: number, targetLength: number): number {
+    const normalizedPos = sourceIndex / sourceLength; // AB: should be less than 1, from 0.0 to 0.99999
+    const targetIndex = Math.floor(normalizedPos * targetLength);
+    return targetIndex;
 }
