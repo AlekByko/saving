@@ -1,16 +1,17 @@
 import { isNonNull } from './shared/core';
 
-export interface SelectingDefaults<Order, Item>{
+export interface SelectingDefaults<Key, Order, Item> {
     orderOf: (item: Item) => Order;
     coordsOf: (item: Item) => [number, number];
     isSetOf: (item: Item) => boolean;
     seeWhichComesFirst: (one: Order, another: Order) => Order;
     seeWhichComesLast: (one: Order, another: Order) => Order;
+    keyOf: (item: Item) => Key,
 }
 
-export function enableSelecting<Order, Item>(defaults: SelectingDefaults<Order, Item>) {
+export function enableSelecting<Key, Order, Item>(defaults: SelectingDefaults<Key, Order, Item>) {
 
-    const { orderOf, coordsOf, isSetOf, seeWhichComesFirst, seeWhichComesLast } = defaults;
+    const { keyOf, orderOf, coordsOf, isSetOf, seeWhichComesFirst, seeWhichComesLast } = defaults;
 
     let startItem: Item | null = null;
 
@@ -18,22 +19,22 @@ export function enableSelecting<Order, Item>(defaults: SelectingDefaults<Order, 
         startItem = item;
     }
 
-    function whenClicked(item: Item, selected: Map<Order, boolean>) {
+    function whenClicked(item: Item, selected: Map<Key, boolean>) {
         startItem = item;
-        const order = orderOf(item);
-        const isSelected = selected.get(order)!;
+        const key = keyOf(item);
+        const isSelected = selected.get(key)!;
         const flipped = !isSelected;
         if (flipped === true) {
-            selected.set(order, flipped);
+            selected.set(key, flipped);
         } else {
-            selected.delete(order);
+            selected.delete(key);
         }
     }
 
     function whenShiftClicked(
         item: Item,
         all: Item[],
-        selected: Map<Order, boolean>,
+        selected: Map<Key, boolean>,
         shouldForce: boolean,
         shouldSquare: boolean,
     ): void {
@@ -52,9 +53,9 @@ export function enableSelecting<Order, Item>(defaults: SelectingDefaults<Order, 
                     const isSet = isSetOf(item);
                     const isIn = col >= firstCol && col <= lastCol && row >= firstRow && row <= lastRow;
                     if (isIn) {
-                        const order = orderOf(item);
+                        const key = keyOf(item);
                         if (seeIfCanSet(isSet, shouldForce)) {
-                            selected.set(order, true);
+                            selected.set(key, true);
                         }
                     } else {
                         // do nothing
@@ -69,20 +70,21 @@ export function enableSelecting<Order, Item>(defaults: SelectingDefaults<Order, 
                 let isIn = false;
                 for (const nextItem of all) {
                     const order = orderOf(nextItem);
+                    const key = keyOf(nextItem);
                     const isSet = isSetOf(nextItem);
                     if (order === firstOrder) {
                         isIn = true;
                         if (seeIfCanSet(isSet, shouldForce)) {
-                            selected.set(order, true);
+                            selected.set(key, true);
                         }
                     } else if (order === lastOrder) {
                         isIn = false;
                         if (seeIfCanSet(isSet, shouldForce)) {
-                            selected.set(order, true);
+                            selected.set(key, true);
                         }
                     } else if (isIn) {
                         if (seeIfCanSet(isSet, shouldForce)) {
-                            selected.set(order, true);
+                            selected.set(key, true);
                         }
                     } else {
                         // do nothing
@@ -92,8 +94,8 @@ export function enableSelecting<Order, Item>(defaults: SelectingDefaults<Order, 
         } else {
             // doing single
             startItem = item;
-            const order = orderOf(item);
-            selected.set(order, true);
+            const key = keyOf(item);
+            selected.set(key, true);
         }
     }
 
