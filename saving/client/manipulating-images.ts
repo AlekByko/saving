@@ -464,6 +464,26 @@ export function weighted(imda: ImageData): void {
 
 }
 
+function make1D(length: number, fill: number): number[] {
+    return Array.from({ length }).fill(fill) as number[];
+}
+export function makeWeighted(imda: ImageData): number[] {
+    // do nothing
+    const { data, width, height } = imda;
+
+    const result = make1D(width * height, 0);
+    let ri = -1;
+    for (let i = 0; i < data.length; i += 4) {
+        ri += 1;
+        const r = data[i + 0];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const y = 0.299 * r + 0.587 * g + 0.114 * b;
+        result[ri] = y;
+    }
+    return result;
+}
+
 export interface Xy {
     x: number;
     y: number;
@@ -509,8 +529,7 @@ export function makeHorzVertVector(imda: ImageData, vectorSize: number): number[
     const stride = 4;
     const { data, width, height } = imda;
     const sourceLength = width + height;
-    const vector = new Array(vectorSize) as number[];
-    vector.fill(0);
+    const vector = make1D(vectorSize, 0);
 
     let si = -1; // source index
 
@@ -550,15 +569,16 @@ function convertSourceIndexToTargetIndex(sourceLength: number, sourceIndex: numb
     return targetIndex;
 }
 
-export function makeSquaresNormedEnergyVector(imda: ImageData, size: number): number[] {
-    const { data, width, height } = imda;
-    const stride = 4;
+export function makeNormedEnergyPerSquareVector(imda: ImageData, size: number): number[] {
+
+    const w = makeWeighted(imda);
+    const { width, height } = imda;
 
     if (width % size !== 0) return alertAndFail(`Bad width ${width}.`);
     if (height % size !== 0) return alertAndFail(`Bad height ${height}.`);
 
     let squaresLength = width * height / size / size;
-    let energies = Array.from({ length: squaresLength }).fill(0) as number[];
+    let energies = make1D(squaresLength, 0);
 
     let si = -1;
     for (let y = 0; y < height; y += size) {
@@ -567,8 +587,8 @@ export function makeSquaresNormedEnergyVector(imda: ImageData, size: number): nu
             let e = 0;
             for (let dy = 0; dy < size; dy++) {
                 for (let dx = 0; dx < size; dx++) {
-                    const i = ((y + dy) * width + (x + dx)) * stride;
-                    const d = data[i];
+                    const wi = (y + dy) * width + (x + dx);
+                    const d = w[wi];
                     e += d;
                 }
             }

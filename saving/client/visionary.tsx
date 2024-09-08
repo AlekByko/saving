@@ -66,9 +66,9 @@ export class Visionary extends React.Component<VisionaryProps, State> {
         const { config } = this.state;
         if (isNull(config)) return null;
         const { modders } = config;
-        return <div className="morpher" ref={this.moving.whenRootElement}>
-            <div className="morpher-header" ref={this.moving.whenHandleElement}>Morpher header</div>
-            <div>
+        return <div className="visionary" ref={this.moving.whenRootElement}>
+            <div className="visionary-header" ref={this.moving.whenHandleElement}>Visionary</div>
+            <div className="visionary-body">
                 {modders.map(modder => {
                     const { key } = modder;
                     switch (modder.kind) {

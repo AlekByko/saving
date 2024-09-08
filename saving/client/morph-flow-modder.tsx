@@ -33,7 +33,7 @@ export class MorphFlowModder extends React.PureComponent<MorphFlowModderProps>{
 
     render() {
         const { config: { morphs } } = this.props;
-        return <div>
+        return <div className="mod">
             <div>
                 <MorphLister morphs={morphs} regarding={this.regardingEditor} />
             </div>

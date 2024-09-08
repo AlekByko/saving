@@ -33,7 +33,8 @@ export class KMeansClusteringModder extends React.PureComponent<KMeansClustering
 
     render() {
         const { config: { k } } = this.props;
-        return <div>
+        return <div className="mod">
+            <div className="mod-name">K-means</div>
             <div className="morph-props">
                 K: <input className="morph-number" type="number" size={3} value={k} onChange={this.whenChangedK} />
             </div>
