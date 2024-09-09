@@ -1,17 +1,25 @@
 import { isNonNull } from './shared/core';
 
-export interface SelectingDefaults<Key, Order, Item> {
+export interface SelectingDefaults<Order, Item, Selected> {
     orderOf: (item: Item) => Order;
     coordsOf: (item: Item) => [number, number];
-    isSetOf: (item: Item) => boolean;
+    seeIfSet: (item: Item) => boolean;
     seeWhichComesFirst: (one: Order, another: Order) => Order;
     seeWhichComesLast: (one: Order, another: Order) => Order;
-    keyOf: (item: Item) => Key,
+    seeIfHasAny: (selected: Selected) => boolean;
+    seeIfSelected: (selected: Selected, item: Item) => boolean;
+    makeSelected: (selected: Selected, item: Item) => void;
+    makeUnselected: (selected: Selected, item: Item) => void;
+    makeAllUnselected: (selected: Selected, item: Item[]) => void;
 }
 
-export function enableSelecting<Key, Order, Item>(defaults: SelectingDefaults<Key, Order, Item>) {
+export function enableSelecting<Order, Item, Selected>(defaults: SelectingDefaults<Order, Item, Selected>) {
 
-    const { keyOf, orderOf, coordsOf, isSetOf, seeWhichComesFirst, seeWhichComesLast } = defaults;
+    const {
+        orderOf, coordsOf, seeIfSet,
+        seeWhichComesFirst, seeWhichComesLast,
+        seeIfSelected, makeSelected, makeUnselected,
+     } = defaults;
 
     let startItem: Item | null = null;
 
@@ -19,22 +27,21 @@ export function enableSelecting<Key, Order, Item>(defaults: SelectingDefaults<Ke
         startItem = item;
     }
 
-    function whenClicked(item: Item, selected: Map<Key, boolean>) {
+    function whenClicked(item: Item, selected: Selected) {
         startItem = item;
-        const key = keyOf(item);
-        const isSelected = selected.get(key)!;
+        const isSelected = seeIfSelected(selected, item);
         const flipped = !isSelected;
         if (flipped === true) {
-            selected.set(key, flipped);
+            makeSelected(selected, item);
         } else {
-            selected.delete(key);
+            makeUnselected(selected, item);
         }
     }
 
     function whenShiftClicked(
         item: Item,
         all: Item[],
-        selected: Map<Key, boolean>,
+        selected: Selected,
         shouldForce: boolean,
         shouldSquare: boolean,
     ): void {
@@ -50,12 +57,11 @@ export function enableSelecting<Key, Order, Item>(defaults: SelectingDefaults<Ke
                 const lastRow = Math.max(startRow, endRow);
                 for (const item of all) {
                     const [col, row] = coordsOf(item);
-                    const isSet = isSetOf(item);
+                    const isSet = seeIfSet(item);
                     const isIn = col >= firstCol && col <= lastCol && row >= firstRow && row <= lastRow;
                     if (isIn) {
-                        const key = keyOf(item);
                         if (seeIfCanSet(isSet, shouldForce)) {
-                            selected.set(key, true);
+                            makeSelected(selected, item);
                         }
                     } else {
                         // do nothing
@@ -70,21 +76,20 @@ export function enableSelecting<Key, Order, Item>(defaults: SelectingDefaults<Ke
                 let isIn = false;
                 for (const nextItem of all) {
                     const order = orderOf(nextItem);
-                    const key = keyOf(nextItem);
-                    const isSet = isSetOf(nextItem);
+                    const isSet = seeIfSet(nextItem);
                     if (order === firstOrder) {
                         isIn = true;
                         if (seeIfCanSet(isSet, shouldForce)) {
-                            selected.set(key, true);
+                            makeSelected(selected, nextItem);
                         }
                     } else if (order === lastOrder) {
                         isIn = false;
                         if (seeIfCanSet(isSet, shouldForce)) {
-                            selected.set(key, true);
+                            makeSelected(selected, nextItem);
                         }
                     } else if (isIn) {
                         if (seeIfCanSet(isSet, shouldForce)) {
-                            selected.set(key, true);
+                            makeSelected(selected, nextItem);
                         }
                     } else {
                         // do nothing
@@ -94,8 +99,7 @@ export function enableSelecting<Key, Order, Item>(defaults: SelectingDefaults<Ke
         } else {
             // doing single
             startItem = item;
-            const key = keyOf(item);
-            selected.set(key, true);
+            makeSelected(selected, item);
         }
     }
 
