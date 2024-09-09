@@ -13,9 +13,10 @@
   "devDependencies": {
     "@types/react": "16.9.41",
     "@types/react-dom": "16.9.6",
+    "@types/three": "0.164.1",
     "@types/websocket": "^1.0.10",
     "@types/ws": "7.4.7",
-    "@types/three": "0.164.1",
+    "ffmetadata": "^1.7.0",
     "less": "3.9.0",
     "mongodb": "^6.3.0",
     "npm": "6.14.4",
