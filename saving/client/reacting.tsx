@@ -10,15 +10,12 @@ export function addClassIf(shouldAdd: boolean, className: string): string {
 export function addClassIfDefined(className: string | undefined): string {
     return isDefined(className) ? ' ' + className : '';
 }
-let lastKey = 0;
-export function toNextKey(): string {
-    return 'key#' + (lastKey++);
-}
+
 export function toRandKey(): string {
     let key = Math.random();
     key = key * 100000000000;
     key = Math.floor(key);
-    return 'key-' + key.toString(16);
+    return key.toString(16).padStart(11, '0');
 }
 
 export function atBottomLeft(element: HTMLElement): Point {
