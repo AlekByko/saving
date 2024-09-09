@@ -91,6 +91,14 @@ export function thusDbTracker<Config, Key extends string, Context>(
             this.all.set(key, config);
             await this.saveNow();
         }
+        public async willPutAll(configs: Config[]): Promise<void> {
+            for (const config of configs) {
+                const key = keyOf(config);
+                this.dirty.add(key);
+                this.all.set(key, config);
+            }
+            await this.saveNow();
+        }
 
         public forEach(use: (config: Config) => void): void {
             this.all.forEach(use);
