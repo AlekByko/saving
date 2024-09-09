@@ -65,6 +65,7 @@ export interface EnergyPerSquareModConfig {
     kind: 'energy-per-square-mod';
     key: string;
     squareSize: number;
+    shouldSort: boolean;
 }
 
 export interface KMeansClusteringModConfig {
