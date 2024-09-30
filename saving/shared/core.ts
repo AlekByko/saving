@@ -415,12 +415,15 @@ export function alertAndFail(message: string): never {
 
 
 export function readQueryStringParam<S extends string, Or>(
-    pattern: string, seeIfValid: (x: string) => x is S, or: Or
+    regexp: RegExp, seeIfValid: (x: string) => x is S, or: Or
 ): S | Or {
-    const regexp = new RegExp(pattern, 'ig');
     const matched = regexp.exec(window.location.search);
     if (isNull(matched)) return or;
     const [_full, value] = matched;
     if (seeIfValid(value)) return value;
     return or;
+}
+
+export function testQueryString(regexp: RegExp): boolean {
+    return regexp.test(window.location.search);
 }
