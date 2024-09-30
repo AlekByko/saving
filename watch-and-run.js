@@ -6,6 +6,9 @@ let isRunning = false;
 const watchedDir = args[0];
 const command = args[1];
 const pattern = new RegExp(args[2]);
+const text = String.fromCharCode(27) + "]0;" + 'LESS' + String.fromCharCode(7);
+process.stdout.write(text);
+
 fs.watch(watchedDir, { encoding: 'utf-8', recursive: true }, (eventType, filename) => {
   if (isRunning) return;
   const isWelcome = new RegExp(args[2]).test(filename);
