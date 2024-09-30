@@ -20,7 +20,7 @@ export function enableSelecting<Order, Item, Selected>(defaults: SelectingDefaul
         orderOf, coordsOf, seeIfSet,
         seeWhichComesFirst, seeWhichComesLast,
         seeIfSelected, makeSelected, makeUnselected,
-     } = defaults;
+    } = defaults;
 
     let startItem: Item | null = null;
 
@@ -104,9 +104,11 @@ export function enableSelecting<Order, Item, Selected>(defaults: SelectingDefaul
         }
     }
 
+
+
+
     return { whenClicked, whenShiftClicked, setDefault };
 }
 function seeIfCanSet(isSet: boolean, shouldForce: boolean): boolean {
     return !isSet || shouldForce;
 }
-

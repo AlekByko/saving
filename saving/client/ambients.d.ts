@@ -65,5 +65,6 @@ interface ForEachable<T> {
 type Act = () => void;
 type Use<T> = (value: T) => void;
 type WillAct = () => Promise<void>;
+type WillUse<T> = (value: T) => Promise<void>;
 type Sorting<T> = (values: T[]) => T[];
 type Germinate<T> = (value: T, imda: ImageData) => void;
