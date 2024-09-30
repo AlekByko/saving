@@ -427,3 +427,21 @@ export function readQueryStringParam<S extends string, Or>(
 export function testQueryString(regexp: RegExp): boolean {
     return regexp.test(window.location.search);
 }
+
+export interface Box {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+export function readBoxOr<Or>(regexp: RegExp, or: Or): Box | Or {
+    const matched = regexp.exec(window.location.search);
+    if (isNull(matched)) return or;
+    const [_full, textX, textY, textWidth, textHeight] = matched;
+    const x = parseInt(textX, 10);
+    const y = parseInt(textY, 10);
+    const width = parseInt(textWidth, 10);
+    const height = parseInt(textHeight, 10);
+    return { x, y, width, height };
+}
