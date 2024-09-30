@@ -24,7 +24,7 @@ export async function willBeWorking<State>(
         if (controller.shouldFinish) return lastState;
 
         // trying get the last job
-        let job = jobs.shift();
+        let job = jobs.pop(); // <-- since `unshift` is used to add tasks
         if (isUndefined(job)) {
 
             // there are no jobs
@@ -35,7 +35,7 @@ export async function willBeWorking<State>(
             replenish(jobs);
 
             shouldWait = true; // <-- assuming the worse
-            job = jobs.shift();
+            job = jobs.pop(); // <-- since `unshift` is used to add tasks
             if (isUndefined(job)) return lastState; // <-- no jobs
         }
 
