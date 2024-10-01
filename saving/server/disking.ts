@@ -1,5 +1,5 @@
 import child from 'child_process';
-import { closeSync, lstatSync, openSync, readdirSync } from 'fs';
+import { closeSync, copyFileSync, existsSync, lstatSync, openSync, readdirSync } from 'fs';
 import { join } from 'path';
 
 export interface DirFile {
@@ -37,16 +37,45 @@ export function combinePath(path1: string, path2: string): string {
     return join(path1, path2).replace(/\\/g, '/')
 }
 
+
+export function copyFile(filePath: string, targetPath: string) {
+    try {
+        if (existsSync(targetPath)) {
+            return 'target-file-exists';
+        }
+    }
+    catch (e: any) {
+        console.log(`Unable to check if the target ${targetPath} for the source ${filePath} already exists. Unexpected error.`);
+        console.log(e);
+        return 'unexpected-error';
+    }
+
+    try {
+        copyFileSync(filePath, targetPath);
+        return 'copied';
+    } catch (e: any) {
+        if (e.code === 'ENOSPC') {
+            return 'no-space-left';
+        } else {
+            console.log(`Unable to copy ${filePath} to ${targetPath}. Unexpected error.`);
+            console.log(e);
+            return 'unexpected-error';
+        }
+    }
+}
+
 export function seeIfBeingWrittenTo(path: string): boolean {
     try {
         const fd = openSync(path, 'r+');
         closeSync(fd);
         return false;
-    } catch (err: any) {
-        if (err.code === 'EBUSY' || err.code === 'EACCES' || err.code === 'EPERM') {
+    } catch (e: any) {
+        if (e.code === 'EBUSY' || e.code === 'EACCES' || e.code === 'EPERM') {
             return true;
         } else {
-            return true;
+            console.log(`Unable to check if ${path} is writable. Unexpected error.`);
+            console.log(e);
+            throw e;
         }
     }
 }
