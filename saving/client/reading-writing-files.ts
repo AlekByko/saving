@@ -1,7 +1,7 @@
 import { willFindAllInStoreOf, willPutAllToStoreOf } from "./databasing";
 import { KnownPickedDirEntry } from "./file-system-entries";
 import { knownDbStores } from "./known-settings";
-import { alwaysTrue, isNull } from './shared/core';
+import { alwaysTrue, fail, isNull } from './shared/core';
 import { KnownPickedDirRef } from './shared/identities';
 
 // https://web.dev/file-system-access/
@@ -147,4 +147,23 @@ export async function willPickAndSaveDirRef(
     const handle = await window.showDirectoryPicker();
     await willSaveDirRef(ref, handle, db);
     return handle;
+}
+export function assertIsFileSystemFileHandle(handle: FileSystemHandle): asserts handle is FileSystemFileHandle {
+    if (handle.kind === 'file') return;
+    debugger;
+    return fail('Expected to be a file.');
+}
+
+export function assertIsFileSystemDirectoryHandle(handle: FileSystemHandle): asserts handle is FileSystemDirectoryHandle {
+    if (handle.kind === 'directory') return;
+    debugger;
+    return fail('Expected to be a directory.');
+}
+
+export async function willGetFileOr<Or>(dir: FileSystemDirectoryHandle, name: string, or: Or) {
+    try {
+        return await dir.getFileHandle(name);
+    } catch {
+        return or;
+    }
 }

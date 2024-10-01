@@ -408,6 +408,7 @@ export function cast(_name: any): void { }
 
 export function alertAndFail(message: string): never {
     debugger;
+    console.trace();
     alert(message);
     window.history.go(0);
     return fail(message);
