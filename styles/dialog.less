@@ -25,15 +25,21 @@
     color: white;
     max-width: 120px;
     text-align: center;
-    background-color: darkturquoise;
+    background-color: rgb(186, 186, 186);
     padding: 20px 40px;
     &:hover {
-        filter: brightness(125%);
+        background-color: #e1e1e1;
+    }
+    &.as-desired {
+        background-color: darkturquoise;
+        &:hover{
+            background-color: #00fbff;
+        }
     }
 }
 
 .dialog-button+.dialog-button {
-    margin-left: 20px;
+    margin-top: 20px;
 }
 
 .dialog-buttons {
@@ -41,10 +47,15 @@
     flex-direction: row;
 }
 
-.dialog-buttons+.dialog-buttons {
-    margin-top: 20px;
+.dialog-buttons-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.dialog-buttons-group + .dialog-buttons-group {
+    margin-left: 20px;
 }
 
 .trash-dialog {
-    .dialog(400px, 200px);
+    .dialog(600px, 200px);
 }
