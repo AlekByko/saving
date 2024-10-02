@@ -1,5 +1,5 @@
 import child from 'child_process';
-import { closeSync, copyFileSync, existsSync, lstatSync, openSync, readdirSync, RmOptions, rmSync } from 'fs';
+import { closeSync, copyFileSync, existsSync, lstatSync, openSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { fix } from './shared/core';
 
@@ -102,15 +102,3 @@ export function willBeDiskNames() {
     });
 }
 
-export type FileRemovedOrNot = ReturnType<typeof removeFile>;
-
-const forcedRemoveOptions: RmOptions = { force: true };
-
-export function removeFile(path: string) {
-    try {
-        rmSync(path, forcedRemoveOptions);
-        return fix({ kind: 'file-removed' });
-    } catch (e: any) {
-        return fix({ kind: 'cannot-remove-file' as const, path, e });
-    }
-}

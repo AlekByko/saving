@@ -60,12 +60,22 @@ export function fail(message: string): never {
     throw new Error(message);
 }
 
+
+
 export function failLoud(message: string): never {
     debugger;
     console.trace();
     alert(message);
     debugger;
     throw new Error(message);
+}
+
+export function logAndFail(e: any): never {
+    debugger;
+    console.error(e);
+    console.trace();
+    debugger;
+    throw new Error(e);
 }
 
 export function asFiniteOr<Or>(value: number, or: Or): number | Or {

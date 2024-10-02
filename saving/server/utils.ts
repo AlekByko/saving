@@ -3,9 +3,9 @@ export function setConsoleTitle(title: string): void {
     process.stdout.write(text);
 }
 
-export function wait(delay: number): Promise<void> {
+export function wait(ms: number): Promise<void> {
     return new Promise<void>(resolve => {
-        setTimeout(resolve, delay);
+        setTimeout(resolve, ms);
     });
 }
 

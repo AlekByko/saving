@@ -1,5 +1,6 @@
 
 import { ChildProcess, spawn, SpawnOptions } from 'child_process';
+import * as fs from 'fs';
 import { isNull } from './shared/core';
 
 export type AppRun = NoCodeAppRun | CodedAppRun | ErroredAppRun;
@@ -157,6 +158,39 @@ export function willRunChildAttachedExt1(command: string, args: string[]): Promi
             resolve(code);
         });
 
+    });
+}
+export function willRunChildAttachedAndLogFile(
+    command: string,
+    args: string[],
+    logPath: string,
+): Promise<number | null> {
+
+    console.log(command, args);
+    const options: SpawnOptions = {
+        detached: false,
+        cwd: process.cwd(),
+        shell: false,
+        env: process.env,
+        windowsHide: true,
+        windowsVerbatimArguments: true,
+        // below
+        // - "pipe": means stdout and stderr are non null, and parent process can listen to them
+        // - "inherit": means stdout and stderr are null, and parent process gets all output of the child to its console
+        stdio: ['inherit', 'pipe', 'pipe'],
+    };
+    const logFile = fs.createWriteStream(logPath);
+    // https://nodejs.org/dist./v0.10.44/docs/api/child_process.html#child_process_child_stdio
+    const child = spawn(command, args, options);
+    child.stdout!.pipe(process.stdout);
+    child.stderr!.pipe(process.stderr);
+
+    child.stdout!.pipe(logFile);
+    child.stderr!.pipe(logFile);
+    return new Promise<number | null>(async resolve => {
+        child.on('exit', code => {
+            resolve(code);
+        });
     });
 }
 
