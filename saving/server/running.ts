@@ -1,7 +1,7 @@
 
 import { ChildProcess, spawn, SpawnOptions } from 'child_process';
 import * as fs from 'fs';
-import { isNull } from './shared/core';
+import { fix, isNull } from './shared/core';
 
 export type AppRun = NoCodeAppRun | CodedAppRun | ErroredAppRun;
 export interface NoCodeAppRun {
@@ -164,7 +164,7 @@ export function willRunChildAttachedAndLogFile(
     command: string,
     args: string[],
     logPath: string,
-): Promise<number | null> {
+) {
 
     console.log(command, args);
     const options: SpawnOptions = {
@@ -187,9 +187,14 @@ export function willRunChildAttachedAndLogFile(
 
     child.stdout!.pipe(logFile);
     child.stderr!.pipe(logFile);
-    return new Promise<number | null>(async resolve => {
-        child.on('exit', code => {
-            resolve(code);
+    return new Promise<{ kind: 'error', e: any } | { kind: 'exit', code: number | null, signal: NodeJS.Signals | null }>(resolve => {
+        child.on('error', e => { // <-- exit may or may not follow error
+            logFile.close();
+            resolve(fix({ kind: 'error', e }));
+        });
+        child.on('exit', (code, signal) => {
+            logFile.close();
+            resolve(fix({ kind: 'exit', code, signal }));
         });
     });
 }
