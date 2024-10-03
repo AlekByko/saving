@@ -53,7 +53,8 @@ export function copyFile(filePath: string, targetPath: string) {
 
     try {
         copyFileSync(filePath, targetPath);
-        return fix({ kind: 'copied' });
+        const stats = lstatSync(targetPath, {});
+        return fix({ kind: 'copied', size: stats.size });
     } catch (e: any) {
         if (e.code === 'ENOSPC') {
             return fix({ kind: 'no-space-left' });
