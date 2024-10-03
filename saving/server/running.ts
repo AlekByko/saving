@@ -2,7 +2,7 @@
 import { ChildProcess, spawn, SpawnOptions } from 'child_process';
 import * as fs from 'fs';
 import { PassThrough } from 'stream';
-import { fix, isNull } from './shared/core';
+import { fix, isDefined, isNull } from './shared/core';
 
 
 export type AppRun = NoCodeAppRun | CodedAppRun | ErroredAppRun;
@@ -196,12 +196,27 @@ export function willRunChildAttachedAndLogFile(
         child.on('close', _e => {
             logFile.end();
             logFile.close();
+            if (isDefined(lastE)) {
+                resolve(fix({ kind: 'error', e: lastE }));
+            } else {
+                resolve(fix({ kind: 'exit', code: lastCode, signal: lastSignal }));
+            }
         });
+
+
+        let lastE: Error | undefined = undefined;
         child.on('error', e => { // <-- exit may or may not follow error
-            resolve(fix({ kind: 'error', e }));
+            // this is not the final event
+            // close event is the last event when all stdio is closed
+            lastE = e;
         });
+        let lastCode: number | null = null;
+        let lastSignal: NodeJS.Signals | null = null;
         child.on('exit', (code, signal) => {
-            resolve(fix({ kind: 'exit', code, signal }));
+            // this is not the final event
+            // close event is the last event when all stdio is closed
+            lastCode = code;
+            lastSignal = signal;
         });
     });
 }
