@@ -193,8 +193,21 @@ export function willRunChildAttachedAndLogFile(
     stdoutPassThrough.pipe(process.stdout);
     stdoutPassThrough.pipe(logFile);
     stdoutPassThrough.on('error', e => {
-        console.log('error in child stdout', e);
-        disconnect();
+        console.log('Error in child stdout.', e);
+        disconnect('Error in stdout path through.');
+    });
+
+    logFile.on('close', (e: any) => {
+        console.log('Log file closed.');
+        console.log(e);
+        console.trace();
+        disconnect('Log file closed.');
+    });
+    logFile.on('error', e => {
+        console.log('Log file errored.');
+        console.log(e);
+        console.trace();
+        disconnect('Log file errored.');
     });
 
     const stderrPassThrough = new StderrPassThrough();
@@ -202,11 +215,12 @@ export function willRunChildAttachedAndLogFile(
     stderrPassThrough.pipe(process.stderr);
     stderrPassThrough.pipe(logFile);
     stderrPassThrough.on('error', e => {
-        console.log('error in child stderr', e);
-        disconnect();
+        console.log('Error in child stderr.', e);
+        disconnect('Error in stderr-pass-though.');
     });
 
-    function disconnect() {
+    function disconnect(reason: string) {
+        console.log('Unpiping: ' + reason);
         child.stdout!.unpipe(stdoutPassThrough);
         stdoutPassThrough.unpipe(process.stdout);
         stdoutPassThrough.unpipe(logFile);
@@ -220,7 +234,7 @@ export function willRunChildAttachedAndLogFile(
 
     return new Promise<{ kind: 'error', e: any } | { kind: 'exit', code: number | null, signal: NodeJS.Signals | null }>(resolve => {
         child.on('close', _e => {
-            disconnect();
+            disconnect('Child closed.');
             if (isDefined(lastE)) {
                 resolve(fix({ kind: 'error', e: lastE }));
             } else {
@@ -234,7 +248,7 @@ export function willRunChildAttachedAndLogFile(
             // this is not the final event
             // close event is the last event when all stdio is closed
             lastE = e;
-            disconnect();
+            disconnect('Child errored.');
         });
         let lastCode: number | null = null;
         let lastSignal: NodeJS.Signals | null = null;
@@ -243,7 +257,7 @@ export function willRunChildAttachedAndLogFile(
             // close event is the last event when all stdio is closed
             lastCode = code;
             lastSignal = signal;
-            disconnect();
+            disconnect('Child exited.');
         });
     });
 }
