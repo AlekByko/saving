@@ -229,7 +229,7 @@ export function willRunChildAttachedAndLogFile(
         stderrPassThrough.unpipe(process.stderr);
         stderrPassThrough.unpipe(logFile);
         logFile.end();
-        logFile.close();
+        // logFile.close(); // <- abrupt closing no flushing
     }
 
     return new Promise<{ kind: 'error', e: any } | { kind: 'exit', code: number | null, signal: NodeJS.Signals | null }>(resolve => {
