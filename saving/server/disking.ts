@@ -1,5 +1,5 @@
 import child from 'child_process';
-import { closeSync, copyFileSync, existsSync, lstatSync, openSync, readdirSync } from 'fs';
+import * as fs from 'fs';
 import { join } from 'path';
 import { fix } from './shared/core';
 
@@ -13,7 +13,7 @@ export function filterDir(
     dir: string,
     seeIfShouldKeep: (path: string, name: string) => boolean,
 ): DirFile[] {
-    const all = readdirSync(dir);
+    const all = fs.readdirSync(dir);
     const result: DirFile[] = [];
     for (let index = 0; index < all.length; index++) {
         const name = all[index];
@@ -27,7 +27,7 @@ export function filterDir(
 }
 
 export function filterFilesInDir(dir: string): DirFile[] {
-    return filterDir(dir, path => !lstatSync(path).isDirectory());
+    return filterDir(dir, path => !fs.lstatSync(path).isDirectory());
 }
 
 export function removeFileExtension(fileName: string) {
@@ -41,7 +41,7 @@ export function combinePath(path1: string, path2: string): string {
 
 export function copyFile(filePath: string, targetPath: string) {
     try {
-        if (existsSync(targetPath)) {
+        if (fs.existsSync(targetPath)) {
             return fix({ kind: 'target-file-exists' });
         }
     }
@@ -52,8 +52,8 @@ export function copyFile(filePath: string, targetPath: string) {
     }
 
     try {
-        copyFileSync(filePath, targetPath);
-        const stats = lstatSync(targetPath, {});
+        fs.copyFileSync(filePath, targetPath);
+        const stats = fs.statSync(targetPath, {});
         return fix({ kind: 'copied', size: stats.size });
     } catch (e: any) {
         if (e.code === 'ENOSPC') {
@@ -68,8 +68,9 @@ export function copyFile(filePath: string, targetPath: string) {
 
 export function seeIfBeingWrittenTo(path: string): boolean {
     try {
-        const fd = openSync(path, 'r+');
-        closeSync(fd);
+        const flags = fs.constants.O_RDONLY | 0x10000000 // <- UV_FS_O_EXLOCK;
+        const fd = fs.openSync(path, flags);
+        fs.closeSync(fd);
         return false;
     } catch (e: any) {
         if (e.code === 'EBUSY' || e.code === 'EACCES' || e.code === 'EPERM') {
