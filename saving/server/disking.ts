@@ -39,6 +39,35 @@ export function combinePath(path1: string, path2: string): string {
 }
 
 
+export function moveFile(filePath: string, targetPath: string) {
+    try {
+        if (fs.existsSync(targetPath)) {
+            return fix({ kind: 'target-file-exists' });
+        }
+    }
+    catch (e: any) {
+        console.log(`Unable to check if the target ${targetPath} for the source ${filePath} already exists. Unexpected error.`);
+        console.log(e);
+        return fix({ kind: 'unexpected-error', e });
+    }
+
+    try {
+        fs.renameSync(filePath, targetPath);
+        const stats = fs.statSync(targetPath, {});
+        return fix({ kind: 'moved', size: stats.size });
+    } catch (e: any) {
+        if (e.code === 'ENOSPC') {
+            return fix({ kind: 'no-space-left' });
+        } else {
+            console.log(`Unable to move ${filePath} to ${targetPath}. Unexpected error.`);
+            console.log(e);
+            return fix({ kind: 'unexpected-error', e });
+        }
+    }
+}
+
+
+
 export function copyFile(filePath: string, targetPath: string) {
     try {
         if (fs.existsSync(targetPath)) {
