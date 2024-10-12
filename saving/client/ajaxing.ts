@@ -1,3 +1,5 @@
+import { fail } from './shared/core';
+
 export function willFetch<T>(
     url: string,
     parse: (text: string, headers: string) => T,
@@ -16,4 +18,26 @@ export function willFetch<T>(
         xhr.open('GET', url);
         xhr.send(null);
     });
+}
+
+
+export async function willPost(url: string, body: object) {
+    try {
+        const json = JSON.stringify(body);
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json',
+            },
+            body: json,
+        });
+        const result = await response.json();
+        return result;
+    } catch (e) {
+        console.log(e);
+        alert('BAD REQUEST!!!');
+        debugger;
+        return fail('BAD REQUEST');
+    }
 }
