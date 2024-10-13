@@ -1,16 +1,3 @@
-declare const FaceDetector: {
-    new(options: {
-        maxDetectedFaces?: number;
-        fastMode?: boolean;
-    }): FaceDetector;
-};
-interface DetectedFace {
-    boundingBox: DOMRectReadOnly;
-    landmarks: unknown[];
-}
-interface FaceDetector {
-    detect(sourface: any): Promise<DetectedFace[]>;
-}
 interface Window {
     showDirectoryPicker(): Promise<FileSystemDirectoryHandle>;
     showOpenFilePicker(): Promise<FileSystemFileHandle>;
