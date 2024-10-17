@@ -53,20 +53,16 @@ async def tile_face(tile: Tile):
     make_sure_path_exist(image_path)
 
     sdk_path = read_sdk_path()
-    print("ok path")
     service = Service.create_service(sdk_path)
-    print("ok service")
     face_detector = service.create_processing_block({"unit_type": "FACE_DETECTOR"})
-    print("ok detector")
+    mesh_fitter = service.create_processing_block({"unit_type": "FITTER"})
 
-    image = cv2.imread(tile.imageFilePath) #, cv2.IMREAD_COLOR)
+    image = cv2.imread(tile.imageFilePath)  # , cv2.IMREAD_COLOR)
     print("ok image")
     whole_image: np.ndarray = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     print("ok whole image")
 
-    tile_image = crop_cv_image(
-        whole_image, tile.x, tile.y, tile.width, tile.height
-    )
+    tile_image = crop_cv_image(whole_image, tile.x, tile.y, tile.width, tile.height)
     print("ok tile image")
 
     imgCtx = {
@@ -75,15 +71,15 @@ async def tile_face(tile: Tile):
         "blob": tile_image.tobytes(),
         "shape": [dim for dim in tile_image.shape],
     }
-    print("ok imgCtx")
+
     ioData = service.create_context({"image": imgCtx})
-    print("ok ioData")
+
     face_detector(ioData)
-    print("ok detection")
+    mesh_fitter(ioData)
 
     read_all = read_obj(ioData)
 
-    result = {"tile": tile, "whole_image_shape": image.shape, "objects": read_all}
+    result = {"tile": tile, "objects": read_all}
     return result
 
 
@@ -149,5 +145,7 @@ def opencv_to_pil(opencv_image):
 
 
 def crop_cv_image(cv_image, x_start, y_start, width, height):
-    cropped_cv_image = cv_image[y_start : y_start + height, x_start : x_start + width, :]
+    cropped_cv_image = cv_image[
+        y_start : y_start + height, x_start : x_start + width, :
+    ]
     return cropped_cv_image
