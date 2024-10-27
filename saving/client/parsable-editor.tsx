@@ -15,7 +15,6 @@ export function thusParsableEditor<Value, Parsed, Unparsed>(defaults: {
     parse: (text: string) => Parsed | Unparsed;
     seeIfParsed: (parsedOrNot: Parsed | Unparsed) => parsedOrNot is Parsed;
     parsedValueOf: (parsed: Parsed) => Value;
-    shouldClear: boolean;
 }) {
 
     type Props = ParsableEditorProps<Value>;
@@ -56,9 +55,6 @@ export function thusParsableEditor<Value, Parsed, Unparsed>(defaults: {
                     if (!isParsed) return;
 
                     const value = defaults.parsedValueOf(parsedOrNot);
-                    if (defaults.shouldClear) {
-                        this.setState({ text: '' });
-                    }
                     this.props.onChanged(value);
                 }
             }
