@@ -9,4 +9,8 @@ export const IntegerEditor = thusParsableEditor<number, number, string>({
     },
     parsedValueOf: value => value,
     seeIfParsed: (value): value is number => { return typeof value === 'number'; },
+    clarifyProps: props => {
+        props.min = 0;
+        props.max = 999;
+    },
 });

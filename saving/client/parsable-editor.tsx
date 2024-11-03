@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, KeyboardEventHandler } from 'react';
+import React, { ChangeEventHandler, InputHTMLAttributes, KeyboardEventHandler } from 'react';
 
 export interface ParsableEditorProps<Value> {
     value: Value;
@@ -15,6 +15,7 @@ export function thusParsableEditor<Value, Parsed, Unparsed>(defaults: {
     parse: (text: string) => Parsed | Unparsed;
     seeIfParsed: (parsedOrNot: Parsed | Unparsed) => parsedOrNot is Parsed;
     parsedValueOf: (parsed: Parsed) => Value;
+    clarifyProps: (props: InputHTMLAttributes<HTMLInputElement>) => void;
 }) {
 
     type Props = ParsableEditorProps<Value>;
@@ -62,7 +63,14 @@ export function thusParsableEditor<Value, Parsed, Unparsed>(defaults: {
 
         render() {
             const { text } = this.state;
-            return <input type="text" onChange={this.whenChanged} size={0} value={text} />;
+            const props: InputHTMLAttributes<HTMLInputElement> = {
+                type: 'text',
+                value: text,
+                onChange: this.whenChanged,
+                size: 0,
+            };
+            defaults.clarifyProps(props);
+            return <input {...props} />;
         }
     };
 }
