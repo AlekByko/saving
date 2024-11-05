@@ -67,8 +67,7 @@ function seeWhatWeightIndexIs(r: number, g: number, b: number, steps: number) {
     return index;
 }
 
-export function renderColorMasses(loaded: LoadedImage, masses: CenterMass[]) {
-    const { context, image } = loaded;
+export function renderColorMasses(context: CanvasRenderingContext2D, image: HTMLImageElement, masses: CenterMass[]) {
     const width = image.naturalWidth;
     const height = image.naturalHeight;
     const mass = width * height;
