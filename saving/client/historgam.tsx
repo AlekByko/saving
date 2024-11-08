@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { toLoadedImageBytes } from './imaging';
 import { isNull } from './shared/core';
 
 export interface HistogrammerProps {
@@ -35,7 +34,27 @@ export function calculateHistogramDistance(one: Histogram, another: Histogram): 
 }
 
 
-export function calculateHistogramByImageData(data: Uint8ClampedArray, numberOfBuckets: number, everyNthPixel: number) {
+export function calculateHistogramByImageData(
+    image: HTMLImageElement,
+    canvas: HTMLCanvasElement,
+    numberOfBuckets: number,
+    everyNthPixel: number,
+) {
+
+    const context = canvas.getContext('2d', {
+        willReadFrequently: true,
+        alpha: false,
+        // desynchronized: true,
+    })!;
+
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    const { width, height } = canvas;
+
+    context.drawImage(image, 0, 0);
+    const imda = context.getImageData(0, 0, width, height);
+
+    const { data } = imda;
     const { length } = data;
 
     const rs: number[] = new Array(numberOfBuckets).fill(0);
@@ -59,7 +78,7 @@ export function calculateHistogramByImageData(data: Uint8ClampedArray, numberOfB
         // skipping alpha
 
         // counting total
-        total += 1;
+        total += 3; // <--- for proper normalization, since every component (R, G, B) is later present in the sum when calculating the total distance
     }
 
     const histogram: Histogram = { rs, gs, bs, total };
@@ -96,8 +115,7 @@ export class Histogrammer extends React.Component<HistogrammerProps> {
         if (isNull(imageElement)) return;
         if (isNull(canvasElement)) return;
         imageElement.onload = () => {
-            const data = toLoadedImageBytes(canvasElement, imageElement);
-            const histo = calculateHistogramByImageData(data, defaultSize, 1);
+            const histo = calculateHistogramByImageData(imageElement, canvasElement, defaultSize, 1);
             renderHistogram(canvasElement, histo);
         };
     }
