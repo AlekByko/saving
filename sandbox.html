@@ -3,7 +3,7 @@
 <head>
     <link rel="stylesheet" type="text/css" href="./styles/all.css" />
     <script type="text/javascript">
-        window.onload = function() {
+        window.onload = function () {
             const path = window.location.search.replace('?', '');
             window.sandbox = path;
             const element = document.createElement('script');
@@ -16,6 +16,9 @@
 
 <body>
     <div id="root"></div>
+    <template id="my-autonomous-element-template">
+
+    </template>
     <script src="./require-config.js"></script>
 </body>
 

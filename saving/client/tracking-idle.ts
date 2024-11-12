@@ -12,7 +12,8 @@ export function startTrackingIdle(
         left: number,
     ) => void
 ) {
-    let idlingSince = toTimestamp();
+    // let idlingSince = toTimestamp();
+    let idlingSince = toTimestamp() - 1000 * 60;
     const resetIdling = () => {
         idlingSince = toTimestamp();
     };
