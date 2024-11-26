@@ -462,3 +462,4 @@ export function fix<const T>(value: T) { return value; }
 export function run<T>(run: () => T): T {
     return run();
 }
+export function bare<T>(_: T extends {} ? any : never) {}
