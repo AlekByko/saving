@@ -1,4 +1,7 @@
-interface State {
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+export interface State {
     text: string;
 }
 function thusTest(text: string) {
