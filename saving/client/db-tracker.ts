@@ -85,6 +85,13 @@ export function thusDbTracker<Config, Key extends string, Context>(
             this.scheduleSaving();
         }
 
+        public async saveLater(config: Config): Promise<void> {
+            const key = keyOf(config);
+            this.dirty.add(key);
+            this.all.set(key, config);
+            this.scheduleSaving();
+        }
+
         public async willPut(config: Config): Promise<void> {
             const key = keyOf(config);
             this.dirty.add(key);

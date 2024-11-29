@@ -17,10 +17,9 @@ export function thusProgressDialog() {
         render() {
             const { progress, abort } = this.props;
             const text = typeof progress === 'string' ? progress : (progress * 100).toFixed(1);
-            return <React.Fragment>
-                <div className="progress-dialog">{text}</div>
-                {abort ?? <button className="off" onClick={this.whenAborted}>Abort</button>}
-            </React.Fragment>;
+            return <div className="progress-dialog">
+                {text} {abort ?? <button className="off" onClick={this.whenAborted}>Abort</button>}
+            </div>;
         }
     };
 }
