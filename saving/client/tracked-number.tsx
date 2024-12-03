@@ -5,8 +5,8 @@ export interface TrackedNumberProps<Holder> {
 }
 
 interface State {
-    lastValue: number ;
-    delta: number ;
+    lastValue: number;
+    delta: number;
 }
 
 export function thusTrackedNumber<Holder>(
@@ -29,15 +29,19 @@ export function thusTrackedNumber<Holder>(
         static getDerivedStateFromProps(props: Props, state: State): State | null {
             const { holder } = props;
             const value = defaults.numberOf(holder);
-            const delta = state.lastValue - value;
+            const delta = value - state.lastValue;
+            if (delta === 0) return null;
             return { ...state, lastValue: value, delta } satisfies State;
         }
         render() {
             const { delta, lastValue } = this.state;
             const trendClassModifier = seeWhatTrendClassIs(delta);
             const classes = 'tracked-number ' + trendClassModifier;
-            const renderedDelta = delta !== 0 && <span className="tracked-number-delta">{delta}</span>;
-            return <span className={classes}>{lastValue} {renderedDelta}</span>;
+            const valueText = defaults.formatNumber(lastValue);
+            const deltaSign = delta > 0 ? '+' : delta < 0 ? '-' : '';
+            const deltaText = deltaSign + defaults.formatNumber(delta < 0 ? -delta: delta);
+            const renderedDelta = delta !== 0 && <span className="tracked-number-delta">{deltaText}</span>;
+            return <span className={classes}>{valueText} {renderedDelta}</span>;
         }
     };
 }
