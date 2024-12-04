@@ -1,5 +1,5 @@
 import React from 'react';
-import { thusLineChart } from './line-chart';
+import { thusTrackedNumberChart } from './tracked-number-chart';
 
 export interface TrackedNumberProps<Holder> {
     holder: Holder;
@@ -22,7 +22,7 @@ export function thusTrackedNumber<Holder>(
     interface Item {
         at: number;
     }
-    const LineChart = thusLineChart<Item>({
+    const Chart = thusTrackedNumberChart<Item>({
         height: 24,
         width: 104,
         xOf: (_x, i) => i,
@@ -57,7 +57,7 @@ export function thusTrackedNumber<Holder>(
             const deltaSign = delta > 0 ? '+' : delta < 0 ? '-' : '';
             const deltaText = deltaSign + defaults.formatNumber(delta < 0 ? -delta : delta);
             const renderedDelta = delta !== 0 && <span className="tracked-number-delta">{deltaText}</span>;
-            return <span className={classes}><LineChart items={items} />{valueText} {renderedDelta}</span>;
+            return <span className={classes}><Chart items={items} />{valueText} {renderedDelta}</span>;
         }
     };
 }
