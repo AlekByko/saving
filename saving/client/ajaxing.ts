@@ -61,6 +61,27 @@ export async function willPostExt(url: string, body: object) {
     }
 }
 
+export async function willGetExt(url: string) {
+
+    const fetched = await willTryMakeGetRequest(url);
+    switch (fetched.kind) {
+        case 'got-response':
+            break;
+        case 'no-response':
+        case 'bad-response':
+            return fetched;
+        default: broke(fetched);
+    }
+    const { response } = fetched;
+    const text = await response.text();
+    const parsed = parseJson(text);
+    switch (parsed.kind) {
+        case 'got-json': return parsed;
+        case 'bad-json': return parsed;
+        default: return broke(parsed);
+    }
+}
+
 export function parseJson(text: string) {
     try {
         const json = JSON.parse(text);
@@ -70,6 +91,24 @@ export function parseJson(text: string) {
     }
 }
 
+export async function willTryMakeGetRequest(url: string) {
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json',
+            },
+        });
+        if (!response.ok) {
+            const { status: code, statusText: message, url } = response;
+            return fix({ kind: 'bad-response', code, message, url, response });
+        }
+        return fix({ kind: 'got-response', response });
+    } catch (e) {
+        return fix({ kind: 'no-response', e });
+    }
+}
 export async function willTryMakePostRequest(url: string, body: object) {
     const json = JSON.stringify(body);
     try {
