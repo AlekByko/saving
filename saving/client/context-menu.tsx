@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Regarding } from './reacting';
-import { ignore, isNull } from './shared/core';
+import { broke, ignore, isNull } from './shared/core';
 
 export interface ContextMenuProps<Item, Concern> {
     x: number;
@@ -54,4 +54,38 @@ if (window.sandbox === 'context-menu') {
     });
     const items = ['test'];
     ReactDOM.render(<ContextMenu x={100} y={100} items={items} regarding={ignore} />, rootElement);
+}
+
+export type MenuItem<Concern> = ActionableMenuItem<Concern> | InfoMenuItem;
+
+export interface InfoMenuItem {
+    kind: 'info-menu-item';
+    key: string;
+    text: string;
+}
+
+export interface ActionableMenuItem<Concern> {
+    kind: 'actionable-menu-item';
+    key: string;
+    text: string;
+    concern: Concern;
+}
+
+export function renderMenuItem<Concern>(item: MenuItem<Concern>, regarding: Regarding<Concern>) {
+    switch (item.kind) {
+        case 'actionable-menu-item': {
+            const { key, text, concern } = item;
+            return <a key={key} href="#"
+                className="context-menu-item as-actionable" onClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    regarding(concern);
+                } }>{text}</a>;
+        }
+        case 'info-menu-item': {
+            const { key, text } = item;
+            return <span key={key} className="context-menu-item">{text}</span>;
+        }
+        default: return broke(item);
+    }
 }
