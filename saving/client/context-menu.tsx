@@ -59,7 +59,8 @@ if (window.sandbox === 'context-menu') {
 export type MenuItem<Concern> =
     | MultiActionableMenuItem<Concern>
     | ActionableMenuItem<Concern>
-    | InfoMenuItem;
+    | InfoMenuItem
+    | LinkMenuItem;
 
 export interface InfoMenuItem {
     kind: 'info-menu-item';
@@ -83,6 +84,13 @@ export interface ActionableMenuItem<Concern> {
     concern: Concern;
 }
 
+export interface LinkMenuItem {
+    kind: 'link-menu-item';
+    key: string;
+    text: string;
+    url: string;
+}
+
 export function renderMenuItem<Concern>(item: MenuItem<Concern>, regarding: Regarding<Concern>) {
     switch (item.kind) {
         case 'info-menu-item': {
@@ -97,6 +105,11 @@ export function renderMenuItem<Concern>(item: MenuItem<Concern>, regarding: Rega
                     e.preventDefault();
                     regarding(concern);
                 }}>{text}</a>;
+        }
+        case 'link-menu-item': {
+            const { key, text, url } = item;
+            return <a key={key} href={url} target="_blank"
+                className="actionable-context-menu-item">{text}</a>;
         }
         case 'multi-actionable-menu-item': {
             const { key, options } = item;
