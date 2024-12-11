@@ -39,7 +39,7 @@ export function thusDbTracker<Config, Key extends string, Context>(
             }
         }
 
-        // TODO: rename
+        /** @deprecated don't use! */
         public there(
             key: Key,
             across: (found: Config) => Config,
