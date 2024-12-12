@@ -12,17 +12,28 @@
     padding: 0px 10px;
 }
 
-.info-context-menu-item {
-    .context-menu-item();
-}
-
-.actionable-context-menu-item {
+.actionable-context-menu-item() {
     .context-menu-item();
     &:hover {
         background-color: navy;
         color: white;
     }
 }
+
+.context-menu-item-for-concern {
+    .actionable-context-menu-item();
+}
+.context-menu-item-for-info {
+    .actionable-context-menu-item();
+}
+.context-menu-item-for-link {
+    .actionable-context-menu-item();
+}
+.context-menu-item-for-act {
+    .actionable-context-menu-item();
+}
+
+
 
 .multi-actionable-context-menu-item {
     display: flex;

@@ -60,12 +60,19 @@ export type MenuItem<Concern> =
     | MultiActionableMenuItem<Concern>
     | ConcernMenuItem<Concern>
     | InfoMenuItem
-    | LinkMenuItem;
+    | LinkMenuItem
+    | ActMenuItem;
 
 export interface InfoMenuItem {
     kind: 'info-menu-item';
     key: string;
     text: string;
+}
+export interface ActMenuItem {
+    kind: 'act-menu-item';
+    key: string;
+    text: string;
+    act: Act;
 }
 
 export interface MultiActionableMenuItem<Concern> {
@@ -95,21 +102,30 @@ export function renderMenuItem<Concern>(item: MenuItem<Concern>, regarding: Rega
     switch (item.kind) {
         case 'info-menu-item': {
             const { key, text } = item;
-            return <span key={key} className="info-context-menu-item">{text}</span>;
+            return <span key={key} className="context-menu-item-for-info">{text}</span>;
         }
         case 'concern-menu-item': {
             const { key, text, concern } = item;
             return <a key={key} href="#"
-                className="actionable-context-menu-item" onClick={e => {
+                className="context-menu-item-for-concern" onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();
                     regarding(concern);
                 }}>{text}</a>;
         }
+        case 'act-menu-item': {
+            const { key, text, act } = item;
+            return <a key={key} href="#"
+                className="context-menu-item-for-act" onClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    act();
+                }}>{text}</a>;
+        }
         case 'link-menu-item': {
             const { key, text, url } = item;
             return <a key={key} href={url} target="_blank"
-                className="actionable-context-menu-item">{text}</a>;
+                className="context-menu-item-for-link">{text}</a>;
         }
         case 'multi-actionable-menu-item': {
             const { key, options } = item;
