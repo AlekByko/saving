@@ -6,12 +6,13 @@ import { broke, ignore, isNull } from './shared/core';
 export interface ContextMenuProps<Item, Concern> {
     x: number;
     y: number;
+    hideMenu: () => void;
     items: Item[];
     regarding: Regarding<Concern>;
 }
 
 export function thusContextMenu<Item, Concern>(defaults: {
-    render: (item: Item, regarding: Regarding<Concern>) => JSX.Element,
+    render: (hideMenu: () => void, item: Item, regarding: Regarding<Concern>) => JSX.Element,
 }) {
     const { render } = defaults;
     type Props = ContextMenuProps<Item, Concern>;
@@ -32,9 +33,9 @@ export function thusContextMenu<Item, Concern>(defaults: {
             menuElement.style.top = y + 'px';
         }
         render() {
-            const { items, regarding } = this.props;
+            const { items, regarding, hideMenu } = this.props;
             return <div ref={e => this.menuElement = e} className="context-menu">
-                {items.map(item => render(item, regarding))}
+                {items.map(item => render(hideMenu, item, regarding))}
             </div>;
         }
     }
@@ -44,16 +45,17 @@ export function thusContextMenu<Item, Concern>(defaults: {
 if (window.sandbox === 'context-menu') {
     const rootElement = document.getElementById('root')!;
     const ContextMenu = thusContextMenu<string, string>({
-        render: (item, regarding) => <a key={item} href="#"
+        render: (hideMenu, item, regarding) => <a key={item} href="#"
             className="context-menu-item"
             onClick={e => {
                 e.stopPropagation();
                 e.preventDefault();
                 regarding(item);
+                hideMenu();
             }}>{item}</a>
     });
     const items = ['test'];
-    ReactDOM.render(<ContextMenu x={100} y={100} items={items} regarding={ignore} />, rootElement);
+    ReactDOM.render(<ContextMenu hideMenu={ignore} x={100} y={100} items={items} regarding={ignore} />, rootElement);
 }
 
 export type MenuItem<Concern> =
@@ -98,7 +100,7 @@ export interface LinkMenuItem {
     url: string;
 }
 
-export function renderMenuItem<Concern>(item: MenuItem<Concern>, regarding: Regarding<Concern>) {
+export function renderMenuItem<Concern>(hideMenu: () => void, item: MenuItem<Concern>, regarding: Regarding<Concern>) {
     switch (item.kind) {
         case 'info-menu-item': {
             const { key, text } = item;
@@ -111,20 +113,25 @@ export function renderMenuItem<Concern>(item: MenuItem<Concern>, regarding: Rega
                     e.stopPropagation();
                     e.preventDefault();
                     regarding(concern);
+                    hideMenu();
                 }}>{text}</a>;
         }
         case 'act-menu-item': {
+
             const { key, text, act } = item;
             return <a key={key} href="#"
                 className="context-menu-item-for-act" onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();
                     act();
+                    hideMenu();
                 }}>{text}</a>;
         }
         case 'link-menu-item': {
             const { key, text, url } = item;
-            return <a key={key} href={url} target="_blank"
+            return <a key={key} href={url} onClick={() => {
+                hideMenu();
+            }} target="_blank"
                 className="context-menu-item-for-link">{text}</a>;
         }
         case 'multi-actionable-menu-item': {
@@ -136,6 +143,7 @@ export function renderMenuItem<Concern>(item: MenuItem<Concern>, regarding: Rega
                         e.stopPropagation();
                         e.preventDefault();
                         regarding(concern);
+                        hideMenu();
                     }}>{text}</a>;
                 })}
             </div>;

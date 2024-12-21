@@ -61,7 +61,7 @@ export async function willPostExt(url: string, body: object) {
     }
 }
 
-export async function willGetExt(url: string) {
+export async function willGetJson(url: string) {
 
     const fetched = await willTryMakeGetRequest(url);
     switch (fetched.kind) {
