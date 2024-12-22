@@ -1,30 +1,21 @@
 {
+    "extends": "../tsconfig.base.json",
     "compilerOptions": {
-        "moduleResolution": "node",
         "outDir": "../../built/client",
         "lib": [
             "ESNext",
             "dom"
         ],
         "module": "amd",
-        "target": "esnext",
         "baseUrl": ".",
         "jsx": "react",
-        "strict": true,
-        "strictNullChecks": true,
-        "noFallthroughCasesInSwitch": true,
-        "noImplicitThis": true,
-        "noImplicitReturns": true,
-        "noUnusedParameters": true,
-        "noUnusedLocals": true,
-        "strictFunctionTypes": true,
-        "noStrictGenericChecks": false,
-        "esModuleInterop": true,
-        "alwaysStrict": true,
-        "strictPropertyInitialization": true,
-        "noImplicitOverride": false, // <-- render method on react components
-        "strictBindCallApply": true,
-        "noImplicitAny": true,
-        "noUncheckedIndexedAccess": false // <-- check for undefined anywhere object[key]
-    }
+    },
+    "references": [
+        {
+            "path": "../shared"
+        }
+    ],
+    "include": [
+        "*.ts"
+    ]
 }
