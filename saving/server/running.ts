@@ -2,7 +2,7 @@
 import { ChildProcess, spawn, SpawnOptions } from 'child_process';
 import * as fs from 'fs';
 import { PassThrough } from 'stream';
-import { fix, isDefined, isNull } from './shared/core';
+import { fix, isDefined, isNull } from '../shared/core';
 
 
 export type AppRun = NoCodeAppRun | CodedAppRun | ErroredAppRun;

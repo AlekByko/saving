@@ -4,7 +4,7 @@
         "prefix": "rct",
         "body": [
             "import * as React from 'react';",
-            "import { broke } from './shared/core';",
+            "import { broke } from '../shared/core';",
             "import { Regarding } from './reacting';",
             "import { $$atop, inside } from './inside';",
             "",

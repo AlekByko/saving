@@ -1,9 +1,9 @@
 import * as fs from 'fs';
-import { alwaysNull, broke, fix, isUndefined, same } from './shared/core';
-import { capturedFrom, chokedFrom, readRegOver, wholeThing } from './shared/reading-basics';
-import { readLoopOver } from './shared/reading-loop';
-import { OptionsReader } from './shared/reading-options';
-import { SequenceReader } from './shared/reading-sequence';
+import { alwaysNull, broke, fix, isUndefined, same } from '../shared/core';
+import { capturedFrom, chokedFrom, readRegOver, wholeThing } from '../shared/reading-basics';
+import { readLoopOver } from '../shared/reading-loop';
+import { OptionsReader } from '../shared/reading-options';
+import { SequenceReader } from '../shared/reading-sequence';
 
 const readNonWhitespace = readRegOver(/[^\s]+/y, wholeThing);
 const readCliArgValue = new OptionsReader()

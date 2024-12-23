@@ -5,7 +5,6 @@
         "module": "commonjs",
         "target": "esnext",
         "baseUrl": ".",
-        "rootDir": ".",
         "jsx": "react", // without it explicitly set the root folder will be resolved by all linked files, if a file is linked from 3 folders higher up, then the root folder will be 3 folders higher up, and thus the output folder structure would include the path from the root folder down to a file
         "moduleResolution": "node",
         "strict": true,

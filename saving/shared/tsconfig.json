@@ -6,7 +6,7 @@
         "lib": [
             "ESNext"
         ],
-        "module": "amd",
+        "module": "umd",
         "baseUrl": ".",
         "jsx": "react",
         "types": [],

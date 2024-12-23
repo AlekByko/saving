@@ -3,9 +3,9 @@ import { IncomingMessage, ServerOptions, ServerResponse, createServer } from 'ht
 import { MongoClient, ObjectId } from 'mongodb';
 import { extname, join } from 'path';
 import { parse } from 'url';
+import { CamConfig } from '../shared/cam-config';
+import { asNonNullOr, isNull } from '../shared/core';
 import { willLoadConfigsFromDb } from './databasing';
-import { CamConfig } from './shared/cam-config';
-import { asNonNullOr, isNull } from './shared/core';
 import { setConsoleTitle } from './utils';
 
 

@@ -1,7 +1,7 @@
 import child from 'child_process';
 import * as fs from 'fs';
 import { join } from 'path';
-import { fix } from './shared/core';
+import { fix } from '../shared/core';
 
 export interface DirFile {
     dir: string;
