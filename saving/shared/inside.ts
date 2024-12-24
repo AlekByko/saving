@@ -53,11 +53,11 @@ function toBlankSteward(boss: Core): Core {
     return new Proxy(boss, {
         get: (boss: Core, key: string) => {
             let intern = boss[key];
-            const dataOf = boss[$of];
-            const dataOn = boss[$on];
             if (intern !== undefined) return intern;
 
 
+            const dataOf = boss[$of];
+            const dataOn = boss[$on];
             const valueOf = ofOver(key);
             const valueOn = onOver(key);
             intern = toBlankSteward({
