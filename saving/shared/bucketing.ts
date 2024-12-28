@@ -77,8 +77,10 @@ export function makeBucketsFromPairs<T>(pairs: T[][]): Buckets<T, Set<T>> {
 }
 
 export function makePairsFromBuckets<T>(buckets: Buckets<T, Set<T>>): T[][] {
-    const almost = Array.from(buckets.values()).toSet();
-    const pairs = toArrayFromSet(almost).map(toArrayFromSet);
+    const almost = Array.from(buckets.values())
+        // since the same value can be found at different keys, we need to avoid duplicates:
+        .toSet().toArray();
+    const pairs = almost.map(toArrayFromSet);
     return pairs;
 }
 
