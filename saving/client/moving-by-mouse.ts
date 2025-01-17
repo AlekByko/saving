@@ -1,6 +1,10 @@
 import { ignore, isNull } from '../shared/core';
 
-export function enableMouseMoving(handleElement: HTMLElement | null, rootElementOrNull: HTMLElement | null): () => void {
+export function enableMouseMoving(
+    handleElement: HTMLElement | null,
+    rootElementOrNull: HTMLElement | null,
+): () => void {
+
     if (isNull(handleElement) || isNull(rootElementOrNull)) return ignore;
     const rootElement = rootElementOrNull;
     const thisRect = rootElement.getBoundingClientRect();
@@ -29,6 +33,9 @@ export function enableMouseMoving(handleElement: HTMLElement | null, rootElement
     let lastX = 0;
     let lastY = 0;
     function whenMouseDown(e: MouseEvent): void {
+
+        if (e.currentTarget !== e.target) return; // only allow moving if clicked on the element and not on any of its children
+
         lastX = e.pageX;
         lastY = e.pageY;
         document.addEventListener('mousemove', whenMouseMove);
