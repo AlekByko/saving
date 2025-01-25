@@ -1,9 +1,10 @@
 import * as fs from 'fs';
-import { alwaysNull, broke, fix, isUndefined, same } from '../shared/core';
+import { alwaysNull, broke, fix, isDefined, isUndefined, same } from '../shared/core';
 import { capturedFrom, chokedFrom, readRegOver, wholeThing } from '../shared/reading-basics';
 import { readLoopOver } from '../shared/reading-loop';
 import { OptionsReader } from '../shared/reading-options';
 import { SequenceReader } from '../shared/reading-sequence';
+import { readJsonFileAs } from './disking';
 
 const readNonWhitespace = readRegOver(/[^\s]+/y, wholeThing);
 const readCliArgValue = new OptionsReader()
@@ -51,7 +52,10 @@ function readQuotedString(text: string, start: number) {
     return chokedFrom(index);
 }
 
-export const readCliArgs = readLoopOver<{}, { [name: string]: string | undefined }>(
+export type CliArgs<Key extends string = string> = {
+    [K in Key]: string | undefined;
+}
+export const readCliArgs = readLoopOver<{}, CliArgs>(
     readCliArg,
     readRegOver(/\s+/y, alwaysNull),
     x => ({ ...x }),
@@ -76,4 +80,105 @@ export function ensureInteger(text: string | undefined) {
     if (isUndefined(text)) return fix({ isBad: true });
     const integer = parseInt(text, 10);
     return fix({ integer, isBad: false });
+}
+
+export const noLuckWithArgs = Symbol('no-luck-with-args');
+
+export function henceReadingArgs<Key extends string>() {
+    return {
+        readIntegerUnto(
+            argKey: Key,
+            cliArgs: CliArgs<Key>,
+            configValue: number | undefined,
+        ): number {
+            const argText = cliArgs[argKey];
+            if (isDefined(argText)) {
+                const value = parseInt(argText, 10);
+                if (isFinite(value)) return value;
+                console.log(`Bad argument: ${argKey}. Not an integer: ${argText}`);
+                throw noLuckWithArgs;
+            } else if (isDefined(configValue)) {
+                return configValue;
+            } else {
+                return missingArgByeBye(argKey);
+            }
+        },
+
+        readDirOr<Or>(
+            argKey: Key,
+            cliArgs: CliArgs<Key>,
+            configValue: string | undefined,
+            or: Or,
+        ): string | Or {
+            const dirArg = cliArgs[argKey] ?? configValue;
+            if (isDefined(dirArg)) {
+                const doesExist = fs.existsSync(dirArg);
+                if (doesExist) return dirArg;
+                console.log(`Bad argument: ${argKey}. Dir doesn't exist: ${dirArg}`);
+                throw noLuckWithArgs;
+            } else {
+                return or;
+            }
+        },
+
+        readDirUnto(
+            argKey: Key,
+            cliArgs: CliArgs<Key>,
+            configValue: string | undefined,
+        ): string {
+            const dirArg = cliArgs[argKey] ?? configValue;
+            if (isDefined(dirArg)) {
+                const doesExist = fs.existsSync(dirArg);
+                if (doesExist) return dirArg;
+                console.log(`Bad argument: ${argKey}. Dir doesn't exist: ${dirArg}`);
+                throw noLuckWithArgs;
+            } else {
+                return missingArgByeBye<Key>(argKey);
+            }
+        },
+
+
+        readStrDare(
+            argKey: Key,
+            cliArgs: CliArgs<Key>,
+            configValue: string | undefined,
+        ): string {
+            const textArg = cliArgs[argKey] ?? configValue;
+            if (isUndefined(textArg)) return missingArgByeBye(argKey);
+            return textArg;
+        }
+    };
+}
+
+
+function missingArgByeBye<Key extends string>(argKey: Key): never {
+    console.log(`Missing argument: ${argKey}.`);
+    throw noLuckWithArgs;
+}
+
+
+export function readConfigOrAs<Config, Or>(configPath: string | undefined, or: Or) {
+    if (isUndefined(configPath)) return or;
+    const read = readJsonFileAs<Config>(configPath);
+    if (read.kind === 'json') {
+        const { data } = read;
+        return data;
+    }
+    switch (read.kind) {
+        case 'unable-to-read-file': {
+            console.log(`Unable to read the file ${configPath}`);
+            console.log(read.e);
+            throw noLuckWithArgs;
+        }
+        case 'bad-json': {
+            console.log(`Unable to parse the file ${configPath} as JSON`);
+            console.log(read.e);
+            throw noLuckWithArgs;
+        }
+        case 'file-does-not-exist': {
+            console.log(`Unable to read the file ${configPath}. File doesn't exist.`);
+            throw noLuckWithArgs;
+        }
+        default: return broke(read);
+    }
 }

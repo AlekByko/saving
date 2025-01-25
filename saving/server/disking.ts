@@ -1,7 +1,7 @@
 import child from 'child_process';
 import * as fs from 'fs';
 import { join } from 'path';
-import { fix } from '../shared/core';
+import { broke, fix } from '../shared/core';
 
 export interface DirFile {
     dir: string;
@@ -135,4 +135,47 @@ export function willBeDiskNames() {
 
 export function asWindowsPath(path: string): string {
     return path.replace(/\//ig, '\\');
+}
+
+export function parseJsonOr<T, Or>(text: string, or: Or): T | Or {
+    try {
+        const json = JSON.parse(text) as T;
+        return json;
+    } catch {
+        return or;
+    }
+}
+
+
+export function parseJsonAs<T>(text: string) {
+    try {
+        const data = JSON.parse(text);
+        return fix({ kind: 'json', data: data as T, });
+    } catch (e) {
+        return fix({ kind: 'bad-json', e });
+    }
+}
+
+export function readTextFile(path: string) {
+    if (!fs.existsSync(path)) return fix({ kind: 'file-does-not-exist', path });
+    try {
+        const text = fs.readFileSync(path, { encoding: 'utf-8' });
+        return fix({ kind: 'file-read', text });
+    } catch (e) {
+        return fix({ kind: 'unable-to-read-file', e });
+    }
+}
+
+export function readJsonFileAs<T>(path: string) {
+    const read = readTextFile(path);
+    switch(read.kind) {
+        case 'file-read': break;
+        case 'file-does-not-exist':
+        case 'unable-to-read-file':
+            return read;
+        default: return broke(read);
+    }
+    const { text} = read;
+    const parsed = parseJsonAs<T>(text);
+    return parsed;
 }
