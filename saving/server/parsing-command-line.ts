@@ -145,18 +145,26 @@ export function henceReadingArgs<Key extends string>() {
         ) {
             const argText = cliArgs[argKey];
             if (isDefined(argText)) {
-                switch(argText) {
-                    case 'yes': case 'true': return true;
-                    case 'no': case 'false': return false;
-                    default: {
-                        console.log(`Bad argument: ${argKey}. Unexpected value: ${argText}`);
-                        throw noLuckWithArgs;
-                    }
-                }
+                return readBoolean<Key>(argText, argKey);
             } else if (isDefined(configValue)) {
                 return configValue;
             } else {
                 return or;
+            }
+        },
+
+        readBooleanUnto(
+            argKey: Key,
+            cliArgs: CliArgs<Key>,
+            configValue: boolean | undefined,
+        ) {
+            const argText = cliArgs[argKey];
+            if (isDefined(argText)) {
+                return readBoolean<Key>(argText, argKey);
+            } else if (isDefined(configValue)) {
+                return configValue;
+            } else {
+                return missingArgByeBye<Key>(argKey);
             }
         },
 
@@ -172,6 +180,17 @@ export function henceReadingArgs<Key extends string>() {
     };
 }
 
+
+function readBoolean<Key extends string>(argText: Exclude<CliArgs<Key>[Key], undefined>, argKey: Key): boolean {
+    switch (argText) {
+        case 'yes': case 'true': return true;
+        case 'no': case 'false': return false;
+        default: {
+            console.log(`Bad argument: ${argKey}. Unexpected value: ${argText}`);
+            throw noLuckWithArgs;
+        }
+    }
+}
 
 function missingArgByeBye<Key extends string>(argKey: Key): never {
     console.log(`Missing argument: ${argKey}.`);
