@@ -13,10 +13,24 @@ export function willOpenKnownDb(): Promise<IDBDatabase> {
             resolve(this.result);
         };
         request.onupgradeneeded = function (_event: IDBVersionChangeEvent) {
-            debugger;
-
+            makeSureDbStoresCreated(this.result);
         };
     });
+}
+
+export function makeSureDbStoresCreated(
+    db: IDBDatabase,
+) {
+    const { dirs, words, tags } = knownDbStores;
+    if (!db.objectStoreNames.contains(dirs.storeName)) {
+        db.createObjectStore(dirs.storeName, { keyPath: dirs.keyPath });
+    }
+    if (!db.objectStoreNames.contains(words.storeName)) {
+        db.createObjectStore(words.storeName, { keyPath: words.keyPath });
+    }
+    if (!db.objectStoreNames.contains(tags.storeName)) {
+        db.createObjectStore(tags.storeName, { keyPath: tags.keyPath });
+    }
 }
 
 
