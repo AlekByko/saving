@@ -2,8 +2,12 @@ import { willLoadImageFromUrl } from 'loading-images';
 
 /**!!! AN OVERKILL FOR TYPICAL USE WHEN ONLY URL IS NEEDED !!! SHOULD NOT MAKE AN HTML IMAGE OBJECT !!! */
 export async function willReadImageFromFileHandle(handle: FileSystemFileHandle) {
-    const blob = await handle.getFile();
-    const url = URL.createObjectURL(blob);
+    const file = await handle.getFile();
+    return willReadImageFromFile(file);
+}
+
+export async function willReadImageFromFile(file: File) {
+    const url = URL.createObjectURL(file);
     const image = await willLoadImageFromUrl(url);
     return { image, url };
 }

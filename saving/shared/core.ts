@@ -110,6 +110,15 @@ export function same<T>(value: T): T {
 }
 
 export type Compare<T> = (one: T, another: T) => number;
+
+export function compareViaOver<T, U>(of: (value: T) => U, compare: (one: U, another: U) => number, sign: number) {
+    return function compareVia(one: T, another: T) : number {
+        const oneValue = of(one);
+        const anotherValue = of(another);
+        const compared = compare(oneValue, anotherValue) * sign;
+        return compared;
+    };
+}
 export function compareRandom(): number {
     return Math.random() - 0.5;
 }
