@@ -1,4 +1,4 @@
-import { alwaysTrue, fail, isNull } from '../shared/core';
+import { alwaysTrue, broke, fail, isNull } from '../shared/core';
 import { KnownPickedDirRef } from '../shared/identities';
 import { willFindAllInStoreOf, willPutAllToStoreOf } from "./databasing";
 import { KnownPickedDirEntry } from "./file-system-entries";
@@ -167,3 +167,21 @@ export async function willGetFileOr<Or>(dir: FileSystemDirectoryHandle, name: st
         return or;
     }
 }
+
+export async function willReadAllFileHandles(dir: FileSystemDirectoryHandle) {
+    const files: FileSystemFileHandle[] = [];
+    for await (const handle of dir.values()) {
+        switch(handle.kind) {
+            case 'directory': {
+                continue;
+            }
+            case 'file': {
+                files.push(handle as FileSystemFileHandle);
+                continue;
+            }
+            default: return broke(handle.kind);
+        }
+    }
+    return files;
+}
+
