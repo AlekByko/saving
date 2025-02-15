@@ -16,6 +16,6 @@
         }
     ],
     "include": [
-        "*.ts", "*.tsx", "../extension.d.ts"
+        "**/*.ts", "**/*.tsx", "../extension.d.ts"
     ]
 }

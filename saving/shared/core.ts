@@ -192,6 +192,10 @@ declare global {
         sortOf<V>(copy: (values: T[]) => T[], of: (value: T) => V, compare: (one: V, another: V) => number): T[];
         /** safe version of `find` because the predicate must return a boolean (forgetting to return anything and thus treating `void` as `false` isn't allowed) */
         safeFind(predicate: (value: T, index: number, obj: T[]) => boolean, thisArg?: any): T | undefined;
+        pick(): T;
+        pick(count: number): T extends string ? string[] : void[];
+        pick(make: (text: string) => string): T;
+        joined(): string;
     }
     interface Set<T> {
         toArray(): T[];
@@ -203,6 +207,28 @@ declare global {
 Array.prototype.safeFind = Array.prototype.find;
 Array.prototype.toSet = function <T>(this: Array<T>) {
     return new Set(this);
+}
+Array.prototype.joined = function <T>(this: Array<T>): string {
+    return this.join(', ');
+}
+Array.prototype.pick = function <T>(this: Array<T>, arg?: number | ((text: string) => string)) {
+    const noData = '';
+    if (arg) {
+        if (typeof arg === 'number') {
+            if (this.length < 1) return [noData];
+            return [...this].sort(compareRandom).slice(0, arg);
+        } else if (typeof arg === 'function') {
+            if (this.length < 1) return noData;
+            const at = Math.floor(this.length * Math.random());
+            return arg(this[at] as string);
+        } else {
+            return noData;
+        }
+    } else {
+        if (this.length < 1) return noData;
+        const at = Math.floor(this.length * Math.random());
+        return this[at];
+    }
 }
 Array.prototype.toMap = function <T, K, V>(this: Array<T>, keyOf: (value: T) => K, valueOf: (value: T) => V, resolve: (newer: V, older: V, key: K) => V) {
     const result = new Map<K, V>();
