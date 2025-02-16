@@ -38,7 +38,6 @@ export function readLit<Literal extends string>(text: string, index: number, lit
     return capturedFrom(index + part.length, literal);
 }
 
-
 export function readReg<T>(
     text: string, index: number, regexp: RegExp,
     parse: (matched: RegExpExecArray) => T,
