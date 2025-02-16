@@ -79,6 +79,12 @@ export function toMapFromArrayByKeys<T, K, V>(
     return result;
 }
 
+export function diffArraysViaKeys<K, V>(older: V[], newer: V[], keyOf: (value: V) => K) {
+    const olderByKey = older.toMap(x => keyOf(x), x => x, x => x);
+    const newerByKey = newer.toMap(x => keyOf(x), x => x, x => x);
+    const diff = diffMapsViaKeys(olderByKey, newerByKey);
+    return { coming: diff.coming.toValues(), staying: diff.staying.toValues(), leaving: diff.leaving.toValues() };
+}
 export function diffMapsViaKeys<K, V>(older: Map<K, V>, newer: Map<K, V>) {
     const staying = new Map<K, V>();
     const coming = new Map<K, V>();
