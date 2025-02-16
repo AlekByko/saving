@@ -12,6 +12,8 @@ export function chokedFrom(index: number): Choked {
     return { kind: 'choked', isBad: true, index };
 }
 
+export type ParsedOrNot<T> = Choked | Captured<T>;
+
 export interface Captured<T = string> {
     kind: 'captured';
     isBad: false;
