@@ -116,10 +116,10 @@ export async function willTryGetFile(
     }
 }
 
-export async function willOpenJsonFile(
+export async function willOpenJsonFile<T = any>(
     dir: FileSystemDirectoryHandle,
     name: string,
-): Promise<any> {
+): Promise<T | null> {
     const handle = await willTryGetFile(dir, name, false);
     if (isNull(handle)) return null;
     const file = await handle.getFile();
