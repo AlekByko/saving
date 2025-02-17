@@ -6,10 +6,12 @@ export interface Choked {
     kind: 'choked';
     isBad: true;
     index: number;
+    reason?: string;
 }
 
-export function chokedFrom(index: number): Choked {
-    return { kind: 'choked', isBad: true, index };
+export function chokedFrom(index: number, reason?: string): Choked {
+    debugger;
+    return { kind: 'choked', isBad: true, index, reason };
 }
 
 export type ParsedOrNot<T> = Choked | Captured<T>;

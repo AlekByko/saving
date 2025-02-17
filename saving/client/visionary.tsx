@@ -4,6 +4,7 @@ import { inside } from '../shared/inside';
 import { faceListerConcern } from './editing-configs';
 import { EnergyPerHueModder } from './energy-per-hue-modder';
 import { EnergyPerSquareModder } from './energy-per-square-modder';
+import { alertAndFail } from './failing';
 import { HorzVertBitHistoModder } from './horz-vert-bit-histo-modder';
 import { KMeansClusteringModder } from './k-means-clustering-modder';
 import { MorphFlowModder } from './morph-flow-modder';
@@ -92,7 +93,8 @@ const visionaryFileName = 'visionary.json';
 async function willOpenVisionary(
     dir: FileSystemDirectoryHandle,
 ): Promise<VisionaryConfig> {
-    const result: VisionaryConfig = await willOpenJsonFile(dir, visionaryFileName);
+    const result = await willOpenJsonFile<VisionaryConfig>(dir, visionaryFileName);
+    if (isNull(result)) return alertAndFail('No visonary config.');
     return result;
 }
 
