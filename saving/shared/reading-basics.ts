@@ -1,4 +1,4 @@
-import { fail, isNull } from './core';
+import { fail, isDefined, isNull } from './core';
 
 declare var console: { log(...args: any[]): void; }
 
@@ -7,11 +7,17 @@ export interface Choked {
     isBad: true;
     index: number;
     reason?: string;
+    choked?: Choked;
 }
 
 export function chokedFrom(index: number, reason?: string): Choked {
-    debugger;
     return { kind: 'choked', isBad: true, index, reason };
+}
+
+export function chokedBecause(index: number, choked: Choked, reason: string): Choked {
+    const { reason: innerRason } = choked;
+    const fullReason = isDefined(innerRason) ? reason + ' ' + innerRason : reason;
+    return { kind: 'choked', isBad: true, index, reason: fullReason, choked };
 }
 
 export type ParsedOrNot<T> = Choked | Captured<T>;
