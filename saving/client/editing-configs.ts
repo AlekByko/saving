@@ -1,5 +1,5 @@
 import { broke } from '../shared/core';
-import { $across, $of, $on, BySafe } from '../shared/inside';
+import { $across, $of, $on, By } from '../shared/inside';
 import { thusUpDown } from './up-down';
 
 
@@ -25,7 +25,7 @@ export type ListerConcern<Config> =
     | BeReplacedConfigConcern<Config>;
 
 export function faceListerConcern<Owner, Config extends { key: string; }>(
-    byConfigs: BySafe<Owner, Config[]>,
+    byConfigs: By<Owner, Config[]>,
     owner: Owner,
     concern: ListerConcern<Config>,
 ): Owner {

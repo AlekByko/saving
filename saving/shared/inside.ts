@@ -24,22 +24,13 @@ function onOver(key: string): On {
     return function (x: any, y: any) { return { ...x, [key]: y }; }
 }
 
-export type BySafe<T, U> = {
+export type By<T, U> = {
     [$of]: (obj: T) => U;
     [$on]: (obj: T, value: U) => T;
     [$atop]: <K extends keyof U>(obj: T, part: Pick<U extends object ? U : never, K>) => T;
     [$across]: (obj: T, across: (value: U) => U) => T;
 } & {
-        [P in keyof U]: P extends `${string}Unsafe` ? never : BySafe<T, U[P]>;
-    };
-
-export type ByUnsafe<T, U> = {
-    [$of]: (obj: T) => U;
-    [$on]: (obj: T, value: U) => T;
-    [$atop]: <K extends keyof U>(obj: T, part: Pick<U extends object ? U : never, K>) => T;
-    [$across]: (obj: T, across: (value: U) => U) => T;
-} & {
-        [P in keyof U]: ByUnsafe<T, U[P]>;
+        [P in keyof U]: By<T, U[P]>;
     };
 
 const theOnlyStewardYouEverNeed = toBlankSteward({
@@ -83,7 +74,7 @@ function toBlankSteward(boss: Core): Core {
     });
 }
 
-export function inside<T>(): ByUnsafe<T, T> {
+export function inside<T>(): By<T, T> {
     return theOnlyStewardYouEverNeed as any;
 }
 
