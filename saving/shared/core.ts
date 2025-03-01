@@ -175,6 +175,9 @@ export function notOver<T>(seeIf: (value: T) => boolean) {
 export function increment(value: number): number {
     return value + 1;
 }
+export function decrement(value: number): number {
+    return value - 1;
+}
 
 export function isString(value: unknown): value is string {
     return typeof value === 'string';
