@@ -1,6 +1,6 @@
-import { MouseEvent } from 'react';
+import { ChangeEvent, MouseEvent } from 'react';
 import { isDefined, isNull } from '../shared/core';
-import { $across, $assign, $of, $on, $where, By } from '../shared/inside';
+import { $across, $assign, $of, $on, $where, By, inside } from '../shared/inside';
 
 export interface Statefull<State> {
     state: State;
@@ -21,28 +21,27 @@ export const uponAnchorClick = {
         byState: By<State, Value>,
         byConfig: By<Config, Value>,
         across: (value: Value) => Value,
-        then?: Act,
     ) {
-        return function whenClicked(e: MouseEvent<unknown>): void {
+        return function whenClicked(e: MouseEvent<unknown>): Promise<void> {
             e.preventDefault();
             e.stopPropagation();
-            return stateful.setState(state => {
-                const olderState = state;
-                const newerState = byState[$across](olderState, across);
-                return newerState;
-            }, () => {
-                const { state } = stateful;
-                const fine = byState[$of](state);
-                const { config } = state;
-                if (isNull(config)) {
-                    console.warn(`No config. Unable to set: ${byConfig[$where]()}`, fine);
-                    return;
-                }
-                byConfig[$assign](config, fine);
-                stateful.scheduleModelConfigSaving();
-                if (isDefined(then)) {
-                    then();
-                }
+            return new Promise(resolve => {
+                return stateful.setState(state => {
+                    const olderState = state;
+                    const newerState = byState[$across](olderState, across);
+                    return newerState;
+                }, () => {
+                    const { state } = stateful;
+                    const fine = byState[$of](state);
+                    const { config } = state;
+                    if (isNull(config)) {
+                        console.warn(`No config. Unable to set: ${byConfig[$where]()}`, fine);
+                        return;
+                    }
+                    byConfig[$assign](config, fine);
+                    stateful.scheduleModelConfigSaving();
+                    resolve();
+                });
             });
         };
     }
@@ -58,33 +57,36 @@ export function inCaseOf<Event, Crude>(
             byConfig: By<Config, Fine>,
             parse: (value: Crude, state: State) => Fine | NotParsed,
         ) {
-            return function settingValue(e: Event): void {
+            return function settingValue(e: Event): Promise<void> {
                 const crude = byEvent[$of](e); // <-- has to be here because event doesn't live long
-                return stateful.setState(state => {
-                    const olderState = state;
-                    const fine = parse(crude, olderState);
-                    if (fine === notParsed) {
-                        console.warn(`Unable parse e${byEvent[$where]()} to set state${byState[$where]}`, crude);
-                        debugger;
-                        window.document.title = '!!! SITUATION !!!';
-                        console.warn(crude);
-                        console.warn(state);
-                        return null;
-                    } else {
-                        const newerState = byState[$on](olderState, fine);
-                        return newerState;
-                    }
-                }, () => {
-                    const { state } = stateful;
-                    const fine = byState[$of](state);
-                    const { config } = state;
-                    if (isNull(config)) {
-                        console.warn(`No config. Unable to set: ${byConfig[$where]()}`, fine);
-                        return;
-                    }
-                    byConfig[$assign](config, fine);
-                    stateful.scheduleModelConfigSaving();
-                });
+                return new Promise(resolve => {
+                    stateful.setState(state => {
+                        const olderState = state;
+                        const fine = parse(crude, olderState);
+                        if (fine === notParsed) {
+                            console.warn(`Unable parse e${byEvent[$where]()} to set state${byState[$where]}`, crude);
+                            debugger;
+                            window.document.title = '!!! SITUATION !!!';
+                            console.warn(crude);
+                            console.warn(state);
+                            return null;
+                        } else {
+                            const newerState = byState[$on](olderState, fine);
+                            return newerState;
+                        }
+                    }, () => {
+                        const { state } = stateful;
+                        const fine = byState[$of](state);
+                        const { config } = state;
+                        if (isNull(config)) {
+                            console.warn(`No config. Unable to set: ${byConfig[$where]()}`, fine);
+                            return;
+                        }
+                        byConfig[$assign](config, fine);
+                        stateful.scheduleModelConfigSaving();
+                        resolve();
+                    });
+                })
             };
         },
         setState<State, Fine>(
@@ -113,4 +115,8 @@ export function inCaseOf<Event, Crude>(
             };
         },
     };
-}
+} const inTextareaChangeEvent = inside<ChangeEvent<HTMLTextAreaElement>>();
+const inInputChangeEvent = inside<ChangeEvent<HTMLInputElement>>();
+export const uponChangedTexarea = inCaseOf(inTextareaChangeEvent.currentTarget.value);
+export const uponChangedInput = inCaseOf(inInputChangeEvent.currentTarget.value);
+
