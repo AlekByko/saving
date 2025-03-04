@@ -11,3 +11,4 @@ export const knownCapsDirRef = 'caps-dir' as KnownPickedDirRef;
 export const knownTrainingSetDirRef = 'known-training-set-dir' as KnownPickedDirRef;
 export const knownOutputDirRef = 'output-dir' as KnownPickedDirRef;
 export const knownConfigDirRef = 'config-dir' as KnownPickedDirRef;
+export const knownArchiveDirRef = 'archive-dir' as KnownPickedDirRef;
