@@ -36,10 +36,10 @@ export const uponAnchorClick = {
                     const { config } = state;
                     if (isNull(config)) {
                         console.warn(`No config. Unable to set: ${byConfig[$where]()}`, fine);
-                        return;
+                    } else {
+                        byConfig[$assign](config, fine);
+                        stateful.scheduleModelConfigSaving();
                     }
-                    byConfig[$assign](config, fine);
-                    stateful.scheduleModelConfigSaving();
                     resolve();
                 });
             });
@@ -80,10 +80,10 @@ export function inCaseOf<Event, Crude>(
                         const { config } = state;
                         if (isNull(config)) {
                             console.warn(`No config. Unable to set: ${byConfig[$where]()}`, fine);
-                            return;
+                        } else {
+                            byConfig[$assign](config, fine);
+                            stateful.scheduleModelConfigSaving();
                         }
-                        byConfig[$assign](config, fine);
-                        stateful.scheduleModelConfigSaving();
                         resolve();
                     });
                 })
