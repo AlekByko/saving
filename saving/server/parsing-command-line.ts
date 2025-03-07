@@ -84,7 +84,7 @@ export function ensureInteger(text: string | undefined) {
 
 export const noLuckWithArgs = Symbol('no-luck-with-args');
 
-export function henceReadingArgs<Key extends string>() {
+export function henceReadingArgsOf<Key extends string>() {
     return {
         readIntegerUnto(
             argKey: Key,
@@ -101,6 +101,25 @@ export function henceReadingArgs<Key extends string>() {
                 return configValue;
             } else {
                 return missingArgByeBye(argKey);
+            }
+        },
+
+        readIntegerOr<Or>(
+            argKey: Key,
+            cliArgs: CliArgs<Key>,
+            configValue: number | undefined,
+            or: Or,
+        ) {
+            const argText = cliArgs[argKey];
+            if (isDefined(argText)) {
+                const value = parseInt(argText, 10);
+                if (isFinite(value)) return value;
+                console.log(`Bad argument: ${argKey}. Not an integer: ${argText}`);
+                throw noLuckWithArgs;
+            } else if (isDefined(configValue)) {
+                return configValue;
+            } else {
+                return or;
             }
         },
 
