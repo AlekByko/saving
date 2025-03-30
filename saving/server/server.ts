@@ -1,16 +1,21 @@
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, promises as fs, readFileSync } from 'fs';
 import { IncomingMessage, ServerOptions, ServerResponse, createServer } from 'http';
 import { MongoClient, ObjectId } from 'mongodb';
+import * as pth from 'path';
 import { extname, join } from 'path';
 import { parse } from 'url';
 import { CamConfig } from '../shared/cam-config';
+import { makeCapPath } from '../shared/caps-folders';
+import { BeMovedInCaps, FailedBackendOperation, SuccesfulBackendOperation } from '../shared/contract';
 import { asNonNullOr, isNull } from '../shared/core';
 import { dotJpg, dotJson } from '../shared/extentions';
 import { willLoadConfigsFromDb } from './databasing';
+import { henceReadingArgsOf, readCliArgs } from './parsing-command-line';
 import { setConsoleTitle } from './utils';
 
+type ArgKeys = 'port' | 'caps-dir';
 
-const port = 8081;
+
 const options: ServerOptions = {};
 async function run() {
 
@@ -20,6 +25,19 @@ async function run() {
     await mongo.connect();
     console.log('connected');
     const db = mongo.db('saving');
+    const text = process.argv.slice(2).join(' ');
+    const parsedOrNot = readCliArgs(text, 0);
+    if (parsedOrNot.isBad) {
+        console.log('Unable to parse: ' + text);
+        console.log(parsedOrNot);
+        return;
+    }
+    const cliArgs = parsedOrNot.value;
+    console.log(cliArgs);
+    const readingArgs = henceReadingArgsOf<ArgKeys>();
+    const port = readingArgs.readIntegerUnto('port', cliArgs, undefined);
+    const capsDir = readingArgs.readDirUnto('caps-dir', cliArgs, undefined);
+    console.log({ port, capsDir });
 
     setConsoleTitle(`http://localhost:${port}`)
     console.log(`listening at ${port}`);
@@ -63,7 +81,39 @@ async function run() {
             }
         } else if (req.method === 'POST') {
             console.log('POST', path);
-            if (path === '/cams/pull') {
+            if (path === '/move/caps') {
+                const text = await willReadBody(req);
+                const { name, where }: BeMovedInCaps = JSON.parse(text);
+
+                const all = makeCapPath(name);
+                all.reverse();
+                const [, ...last] = all;
+                last.reverse();
+                all.reverse();
+                const source = pth.join(capsDir, ...all);
+                const destination = pth.join(capsDir, where, ...last);
+
+                try {
+                    // Ensure destination directory exists
+                    await fs.mkdir(pth.dirname(destination), { recursive: true });
+
+                    // Move directory using rename
+                    await fs.rename(source, destination);
+                    console.log(`Directory moved from ${source} to ${destination}`);
+                    const result: SuccesfulBackendOperation = { wasOk: true };
+                    res.write(JSON.stringify(result, null, 4));
+                    res.statusCode = 200;
+                    res.end();
+                } catch (error: any) {
+                    console.error('Error moving directory:', error);
+                    const result: FailedBackendOperation = { error: error.message, wasOk: false };
+                    res.write(JSON.stringify(result, null, 4));
+                    res.statusCode = 500;
+                    res.end();
+                }
+
+
+            } else if (path === '/cams/pull') {
                 const text = await willReadBody(req);
                 const names: GlobalCamName[] = JSON.parse(text);
                 console.log('pulling cam configs:', names.join(', '));

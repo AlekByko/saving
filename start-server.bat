@@ -1,1 +1,1 @@
-start cmd /K node --unhandled-rejections=strict ./node_modules/saving-server/server/server.js
+start cmd /K node --unhandled-rejections=strict ./node_modules/saving-server/server/server.js %*
