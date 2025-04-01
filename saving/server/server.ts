@@ -6,14 +6,14 @@ import { extname, join } from 'path';
 import { parse } from 'url';
 import { CamConfig } from '../shared/cam-config';
 import { makeCapPath } from '../shared/caps-folders';
-import { BeDeletedInMates, BeMovedInCaps, FailedBackendOperation, SuccesfulBackendOperation } from '../shared/contract';
+import { BeDeletedInMates, BeMovedInCaps, BeMovedMates, FailedBackendOperation, SuccesfulBackendOperation } from '../shared/contract';
 import { asNonNullOr, isNull } from '../shared/core';
 import { dotJpg, dotJson } from '../shared/extentions';
 import { willLoadConfigsFromDb } from './databasing';
 import { henceReadingArgsOf, readCliArgs } from './parsing-command-line';
 import { setConsoleTitle } from './utils';
 
-type ArgKeys = 'port' | 'caps-dir' | 'mates-dir';
+type ArgKeys = 'port' | 'caps-dir' | 'mates-dir' | 'paired-dir';
 
 
 const options: ServerOptions = {};
@@ -38,7 +38,8 @@ async function run() {
     const port = readingArgs.readIntegerUnto('port', cliArgs, undefined);
     const capsDir = readingArgs.readDirUnto('caps-dir', cliArgs, undefined);
     const matesDir = readingArgs.readDirUnto('mates-dir', cliArgs, undefined);
-    console.log({ port, capsDir, matesDir });
+    const pairedDir = readingArgs.readDirUnto('paired-dir', cliArgs, undefined);
+    console.log({ port, capsDir, matesDir, pairedDir });
 
     setConsoleTitle(`http://localhost:${port}`)
     console.log(`listening at ${port}`);
@@ -102,6 +103,30 @@ async function run() {
                     res.end();
                 }
 
+            } else if (path === '/move/mates') {
+                const text = await willReadBody(req);
+                const { matesDirName }: BeMovedMates = JSON.parse(text);
+                const source = pth.join(matesDir, matesDirName);
+                const destination = pth.join(pairedDir, matesDirName);
+
+                try {
+                    // Ensure destination directory exists
+                    await fs.mkdir(pth.dirname(destination), { recursive: true });
+
+                    // Move directory using rename
+                    await fs.rename(source, destination);
+                    console.log(`Mates directory moved from ${source} to ${destination}`);
+                    const result: SuccesfulBackendOperation = { wasOk: true };
+                    res.write(JSON.stringify(result, null, 4));
+                    res.statusCode = 200;
+                    res.end();
+                } catch (e: any) {
+                    console.error('Error moving mates directory:', e);
+                    const result: FailedBackendOperation = { error: e.message, wasOk: false };
+                    res.write(JSON.stringify(result, null, 4));
+                    res.statusCode = 500;
+                    res.end();
+                }
             } else if (path === '/move/caps') {
                 const text = await willReadBody(req);
                 const { name, where }: BeMovedInCaps = JSON.parse(text);
