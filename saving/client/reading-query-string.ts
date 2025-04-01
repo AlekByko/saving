@@ -10,6 +10,17 @@ export function readQueryStringParam<S extends string, Or>(
     return or;
 }
 
+export function readNumberFromQueryString<Or>(
+    regexp: RegExp, or: Or
+): number | Or {
+    const matched = regexp.exec(window.location.search);
+    if (isNull(matched)) return or;
+    const [_full, text] = matched;
+    const parsed = parseInt(text, 10);
+    if (isFinite(parsed)) return parsed;
+    return or;
+}
+
 export function testQueryString(regexp: RegExp): boolean {
     return regexp.test(window.location.search);
 }

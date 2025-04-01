@@ -4,7 +4,8 @@
     <link rel="stylesheet" type="text/css" href="./styles/all.css" />
     <script type="text/javascript">
         window.onload = function () {
-            const path = window.location.search.replace('?', '');
+            const parts = window.location.search.replace('?', '').split('&');
+            const [path] = parts;
             window.sandbox = path;
             const element = document.createElement('script');
             element.src = './node_modules/requirejs/require.js';
