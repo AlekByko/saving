@@ -41,6 +41,7 @@ export function toElapsedFromSeconds(value: number): Elapsed {
     return { milliseconds, seconds, minutes, hours, days };
 }
 
+/** D HH:MM:SS */
 export function formatElapsedUptoSeconds({ days, hours, minutes, seconds }: Elapsed): string {
     const daysText = days > 0 ? days + ' ' : '';
     return daysText + padZero(2, hours) + ':' + padZero(2, minutes) + ':' + padZero(2, seconds);
