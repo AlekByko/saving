@@ -33,4 +33,8 @@
         "typescriptreact"
     ],
     "workbench.colorTheme": "Default Light+",
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#c00",
+        "titleBar.activeForeground": "#fff"
+    }
 }
