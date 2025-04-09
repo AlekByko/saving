@@ -91,7 +91,7 @@ async function run() {
                     const { names }: BeGottenFamMemsPairs = JSON.parse(text);
                     const gotten = await willGetFamMemPairs(client, names);
                     console.log(`Fam-mems gotten`);
-                    const result: SuccesfulBackendResult<typeof gotten> = { wasOk: true, result: gotten };
+                    const result: SuccesfulBackendResult<typeof gotten> = { isOk: true, isBad: false, result: gotten };
                     res.write(JSON.stringify(result, null, 4));
                     res.statusCode = 200;
                     res.end();
@@ -103,14 +103,14 @@ async function run() {
                     const regged = await willRegisterFamMems(client, names, flingName);
                     if (regged.isBad) {
                         console.error('Error registing fam-mems:', regged);
-                        const result: FailedBackendOperation = { wasOk: false, error: regged.e.message };
+                        const result: FailedBackendOperation = { isOk: false, isBad: true, error: regged.e.message };
                         res.write(JSON.stringify(result, null, 4));
                         res.statusCode = 500;
                         res.end();
                         break;
                     } else {
                         console.log(`Fam-mems registered`);
-                        const result: SuccesfulBackendOperation = { wasOk: true };
+                        const result: SuccesfulBackendOperation = { isOk: true, isBad: false };
                         res.write(JSON.stringify(result, null, 4));
                         res.statusCode = 200;
                         res.end();
@@ -124,14 +124,14 @@ async function run() {
                     try {
                         await fs.rm(target, { recursive: true, force: true });
                         console.log(`Mates directory deleted at ${target}`);
-                        const result: SuccesfulBackendOperation = { wasOk: true };
+                        const result: SuccesfulBackendOperation = { isOk: true, isBad: false };
                         res.write(JSON.stringify(result, null, 4));
                         res.statusCode = 200;
                         res.end();
 
                     } catch (e: any) {
                         console.error('Error deleting mates directory:', e);
-                        const result: FailedBackendOperation = { error: e.message, wasOk: false };
+                        const result: FailedBackendOperation = { error: e.message, isOk: false, isBad: true };
                         res.write(JSON.stringify(result, null, 4));
                         res.statusCode = 500;
                         res.end();
@@ -151,13 +151,13 @@ async function run() {
                         // Move directory using rename
                         await fs.rename(source, destination);
                         console.log(`Mates directory moved from ${source} to ${destination}`);
-                        const result: SuccesfulBackendOperation = { wasOk: true };
+                        const result: SuccesfulBackendOperation = { isOk: true, isBad: false };
                         res.write(JSON.stringify(result, null, 4));
                         res.statusCode = 200;
                         res.end();
                     } catch (e: any) {
                         console.error('Error moving mates directory:', e);
-                        const result: FailedBackendOperation = { error: e.message, wasOk: false };
+                        const result: FailedBackendOperation = { error: e.message, isOk: false, isBad: true };
                         res.write(JSON.stringify(result, null, 4));
                         res.statusCode = 500;
                         res.end();
@@ -177,13 +177,13 @@ async function run() {
                         // Move directory using rename
                         await fs.rename(source, destination);
                         console.log(`Mates directory moved from ${source} to ${destination}`);
-                        const result: SuccesfulBackendOperation = { wasOk: true };
+                        const result: SuccesfulBackendOperation = { isOk: true, isBad: false };
                         res.write(JSON.stringify(result, null, 4));
                         res.statusCode = 200;
                         res.end();
                     } catch (e: any) {
                         console.error('Error moving mates directory:', e);
-                        const result: FailedBackendOperation = { error: e.message, wasOk: false };
+                        const result: FailedBackendOperation = { error: e.message, isOk: false, isBad: true };
                         res.write(JSON.stringify(result, null, 4));
                         res.statusCode = 500;
                         res.end();
@@ -205,13 +205,13 @@ async function run() {
                         // Move directory using rename
                         await fs.rename(source, destination);
                         console.log(`Caps directory moved from ${source} to ${destination}`);
-                        const result: SuccesfulBackendOperation = { wasOk: true };
+                        const result: SuccesfulBackendOperation = { isOk: true, isBad: false };
                         res.write(JSON.stringify(result, null, 4));
                         res.statusCode = 200;
                         res.end();
                     } catch (e: any) {
                         console.error('Error moving caps directory:', e);
-                        const result: FailedBackendOperation = { error: e.message, wasOk: false };
+                        const result: FailedBackendOperation = { error: e.message, isOk: false, isBad: true };
                         res.write(JSON.stringify(result, null, 4));
                         res.statusCode = 500;
                         res.end();
