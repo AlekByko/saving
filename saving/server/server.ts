@@ -230,7 +230,7 @@ async function run() {
                     res.end();
                     break;
                 }
-                case 'cams/save': {
+                case '/cams/save': {
                     const text = await willReadBody(req);
                     const configs: CamConfig[] = JSON.parse(text);
                     console.log('saving cam configs', configs);
@@ -256,7 +256,8 @@ async function run() {
                     break;
                 }
                 default: {
-                    // do nothing
+                    console.log('Unknown path: ' + path);
+                    throw new Error(`Bad path: ${path}`);
                 }
             }
         }
