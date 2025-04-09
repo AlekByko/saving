@@ -222,7 +222,7 @@ async function run() {
                     const text = await willReadBody(req);
                     const names: GlobalCamName[] = JSON.parse(text);
                     console.log('pulling cam configs:', names.join(', '));
-                    const configs = await willLoadConfigsFromDb(db, names);
+                    const configs = await willLoadConfigsFromDb(client, names);
                     const json = JSON.stringify(configs, null, 4);
                     console.log('Cam configs for', names.join(', '), json);
                     res.write(json);
