@@ -183,9 +183,3 @@ export function readJsonFileAs<T>(path: string) {
 }
 
 
-export async function willReadPairs() {
-    const json = fs.readFileSync('./configs/pairs.json', { encoding: 'utf-8' });
-    const pairs = JSON.parse(json) as GlobalCamName[][];
-    console.log(`pairs read`);
-    return pairs;
-}
