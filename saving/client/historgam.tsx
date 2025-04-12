@@ -10,7 +10,6 @@ export interface Histogram {
     rs: number[];
     gs: number[];
     bs: number[];
-    total: number;
 }
 
 function calculateVectorDistanceSum(one: number[], another: number[]): number {
@@ -34,7 +33,7 @@ export function calculateHistogramDistance(one: Histogram, another: Histogram): 
 }
 
 
-export function calculateHistogramByImageData(
+export function calculateHistogramByImageAndCanvas(
     image: HTMLImageElement,
     canvas: HTMLCanvasElement,
     numberOfBuckets: number,
@@ -54,6 +53,10 @@ export function calculateHistogramByImageData(
     context.drawImage(image, 0, 0);
     const imda = context.getImageData(0, 0, width, height);
 
+    return calculateHistogramByImda(imda, numberOfBuckets, everyNthPixel);
+}
+
+export function calculateHistogramByImda(imda: ImageData, numberOfBuckets: number, everyNthPixel: number) {
     const { data } = imda;
     const { length } = data;
 
@@ -76,13 +79,12 @@ export function calculateHistogramByImageData(
         bs[Math.trunc(b * k)] += 1;
 
         // skipping alpha
-
         // counting total
         total += 3; // <--- for proper normalization, since every component (R, G, B) is later present in the sum when calculating the total distance
     }
 
-    const histogram: Histogram = { rs, gs, bs, total };
-    normalizeHistogram(histogram);
+    const histogram: Histogram = { rs, gs, bs };
+    normalizeHistogram(histogram, total);
     return histogram;
 }
 
@@ -92,8 +94,7 @@ function normalizeVector(vec: number[], total: number): void {
     }
 }
 
-function normalizeHistogram(histo: Histogram): void {
-    const { total } = histo;
+function normalizeHistogram(histo: Histogram, total: number): void {
     normalizeVector(histo.rs, total);
     normalizeVector(histo.gs, total);
     normalizeVector(histo.bs, total);
@@ -115,7 +116,7 @@ export class Histogrammer extends React.Component<HistogrammerProps> {
         if (isNull(imageElement)) return;
         if (isNull(canvasElement)) return;
         imageElement.onload = () => {
-            const histo = calculateHistogramByImageData(imageElement, canvasElement, defaultSize, 1);
+            const histo = calculateHistogramByImageAndCanvas(imageElement, canvasElement, defaultSize, 1);
             renderHistogram(canvasElement, histo);
         };
     }
