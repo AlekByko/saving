@@ -75,7 +75,7 @@ export function zipToGrid<T, U, V>(
 export function tileRectPxSharp(
     width: number, height: number,
     numberOfHorizontalTiles: number, numberOfVerticalTiles: number,
-) {
+): Box[][] {
     const horizontal = chopDistancePxSharp(width, numberOfHorizontalTiles);
     const vertical = chopDistancePxSharp(height, numberOfVerticalTiles);
     const zipped = zipToGrid(horizontal, vertical, (
@@ -87,16 +87,11 @@ export function tileRectPxSharp(
     return zipped;
 }
 
-export function xxx<Context>(
-    context: Context, imda: ImageData,
+export function averageColorInTile(
+    imda: ImageData,
     sx: number, sy: number,
     sw: number, sh: number,
-    process: (
-        context: Context,
-        r: number, g: number, b: number,
-        x: number, y: number,
-    ) => void
-) {
+): Color | undefined {
     if (sx < 0) return;
     if (sy < 0) return;
     if (sw < 1) return;
@@ -105,18 +100,57 @@ export function xxx<Context>(
     if (sx + sw > width) return;
     if (sy + sh > height) return;
     const stride = 4;
+    let total = 0;
+    let tr = 0;
+    let tg = 0;
+    let tb = 0;
     for (let dy = 0; dy < sh; dy++) {
         const y = dy + sy;
         const ixs = y * width + sx;
         for (let dx = 0; dx < sw; dx++) {
             const ix = ixs + dx;
-            const x = dx + sx;
+            // const x = dx + sx;
             let at = ix * stride;
+            total += 1;
             const r = data[at++];
             const g = data[at++];
             const b = data[at++];
-            process(context, r, g, b, x, y);
+            tr += r;
+            tg += g;
+            tb += b;
         }
     }
-    return;
+    tr = Math.round(tr / total);
+    tg = Math.round(tg / total);
+    tb = Math.round(tb / total);
+    return [tr, tg, tb];
+}
+
+export interface Box { x: number; y: number; width: number; height: number; }
+export type Color = [r: number, g: number, b: number];
+
+/** Given a rectangular gird of tiles. Make all transitions between adjacent tiles.
+ * Directions of transitions to be collected:
+ *
+ *      - horizontal: current tile -> next tile to the right
+ *      - vertical: current tile -> tile right below
+ *
+ * Basically it's all borders between tiles as [V, V] counted EXATLY ONE TIME between EACH 2 ADJECENT TILES.
+ */
+export function makeHvTileTransitionsOfTileGrid<Tile, Value>(
+    grid: Tile[][],
+    valueOf: (tile: Tile) => Value,
+): [Value, Value][] {
+    const transitions: [Value, Value][] = [];
+    for (let i = 0; i < grid.length - 1; i++) {
+        const row = grid[i];
+        for (let j = 0; j < row.length - 1; j++) {
+            const at = valueOf(row[j]);
+            const right = valueOf(row[j + 1]);
+            const below = valueOf(grid[i + 1][j]);
+            transitions.push([at, right]);
+            transitions.push([at, below]);
+        }
+    }
+    return transitions;
 }

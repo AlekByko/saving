@@ -1,4 +1,4 @@
-import { hslToRgb, rgbToHex, toHue } from '../shared/coloring';
+import { hslToRgb, rgbToHex, rgbToHueOnly } from '../shared/coloring';
 import { fail, isNull } from '../shared/core';
 
 export interface CenterMass {
@@ -57,7 +57,7 @@ export function calculateColorMasses(
 }
 
 function seeWhatWeightIndexIs(r: number, g: number, b: number, steps: number) {
-    const hue = toHue(r, g, b);
+    const hue = rgbToHueOnly(r, g, b);
     if (isNull(hue)) return -1;
     const at = hue / 360 - (1 / steps / 2) + 1;
     const padded = Math.round(at * steps);

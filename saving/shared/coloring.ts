@@ -1,6 +1,6 @@
 import { padZeroText } from './texting';
 
-export function toHue(r: number, g: number, b: number): number | null {
+export function rgbToHueOnly(r: number, g: number, b: number): number | null {
     r /= 255;
     g /= 255;
     b /= 255;
@@ -20,7 +20,6 @@ export function toHue(r: number, g: number, b: number): number | null {
     h *= 60;
     return h;
 }
-
 
 export function hslToRgb(h: number, s: number, l: number) {
     var r, g, b;

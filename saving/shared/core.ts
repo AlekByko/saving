@@ -116,7 +116,7 @@ export function same<T>(value: T): T {
 export type Compare<T> = (one: T, another: T) => number;
 
 export function compareViaOver<T, U>(of: (value: T) => U, compare: (one: U, another: U) => number, sign: number) {
-    return function compareVia(one: T, another: T) : number {
+    return function compareVia(one: T, another: T): number {
         const oneValue = of(one);
         const anotherValue = of(another);
         const compared = compare(oneValue, anotherValue) * sign;
@@ -445,7 +445,7 @@ export function run<T>(run: () => T): T {
     return run();
 }
 
-export function bare<T >(_: {} extends T ? object : never) { }
+export function bare<T>(_: {} extends T ? object : never) { }
 export type Abort = () => void;
 
 
@@ -471,6 +471,15 @@ export function right<T>(right: T): Right<T> {
     };
 }
 
+export function sureDefined<T>(x: T | undefined, unto: string): asserts x is T & {} {
+    if (isDefined(x)) return;
+    const message = `Undefined for ${unto}, SHOULD NOT BE!`;
+    var window: any;
+    if (typeof window !== 'undefined') {
+        window.alert(message);
+    }
+    return fail(message);
+}
 export function sureNonNull<T>(x: T | null, unto: string): asserts x is T & {} {
     if (isNonNull(x)) return;
     const message = `NULL for ${unto}, SHOULD NOT BE!`;
