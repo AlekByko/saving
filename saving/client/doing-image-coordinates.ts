@@ -1,4 +1,4 @@
-import { sureNonNull } from '../shared/core';
+import { compareNumbers, fail, sureNonNull } from '../shared/core';
 
 /**
  * Cuts out an ImDa (ImageData) from given 2d canvas context using normalized coordinates and normalized size:
@@ -180,8 +180,8 @@ function getImagePixels(image: HTMLImageElement, width: number, height: number) 
 
 // Generate pHash: 8x8 grayscale, DCT, binary hash
 export function computePHash(image: HTMLImageElement) {
-    const width = 8;
-    const height = 8;
+    const width = 16;
+    const height = 16;
 
     // Step 1: Get 8x8 grayscale pixels
     const pixels = getImagePixels(image, width, height);
@@ -189,17 +189,17 @@ export function computePHash(image: HTMLImageElement) {
     // Step 2: Apply DCT
     const dct = dct2d(pixels, width, height);
 
-    // Step 3: Use top-left 8x8 (low frequencies), compute median
-    const values = dct.slice(0, 64); // 8x8 = 64 values
-    const sorted = [...values].sort((a, b) => a - b);
-    const median = sorted[31]; // Approx median for 64 values
+    // using top-left (low frequencies), compute median
+    const values = collectInZigZag(dct, width, width / 2);
+    const sorted = [...values].sort(compareNumbers);
+    const midIndex = Math.floor(values.length / 2);
+    const median = sorted[midIndex]; // aporox median
 
-    // Step 4: Create 64-bit binary hash (above median = 1, below = 0)
-    let hash = '';
-    for (let i = 0; i < 64; i++) {
-        hash += values[i] > median ? '1' : '0';
+    let phash = '';
+    for (let i = 0; i < values.length; i++) {
+        phash += values[i] > median ? '1' : '0';
     }
-    return hash;
+    return phash;
 }
 
 function dct2d(pixels: number[], width: number, height: number) {
@@ -230,4 +230,37 @@ export function hammingDistance<Or>(hash1: string, hash2: string, or: Or) {
         if (hash1[i] !== hash2[i]) distance++;
     }
     return distance;
+}
+
+
+
+export function collectInZigZag<T>(values: T[], width: number, size: number) {
+    if (size > width) return fail(`Size ${size} greater than width ${width}.`);
+    if (values.length % width !== 0) return fail(`Width ${width} is not a factor of number of elements ${values.length}.`);
+    const result: T[] = [];
+    for (let p = 0; p < size; p++) {
+        let isIt = p % 2 === 0;
+        let sx = isIt ? 1 : -1;
+        let sy = isIt ? -1 : 1;
+        let x = isIt ? 0 : p;
+        let y = isIt ? p : 0;
+        for (let q = 0; q <= p; q++) {
+            const i = y * width + x;
+            const value = values[i];
+            result.push(value);
+            x += sx;
+            y += sy;
+        }
+    }
+    return result;
+}
+
+if (window.sandbox === 'doing-image-coordinates') {
+    const zizzed = collectInZigZag([
+        0, 1, 5, 6,
+        2, 4, 7, 12,
+        3, 8, 11, 13,
+        9, 10, 14, 15,
+    ], 4, 4);
+    console.log(zizzed);
 }
