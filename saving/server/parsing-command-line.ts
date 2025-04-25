@@ -292,12 +292,12 @@ class ReadingCli<Result = {}> {
         return this as any;
     }
 
-    integerFore<Arg extends string>(arg: Arg): ReadingCli<{
-        [P in Arg | keyof Result]: P extends keyof Result ? Result[P] : number
+    integerFore<Arg extends string, Name extends string | undefined = undefined>(arg: Arg, name?: Name): ReadingCli<{
+        [P in (Name extends undefined ? Arg : Name) | keyof Result]: P extends keyof Result ? Result[P] : number;
     }> {
         const readIntegerFore = (result: any, cliArgs: CliArgs) => {
             const value = readingArgsOfString.readIntegerFore(arg, cliArgs, undefined);
-            return { ...result, [arg]: value };
+            return { ...result, [isDefined(name) ? name :  arg]: value };
         }
         this.all.push(readIntegerFore);
         return this as any;
