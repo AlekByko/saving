@@ -167,7 +167,7 @@ export function henceReadingArgsOf<Key extends string>() {
             }
         },
 
-        readBooleanUnto(
+        readBooleanFore(
             argKey: Key,
             cliArgs: CliArgs<Key>,
             configValue: boolean | undefined,
@@ -259,6 +259,17 @@ class ReadingCli<Result = {}> {
         return this as any;
     }
 
+    boolFore<Arg extends string, Name extends string | undefined = undefined>(arg: Arg,  name?: Name): ReadingCli<{
+        [P in (Name extends undefined ? Arg : Name) | keyof Result]: P extends keyof Result ? Result[P] : boolean
+    }> {
+        const readBooleanFore = (result: any, cliArgs: CliArgs) => {
+            const value = readingArgsOfString.readBooleanFore(arg, cliArgs, undefined);
+            return { ...result, [isDefined(name) ? name :  arg]: value };
+        }
+        this.all.push(readBooleanFore);
+        return this as any;
+    }
+
     stringFore<Arg extends string>(arg: Arg): ReadingCli<{
         [P in Arg | keyof Result]: P extends keyof Result ? Result[P] : string
     }> {
@@ -267,6 +278,17 @@ class ReadingCli<Result = {}> {
             return { ...result, [arg]: value };
         }
         this.all.push(readTextFore);
+        return this as any;
+    }
+
+    integerOr<Arg extends string, Or, Name extends string | undefined = undefined>(arg: Arg, or: Or, name?: Name): ReadingCli<{
+        [P in (Name extends undefined ? Arg : Name) | keyof Result]: P extends keyof Result ? Result[P] : number | Or;
+    }> {
+        const readIntegerOr = (result: any, cliArgs: CliArgs) => {
+            const value = readingArgsOfString.readIntegerOr(arg, cliArgs, undefined, or);
+            return { ...result, [isDefined(name) ? name :  arg]: value };
+        }
+        this.all.push(readIntegerOr);
         return this as any;
     }
 
