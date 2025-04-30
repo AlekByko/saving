@@ -1,0 +1,32 @@
+.flyout {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateX(100%); // <-- start off-screen 
+    transform: translateY(-50%);
+    background: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 32px;
+    white-space: nowrap;
+}
+
+.flyout {
+
+    &.as-odd,
+    &.as-even {
+        animation: flyLeft 2s ease-in forwards;
+    }
+}
+
+@keyframes flyLeft {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(-100vw);
+        /* fly fully off to the left */
+    }
+}
