@@ -87,3 +87,8 @@ export function reFocus(element: HTMLElement | null): void {
     element.blur();
     element.focus();
 }
+
+/** rumor has it, querying offsetWidth triggers a re-flow */
+export function reflowUI(element: HTMLDivElement) {
+    void element.offsetWidth;
+}

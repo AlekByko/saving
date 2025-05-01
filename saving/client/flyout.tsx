@@ -1,6 +1,6 @@
 import React from "react";
 import { isNull } from '../shared/core';
-import { addClassIfDefined } from './reacting';
+import { addClassIfDefined, reflowUI } from './reacting';
 
 export interface FlyoutProps {
     text: string;
@@ -41,7 +41,7 @@ export class Flyout extends React.Component<FlyoutProps, State> {
         if (isNull(element)) return;
         if (state.timesChanged !== olderState.timesChanged) {
             element.classList.remove('as-animated');
-            void element.offsetWidth;
+            reflowUI(element);
             element.classList.add('as-animated');
         }
     }
@@ -52,3 +52,4 @@ export class Flyout extends React.Component<FlyoutProps, State> {
         return <div className={classes} ref={x => this.element = x}>{text}</div>;
     }
 }
+
