@@ -36,10 +36,17 @@ export class Flyout extends React.Component<FlyoutProps, State> {
 
     private element: HTMLDivElement | null = null;
 
+    componentDidMount(): void {
+        this.pokeFlyout(Math.random());
+    }
     componentDidUpdate(_: FlyoutProps, olderState: State): void {
+        this.pokeFlyout(olderState.timesChanged);
+    }
+
+    pokeFlyout(olderTimesChanged: number) {
         const { state, element } = this;
         if (isNull(element)) return;
-        if (state.timesChanged !== olderState.timesChanged) {
+        if (state.timesChanged !== olderTimesChanged) {
             element.classList.remove('as-animated');
             reflowUI(element);
             element.classList.add('as-animated');
