@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from 'react-dom';
 import { isNull } from '../shared/core';
 import { addClassIfDefined, reflowUI } from './reacting';
 
@@ -60,3 +61,7 @@ export class Flyout extends React.Component<FlyoutProps, State> {
     }
 }
 
+if (window.sandbox === 'flyout') {
+    const rootElement = document.getElementById('root');
+    ReactDOM.render(<Flyout text="test" timesRan={0} className="as-yes-or-pin" />, rootElement);
+}

@@ -29,7 +29,7 @@
             1px -1px 0 white,
             -1px -1px 0 white;
 
-        &::before {
+        /* &::before { // <-- its layering on top, BORDER PROBLEM
             content: '';
             position: absolute;
             top: -4px;
@@ -37,10 +37,10 @@
             right: -4px;
             bottom: -4px;
             background: linear-gradient(135deg, #A67C00, #8B5E00);
-            /* darker gold border */
             border-radius: 16px;
             z-index: -1;
         }
+        */
 
     }
 }
