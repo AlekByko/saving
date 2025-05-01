@@ -40,23 +40,34 @@ export async function willBeWorking<State>(
         }
 
         // there is a job, so we can get tasks
-        const tasks = job(lastState);
+        let tasks: Task<State, unknown, unknown>[];
+        try {
+            tasks = job(lastState);
+        } catch (e: any) {
+            console.warn('COULD NOT GET TASKS FOR JOB:', e, job, lastState);
+            tasks = [];
+        }
+
         let lastContext: DefaultContext = undefined;
         for (const task of tasks) {
-            const [nextState, nextContext] = await task(lastState, lastContext);
-            lastContext = nextContext;
+            try {
+                const [nextState, nextContext] = await task(lastState, lastContext);
+                lastContext = nextContext;
 
-            // if a tasks gives the same state, then we skip
-            if (nextState === lastState) continue;
+                // if a tasks gives the same state, then we skip
+                if (nextState === lastState) continue;
 
-            // if a task give a different state we render it
-            await willDigest(nextState);
+                // if a task give a different state we render it
+                await willDigest(nextState);
 
-            lastState = nextState;
+                lastState = nextState;
 
-            shouldWait = false; // <-- we had at least one async operation resulting into state change, so no need to add a pause before replenishing jobs
+                shouldWait = false; // <-- we had at least one async operation resulting into state change, so no need to add a pause before replenishing jobs
 
-            // ...going to next task
+                // ...going to next task
+            } catch (e: any) {
+                console.warn('COULD NOT RUN A TASK OF JOB:', e, task, job, lastState);
+            }
         }
     }
 }
