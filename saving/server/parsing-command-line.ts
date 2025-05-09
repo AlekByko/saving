@@ -270,12 +270,12 @@ class ReadingCli<Result = {}> {
         return this as any;
     }
 
-    stringFore<Arg extends string>(arg: Arg): ReadingCli<{
-        [P in Arg | keyof Result]: P extends keyof Result ? Result[P] : string
+    stringFore<Arg extends string, Name extends string | undefined = undefined>(arg: Arg, name?: Name): ReadingCli<{
+        [P in (Name extends undefined ? Arg : Name) | keyof Result]: P extends keyof Result ? Result[P] : string;
     }> {
         const readTextFore = (result: any, cliArgs: CliArgs) => {
             const value = readingArgsOfString.readStrFore(arg, cliArgs, undefined);
-            return { ...result, [arg]: value };
+            return { ...result, [isDefined(name) ? name :  arg]: value };
         }
         this.all.push(readTextFore);
         return this as any;
