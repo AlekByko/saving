@@ -5,5 +5,6 @@ import { MusicApp } from './music-app';
 
 if (window.sandbox === 'starting-music-app') {
     const rootElement = document.getElementById('root')!;
-    ReactDOM.render(<MusicApp />, rootElement);
+    const ctx = new window.AudioContext();
+    ReactDOM.render(<MusicApp ctx={ctx} />, rootElement);
 }
