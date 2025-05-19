@@ -1,0 +1,35 @@
+.piano-keyboard {
+    display: flex;
+    align-items: flex-start;
+
+    @scale: 2;
+    @width: 20px * @scale;
+    @height: 100px * @scale;
+
+    .piano-white-key {
+        width: @width;
+        height: @height;
+        background: white;
+    }
+    @spacing: 1px;
+    .piano-white-key + .piano-white-key, .piano-black-key + .piano-white-key  {
+        border-left: solid @spacing black;
+    }
+    
+    .piano-black-key {
+        width: 0px;
+        height: @height;
+        z-index: 3;
+        &::after {
+            display: block;
+            content: '';
+            position: relative;
+            width: @width / 2;
+            left: -(@width / 4);
+            height: @height * 0.6;
+            z-index: 4;
+            background: black;
+        }
+    }
+}
+
