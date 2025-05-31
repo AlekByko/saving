@@ -1,7 +1,7 @@
 import child from 'child_process';
 import * as fs from 'fs';
 import { join } from 'path';
-import { broke, fix } from '../shared/core';
+import { bad, broke, fail, fix, ok } from '../shared/core';
 
 export interface DirFile {
     dir: string;
@@ -183,3 +183,36 @@ export function readJsonFileAs<T>(path: string) {
 }
 
 
+declare const asFile: unique symbol;
+export interface AsFile {
+    'as-file': typeof asFile;
+}
+declare const asExists: unique symbol;
+export interface AsExists {
+    'as-exists': typeof asExists;
+}
+
+export function assertExists(path: string, assertion: FsCheckIfExists): asserts path is string & AsExists {
+    if (assertion.path !== path) {
+        console.log({ path, assertion });
+        return fail(`Unable to assert that "${path}" extists. Assertion points at different path "${assertion.path}"`);
+    }
+    if (assertion.isBad) {
+        console.log({ path, assertion });
+        return fail(`Unable to assert that "${path}" exists. Assertion is bad.`);
+    }
+    if (!assertion.isThere) {
+        console.log({ path, assertion });
+        return fail(`Unable to assert that "${path}" exists, because it does not.`);
+    }
+}
+
+type FsCheckIfExists = ReturnType<typeof fsCheckIfExists>;
+function fsCheckIfExists<Path extends string>(path: AsExists extends Path ? never : string) {
+    try {
+        const isThere = fs.existsSync(path);
+        return fix({ path, ...ok, kind: 'path-existence-checked', isThere });
+    } catch (err: any) {
+        return fix({ path, ...bad, kind: 'unable-to-check-path-existence', why: { kind: 'unexpected-error', err } });
+    }
+}
