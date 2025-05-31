@@ -104,7 +104,7 @@ async function run() {
                     const regged = await willRegisterFamMems(client, names, flingName);
                     if (regged.isBad) {
                         console.error('Error registing fam-mems:', regged);
-                        const result: FailedBackendOperation = { isOk: false, isBad: true, error: regged.e.message };
+                        const result: FailedBackendOperation = { isOk: false, isBad: true, error: regged.why.err.message };
                         res.write(JSON.stringify(result, null, 4));
                         res.statusCode = 500;
                         res.end();

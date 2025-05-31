@@ -439,7 +439,12 @@ export function cast<S extends string>(_name: string): asserts _name is S;
 export function cast(_name: any): void { }
 
 
-export function fix<const T>(value: T) { return value; }
+export function fix<const T>(
+    value: T extends { isBad: true }
+        ? T extends { why: { kind: string } }
+        ? T
+        : 'needs why as object with kind'
+        : T) { return value; }
 export const ok = { isOk: true, isBad: false } as const;
 export const bad = { isOk: false, isBad: true } as const;
 export function unableOver<const Args extends object, const Kind extends string>(kind: Kind, args: Args) {

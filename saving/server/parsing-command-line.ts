@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { alwaysNull, broke, fail, fix, isDefined, isUndefined, same } from '../shared/core';
+import { alwaysNull, broke, fail, isDefined, isUndefined, same } from '../shared/core';
 import { capturedFrom, chokedFrom, readRegOver, wholeThing } from '../shared/reading-basics';
 import { readLoopOver } from '../shared/reading-loop';
 import { OptionsReader } from '../shared/reading-options';
@@ -62,20 +62,6 @@ export const readCliArgs = readLoopOver<{}, CliArgs>(
     (args, arg) => ({ ...args, ...arg }),
     1, 40,
 );
-
-export function ensureDir(text: string | undefined) {
-    if (isUndefined(text)) return fix({ kind: 'nothing', isBad: true });
-    if (!fs.existsSync(text)) return fix({ kind: 'does-not-exist', text, isBad: true });
-    const stats = fs.statSync(text);
-    if (!stats.isDirectory()) return fix({ kind: 'not-a-directory', isBad: true });
-    return fix({ kind: 'directory', value: text, isBad: false });
-}
-
-export function ensureInteger(text: string | undefined) {
-    if (isUndefined(text)) return fix({ isBad: true });
-    const integer = parseInt(text, 10);
-    return fix({ integer, isBad: false });
-}
 
 export const noLuckWithArgs = Symbol('no-luck-with-args');
 
