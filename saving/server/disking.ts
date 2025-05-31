@@ -150,21 +150,23 @@ export function parseJsonOr<T, Or>(text: string, or: Or): T | Or {
 
 
 export function parseJsonAs<T>(text: string) {
+    const args = { text } as const;
     try {
         const data = JSON.parse(text);
-        return fix({ kind: 'json', data: data as T, });
+        return fix({ ...args, ...ok, kind: 'json-parsed', data: data as T, });
     } catch (e) {
-        return fix({ kind: 'bad-json', e });
+        return fix({ ...args, ...bad, kind: 'bad-json', e });
     }
 }
 
 export function readTextFile(path: string) {
-    if (!fs.existsSync(path)) return fix({ kind: 'file-does-not-exist', path });
+    const args = { path } as const;
+    if (!fs.existsSync(path)) return fix({ ...args, ...bad, kind: 'file-does-not-exist', path });
     try {
         const text = fs.readFileSync(path, { encoding: 'utf-8' });
-        return fix({ kind: 'file-read', text });
-    } catch (e) {
-        return fix({ kind: 'unable-to-read-file', e });
+        return fix({ ...args, ...ok, kind: 'file-read', text });
+    } catch (err) {
+        return fix({ ...args, ...bad, kind: 'unable-to-read-file', why: { kind: 'unexpected-error', err } });
     }
 }
 
@@ -184,11 +186,11 @@ export function readJsonFileAs<T>(path: string) {
 
 
 declare const asFile: unique symbol;
-export interface AsFile {
+export interface AsFile extends AsExists {
     'as-file': typeof asFile;
 }
 declare const asDir: unique symbol;
-export interface AsDir {
+export interface AsDir extends AsExists {
     'as-dir': typeof asDir;
 }
 export function sureIsFile<Path extends string & AsExists>(path: Path, assertion: FsStat): asserts path is Path & AsFile {
