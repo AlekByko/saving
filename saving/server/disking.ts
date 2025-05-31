@@ -1,7 +1,7 @@
 import child from 'child_process';
 import * as fs from 'fs';
 import { join } from 'path';
-import { bad, broke, cast, fail, fix, ok, unableOver } from '../shared/core';
+import { bad, cast, fail, fix, ok, unableOver } from '../shared/core';
 
 export interface DirFile {
     dir: string;
@@ -171,17 +171,14 @@ export function readTextFile(path: string) {
 }
 
 export function readJsonFileAs<T>(path: string) {
+    const args = { path } as const;
+    const unable = unableOver('unable-to-read-file-as-json', args);
     const read = readTextFile(path);
-    switch (read.kind) {
-        case 'file-read': break;
-        case 'file-does-not-exist':
-        case 'unable-to-read-file':
-            return read;
-        default: return broke(read);
-    }
+    if (read.isBad) return unable(read);
     const { text } = read;
     const parsed = parseJsonAs<T>(text);
-    return parsed;
+    if (parsed.isBad) return unable(parsed);
+    return fix({ ...args, ...ok, kind: 'file-read-as-json', data: parsed.data });
 }
 
 

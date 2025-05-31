@@ -245,23 +245,14 @@ function missingArgByeBye<Key extends string>(argKey: Key): never {
 export function readConfigOrAs<Config, Or>(configPath: string | undefined, or: Or) {
     if (isUndefined(configPath)) return or;
     const read = readJsonFileAs<Config>(configPath);
-    if (read.kind === 'json-parsed') {
+    if (read.isOk) {
         const { data } = read;
         return data;
     }
     switch (read.kind) {
-        case 'unable-to-read-file': {
+        case 'unable-to-read-file-as-json': {
             console.log(`Unable to read the file ${configPath}`);
-            console.log(read.why.err);
-            throw noLuckWithArgs;
-        }
-        case 'bad-json': {
-            console.log(`Unable to parse the file ${configPath} as JSON`);
-            console.log(read.e);
-            throw noLuckWithArgs;
-        }
-        case 'file-does-not-exist': {
-            console.log(`Unable to read the file ${configPath}. File doesn't exist.`);
+            console.log(read.why);
             throw noLuckWithArgs;
         }
         default: return broke(read);
