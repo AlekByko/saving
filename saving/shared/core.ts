@@ -56,9 +56,20 @@ export function isDefined<T extends LikeUndefined<T>>(value: T): value is Exclud
 export function alwaysUndefined(): undefined { return undefined; }
 
 export function fail(message: string): never {
+    console.trace();
     debugger;
     throw new Error(message);
 }
+export function logAndFail(message: string, payload: object): never {
+    console.log(JSON.stringify(payload, null, 4));
+    return fail(message);
+}
+export function kindedLogAndFail(payload: { kind: string }): never {
+    console.log(JSON.stringify(payload, null, 4));
+    return fail(payload.kind);
+}
+
+
 
 export function asFiniteOr<Or>(value: number, or: Or): number | Or {
     return isFinite(value) ? value : or;
@@ -371,7 +382,7 @@ export function binarySearch<T, U>(
     return ~low;
 }
 
-declare var console: { log(...args: any[]): void; }
+declare var console: { trace(): void; log(...args: any[]): void; }
 
 export function why(message: string): undefined {
     console.log(message);
