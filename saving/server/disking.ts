@@ -187,12 +187,36 @@ declare const asFile: unique symbol;
 export interface AsFile {
     'as-file': typeof asFile;
 }
+export function sureFile<Path extends string & AsExists>(path: Path, assertion: FsStat): asserts path is Path & AsFile {
+    if (assertion.path !== path) {
+        console.log({ path, assertion });
+        return fail(`Unable to assert that "${path}" is a file. Assertion points at different path "${assertion.path}"`);
+    }
+    if (assertion.isBad) {
+        console.log({ path, assertion });
+        return fail(`Unable to assert that "${path}" is a file. Assertion is bad.`);
+    }
+    if (!assertion.stats.isFile()) {
+        console.log({ path, assertion });
+        return fail(`Unable to assert that "${path}" is a file, because it is not.`);
+    }
+}
+export function fsStat(path: string & AsExists) {
+    try {
+        const stats = fs.statSync(path);
+        return fix({ path, ...ok, kind: 'path-statted', stats });
+    } catch (err: any) {
+        return fix({ path, ...bad, kind: 'unable-to-stat-path', why: { kind: 'unexpected-error', err } });
+    }
+}
+export type FsStat = ReturnType<typeof fsStat>;
+
 declare const asExists: unique symbol;
 export interface AsExists {
     'as-exists': typeof asExists;
 }
 
-export function assertExists(path: string, assertion: FsCheckIfExists): asserts path is string & AsExists {
+export function sureExists(path: string, assertion: FsCheckIfExists): asserts path is string & AsExists {
     if (assertion.path !== path) {
         console.log({ path, assertion });
         return fail(`Unable to assert that "${path}" extists. Assertion points at different path "${assertion.path}"`);
