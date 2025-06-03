@@ -169,7 +169,9 @@ export function willRunChildAttachedAndLogFile(
 ) {
     const chunksOfStdout: string[] = [];
     const chunksOfStderr: string[] = [];
+    const chunksOfStio: string[] = [];
     console.log(command, args);
+    console.log(command + ' ' + args.join(' '));
     const options: SpawnOptions = {
         detached: false,
         cwd: process.cwd(),
@@ -201,6 +203,7 @@ export function willRunChildAttachedAndLogFile(
     });
     stdoutPassThrough.on('data', chunk => {
         chunksOfStdout.push(chunk);
+        chunksOfStio.push(chunk);
     });
     if (isNonNull(logFile)) {
         logFile.on('close', (e: any) => {
@@ -229,10 +232,12 @@ export function willRunChildAttachedAndLogFile(
     });
     stderrPassThrough.on('data', chunk => {
         chunksOfStderr.push(chunk);
+        chunksOfStio.push(chunk);
     });
 
-    function disconnect(reason: string) {
-        console.log('Unpiping: ' + reason);
+    function disconnect(_reason: string) {
+        // console.log('Unpiping: ' + reason); // <-- messes up with useful process output, for example into JSON when getting video metadata
+
         child.stdout!.unpipe(stdoutPassThrough);
         stdoutPassThrough.unpipe(process.stdout);
         if (isNonNull(logFile)) {
@@ -249,18 +254,23 @@ export function willRunChildAttachedAndLogFile(
     }
 
     return new Promise<
-        | { kind: 'error'; e: any; stdout: string; stderr: string; }
-        | { kind: 'exit'; code: number | null; signal: NodeJS.Signals | null; stdout: string; stderr: string; }
+        | { kind: 'error'; e: any; stdout: string; stderr: string; stdio: string; }
+        | { kind: 'exit'; code: number | null; signal: NodeJS.Signals | null; stdout: string; stderr: string; stdio: string; }
     >(resolve => {
         child.on('close', _e => {
-            disconnect('Child closed.');
-            const stdout = chunksOfStdout.join('');
-            const stderr = chunksOfStderr.join('');
-            if (isDefined(lastE)) {
-                resolve(fix({ kind: 'error', e: lastE, stdout, stderr }));
-            } else {
-                resolve(fix({ kind: 'exit', code: lastCode, signal: lastSignal, stdout, stderr }));
-            }
+            setTimeout(() => { // <-- giving extra time to flush
+
+
+                disconnect('Child closed.');
+                const stdout = chunksOfStdout.join('');
+                const stderr = chunksOfStderr.join('');
+                const stdio = chunksOfStio.join('');
+                if (isDefined(lastE)) {
+                    resolve(fix({ kind: 'error', e: lastE, stdout, stderr, stdio }));
+                } else {
+                    resolve(fix({ kind: 'exit', code: lastCode, signal: lastSignal, stdout, stderr, stdio }));
+                }
+            }, 100);
         });
 
 
