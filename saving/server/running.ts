@@ -293,7 +293,7 @@ export function willRunChildAttachedAndLogFile(
 
 /** it is a BAD IDEA to collect output from std-err and std-out into strings, simply because,
  * given 200 child processes, it will hog all your resoures ESPECIALLY cpu */
-export async function willRunChildLogToFile(
+export async function willRunChildStdioToLogOnly(
     command: string,
     args: string[],
     logPath: string,
@@ -324,6 +324,39 @@ export async function willRunChildLogToFile(
         });
         child.on('close', code => {
             logFileStream.close();
+            resolve(fix({ kind: 'exit', code }));
+        });
+    });
+    return { child, onceDone };
+}
+
+/** it is a BAD IDEA to collect output from std-err and std-out into strings, simply because,
+ * given 200 child processes, it will hog all your resoures ESPECIALLY cpu */
+export async function willRunChildStdioIgnored(
+    command: string, args: string[],
+) {
+    console.log(command + ' ' + args.join(' '));
+
+    const options: SpawnOptions = {
+        detached: false,
+        cwd: process.cwd(),
+        shell: false,
+        env: process.env,
+        windowsHide: true,
+        windowsVerbatimArguments: true,
+        stdio: ['inherit', 'ignore', 'ignore'],
+    };
+
+    const child = spawn(command, args, options);
+
+    const onceDone = new Promise<
+        | { kind: 'error', err: any }
+        | { kind: 'exit'; code: number | null }
+    >(resolve => {
+        child.on('error', err => {
+            resolve(fix({ kind: 'error', err }));
+        });
+        child.on('close', code => {
             resolve(fix({ kind: 'exit', code }));
         });
     });
