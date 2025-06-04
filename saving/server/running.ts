@@ -169,7 +169,7 @@ interface LogOnly {
 }
 
 /** path-through can split the stream by allowing multiple .pipe(...) invocations wherease child.strout.pipe can only be called once */
-interface LogAndParentViaPassThrough {
+interface SlowLogAndParentViaPassThrough {
     kind: 'log-and-parent-via-pass-through';
     logPath: string;
 }
@@ -177,7 +177,10 @@ interface ParentOnly {
     kind: 'parent-only';
 }
 
-export type LogParam = LogOnly | LogAndParentViaPassThrough | ParentOnly;
+export type LogParam = LogOnly | SlowLogAndParentViaPassThrough | ParentOnly;
+
+/** it is a BAD IDEA to collect output from std-err and std-out into strings, simply because,
+ * given 200 child processes, it will hog all your resoures ESPECIALLY cpu */
 export function willRunChildAttachedAndLogFile(
     command: string,
     args: string[],
@@ -195,9 +198,12 @@ export function willRunChildAttachedAndLogFile(
         // below
         // - "pipe": means stdout and stderr are non null, and parent process can listen to them
         // - "inherit": means stdout and stderr are null, and parent process gets all output of the child to its console
+        // - "ignore": just dump it
+        // - instance of a file/stream
         stdio: ['inherit', 'pipe', 'pipe'],
     };
     const logFile = isNull(logPath_) ? null : fs.createWriteStream(logPath_);
+
     // https://nodejs.org/dist./v0.10.44/docs/api/child_process.html#child_process_child_stdio
     const child = spawn(command, args, options);
 
