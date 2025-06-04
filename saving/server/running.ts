@@ -177,17 +177,14 @@ interface ParentOnly {
     kind: 'parent-only';
 }
 
-type LogParam = LogOnly | LogAndParentViaPassThrough | ParentOnly;
+export type LogParam = LogOnly | LogAndParentViaPassThrough | ParentOnly;
 export function willRunChildAttachedAndLogFile(
     command: string,
     args: string[],
     logPath_: string | null,
 ) {
-    const chunksOfStdout: string[] = [];
-    const chunksOfStderr: string[] = [];
-    const chunksOfStio: string[] = [];
-    console.log(command, args);
     console.log(command + ' ' + args.join(' '));
+
     const options: SpawnOptions = {
         detached: false,
         cwd: process.cwd(),
@@ -217,10 +214,7 @@ export function willRunChildAttachedAndLogFile(
         console.log('Error in child stdout.', e);
         disconnect('Error in stdout path through.');
     });
-    stdoutPassThrough.on('data', chunk => {
-        chunksOfStdout.push(chunk);
-        chunksOfStio.push(chunk);
-    });
+
     if (isNonNull(logFile)) {
         logFile.on('close', (e: any) => {
             console.log('Log file closed.');
@@ -246,10 +240,6 @@ export function willRunChildAttachedAndLogFile(
         console.log('Error in child stderr.', e);
         disconnect('Error in stderr-pass-though.');
     });
-    stderrPassThrough.on('data', chunk => {
-        chunksOfStderr.push(chunk);
-        chunksOfStio.push(chunk);
-    });
 
     function disconnect(_reason: string) {
         // console.log('Unpiping: ' + reason); // <-- messes up with useful process output, for example into JSON when getting video metadata
@@ -270,21 +260,19 @@ export function willRunChildAttachedAndLogFile(
     }
 
     return new Promise<
-        | { kind: 'error'; e: any; stdout: string; stderr: string; stdio: string; }
-        | { kind: 'exit'; code: number | null; signal: NodeJS.Signals | null; stdout: string; stderr: string; stdio: string; }
+        | { kind: 'error'; e: any; }
+        | { kind: 'exit'; code: number | null; signal: NodeJS.Signals | null;  }
     >(resolve => {
         child.on('close', _e => {
             setTimeout(() => { // <-- giving extra time to flush
 
 
                 disconnect('Child closed.');
-                const stdout = chunksOfStdout.join('');
-                const stderr = chunksOfStderr.join('');
-                const stdio = chunksOfStio.join('');
+
                 if (isDefined(lastE)) {
-                    resolve(fix({ kind: 'error', e: lastE, stdout, stderr, stdio }));
+                    resolve(fix({ kind: 'error', e: lastE }));
                 } else {
-                    resolve(fix({ kind: 'exit', code: lastCode, signal: lastSignal, stdout, stderr, stdio }));
+                    resolve(fix({ kind: 'exit', code: lastCode, signal: lastSignal }));
                 }
             }, 100);
         });
