@@ -162,6 +162,22 @@ export function willRunChildAttachedExt1(command: string, args: string[]): Promi
 
     });
 }
+
+interface LogOnly {
+    kind: 'log-only';
+    logPath: string;
+}
+
+/** path-through can split the stream by allowing multiple .pipe(...) invocations wherease child.strout.pipe can only be called once */
+interface LogAndParentViaPassThrough {
+    kind: 'log-and-parent-via-pass-through';
+    logPath: string;
+}
+interface ParentOnly {
+    kind: 'parent-only';
+}
+
+type LogParam = LogOnly | LogAndParentViaPassThrough | ParentOnly;
 export function willRunChildAttachedAndLogFile(
     command: string,
     args: string[],
