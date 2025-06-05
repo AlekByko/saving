@@ -40,5 +40,5 @@
         "typescript",
         "typescriptreact"
     ],
-    "workbench.colorTheme": "Default Light+"
+    "workbench.colorTheme": "Default Light+",
 }

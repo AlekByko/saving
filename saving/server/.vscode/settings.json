@@ -38,5 +38,6 @@
         "titleBar.activeForeground": "#fff"
     },
     "editor.detectIndentation": false,
-    "editor.indentSize": "tabSize"
+    "editor.indentSize": "tabSize",
+    "terminal.integrated.gpuAcceleration": "off"
 }
