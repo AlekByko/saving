@@ -1,12 +1,12 @@
-import { existsSync, promises as fs, readFileSync } from 'fs';
-import { IncomingMessage, ServerOptions, ServerResponse, createServer } from 'http';
+import { existsSync, promises as fs, readdirSync, readFileSync } from 'fs';
+import { createServer, IncomingMessage, ServerOptions, ServerResponse } from 'http';
 import { MongoClient, ObjectId } from 'mongodb';
 import * as pth from 'path';
 import { extname, join } from 'path';
 import { parse } from 'url';
 import { CamConfig } from '../shared/cam-config';
 import { makeCapPath } from '../shared/caps-folders';
-import { BeDeletedInMates, BeGottenFamMemsPairs, BeMovedInCaps, BeMovedMates, BeRegisteredFamMems, FailedBackendOperation, SuccesfulBackendOperation, SuccesfulBackendResult } from '../shared/contract';
+import { BeDeletedInMates, BeGottenFamMemsPairs, BeGottenSnaps, BeMovedInCaps, BeMovedMates, BeRegisteredFamMems, FailedBackendOperation, GotSnaps, SuccesfulBackendOperation, SuccesfulBackendResult } from '../shared/contract';
 import { asNonNullOr, isNull } from '../shared/core';
 import { dotJpg, dotJson } from '../shared/extentions';
 import { willLoadConfigsFromDb } from './databasing';
@@ -227,6 +227,30 @@ async function run() {
                     res.statusCode = 200;
                     res.end();
                     break;
+                }
+                case '/snaps/get': {
+                    const text = await willReadBody(req);
+                    const { dir }: BeGottenSnaps = JSON.parse(text);
+                    try {
+                        // Ensure destination directory exists
+                        let all = readdirSync(dir);
+                        all = all.filter(x => x.endsWith(dotJson));
+                        console.log(`Got ${all.length} snaps.`);
+
+                        const result: SuccesfulBackendResult<GotSnaps> = { isOk: true, isBad: false, result: { configNames: all } };
+                        res.write(JSON.stringify(result, null, 4));
+                        res.statusCode = 200;
+                        res.end();
+                        break;
+                    } catch (e: any) {
+                        console.error('Getting snaps:', e);
+                        const result: FailedBackendOperation = { error: e.message, isOk: false, isBad: true };
+                        res.write(JSON.stringify(result, null, 4));
+                        res.statusCode = 500;
+                        res.end();
+                        break;
+                    }
+
                 }
                 default: {
                     console.log('Unknown path: ' + path);
