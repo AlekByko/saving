@@ -6,7 +6,7 @@ import { extname, join } from 'path';
 import { parse } from 'url';
 import { CamConfig } from '../shared/cam-config';
 import { makeCapPath } from '../shared/caps-folders';
-import { BeDeletedInMates, BeGottenFamMemsPairs, BeGottenSnaps, BeMovedInCaps, BeMovedMates, BeRegisteredFamMems, FailedBackendOperation, GotSnaps, SuccesfulBackendOperation, SuccesfulBackendResult } from '../shared/contract';
+import { BeDeletedInMates, BeGottenFamMemsPairs, BeGottenSnaps, BeGottenUrl, BeMovedInCaps, BeMovedMates, BeRegisteredFamMems, FailedBackendOperation, GotSnaps, SuccesfulBackendOperation, SuccesfulBackendResult } from '../shared/contract';
 import { asNonNullOr, isNull } from '../shared/core';
 import { dotJpg, dotJson } from '../shared/extentions';
 import { willLoadConfigsFromDb } from './databasing';
@@ -87,6 +87,19 @@ async function run() {
         } else if (req.method === 'POST') {
             console.log('POST', path);
             switch (path) {
+                case '/get-url': {
+                    const text = await willReadBody(req);
+                    const { url }: BeGottenUrl = JSON.parse(text);
+                    const inner = await fetch(url);
+                    console.log(`Got url ${url}`);
+                    const json = await inner.json();
+                    console.log(JSON.stringify(json, null, 4));
+                    const result: SuccesfulBackendResult<any> = { isOk: true, isBad: false, result: json };
+                    res.write(JSON.stringify(result, null, 4));
+                    res.statusCode = 200;
+                    res.end();
+                    break;
+                }
                 case '/get/fam-mems-pairs': {
                     const text = await willReadBody(req);
                     const { names }: BeGottenFamMemsPairs = JSON.parse(text);
