@@ -11,8 +11,10 @@ import { asNonNullOr, isNull } from '../shared/core';
 import { dotJpg, dotJson } from '../shared/extentions';
 import { willLoadConfigsFromDb } from './databasing';
 import { willGetFamMemPairs, willRegisterFamMems } from './databasing-fam-mems-and-colabs';
+import { parseJsonOr } from './disking';
 import { handleMovedDirs, willMoveDir } from './moving-folders';
 import { henceReadingArgsOf, readCliArgs } from './parsing-command-line';
+import { willBeServing } from './serving';
 import { setConsoleTitle } from './utils';
 
 type ArgKeys = 'port' | 'caps-dir' | 'mates-dir' | 'paired-dir' | 'other-dir';
@@ -90,14 +92,15 @@ async function run() {
                 case '/get-url': {
                     const text = await willReadBody(req);
                     const { url }: BeGottenUrl = JSON.parse(text);
-                    const inner = await fetch(url);
-                    console.log(`Got url ${url}`);
-                    const json = await inner.json();
-                    console.log(JSON.stringify(json, null, 4));
-                    const result: SuccesfulBackendResult<any> = { isOk: true, isBad: false, result: json };
-                    res.write(JSON.stringify(result, null, 4));
-                    res.statusCode = 200;
-                    res.end();
+                    await willBeServing(res, `doing GET ${url}`, async () => {
+                        const inner = await fetch(url);
+                        console.log(`Got url ${url}`);
+                        const text = await inner.text();
+                        console.log(text);
+                        const json = parseJsonOr(text, {});
+                        console.log(json);
+                        return json;
+                    })
                     break;
                 }
                 case '/get/fam-mems-pairs': {
