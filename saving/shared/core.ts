@@ -540,8 +540,8 @@ export function unableOver<const Args extends object, const Kind extends string>
     }
 }
 
-export function run<T>(run: () => T): T {
-    return run();
+export async function willBeRunning<T>(run: () => Promise<T>) {
+    return await run();
 }
 
 export function bare<T>(_: {} extends T ? object : never) { }
