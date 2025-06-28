@@ -543,6 +543,9 @@ export function unableOver<const Args extends object, const Kind extends string>
 export async function willBeRunning<T>(run: () => Promise<T>) {
     return await run();
 }
+export function run<T>(run: () => T) {
+    return run();
+}
 
 export function bare<T>(_: {} extends T ? object : never) { }
 export type Abort = () => void;

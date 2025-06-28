@@ -3,6 +3,7 @@ import { toTimestamp } from '../shared/time-stamping';
 
 export function enableAppCrashTracking(window: Window): Act {
     const whenError = (e: ErrorEvent) => {
+        debugger;
         const happendAt = toTimestamp();
         alert(`!!! UNHANDLED ERROR !!! CHECK THE CONSOLE !!! `);
         const now = toTimestamp();
