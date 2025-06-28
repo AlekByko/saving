@@ -156,6 +156,15 @@ export function compareRandom(): number {
 export function compareStrings(one: string, another: string): number {
     return one > another ? 1 : another > one ? -1 : 0;
 }
+export function compareBooleans(isOne: boolean, isAnother: boolean): number {
+    return isOne
+        ? isAnother
+            ? 0
+            : 1
+        : isAnother
+            ? -1
+            : 0;
+}
 export function compareNumbers<N extends number>(one: N, another: N): number {
     return one - another;
 }
