@@ -4,7 +4,7 @@ export function readQueryStringListParam<T, A>(
     text: string,
     name: string,
     regex: RegExp,
-    parse: (text: string) => T | null,
+    parse: (match: RegExpMatchArray) => T | null,
     accumulator: A,
     takeGood: (value: T, accumulator: A) => void,
     takeBad: (text: string, accumulator: A) => void,
@@ -17,9 +17,9 @@ export function readQueryStringListParam<T, A>(
     console.log(matched);
     const itemReg = new RegExp(regex.source, 'ig');
     for (let match = itemReg.exec(listText); isNonNull(match); match = itemReg.exec(listText)) {
-        const [itemText] = match;
-        const parsed = parse(itemText);
+        const parsed = parse(match);
         if (isNull(parsed)) {
+            const [itemText] = match;
             takeBad(itemText, accumulator);
         } else {
             takeGood(parsed, accumulator);
@@ -35,7 +35,7 @@ if (window.sandbox === 'reading-list') {
         readQueryStringListParam(
             text, 'tags', /[\w+\-\_]+/, x => x,
             accumulator,
-            (x, { good }) => good.push(x),
+            ([text], { good }) => good.push(text),
             (text, { bad }) => bad.push(text),
             () => { },
         );
@@ -48,7 +48,7 @@ if (window.sandbox === 'reading-list') {
         const accumulator = { good: [] as number[], bad: [] as string[] };
 
         readQueryStringListParam(
-            text, 'favs', /-?\d+(\.\d+)*/, text => {
+            text, 'favs', /-?\d+(\.\d+)*/, ([text]) => {
                 const parsed = parseFloat(text);
                 if (isFinite(parsed)) return parsed;
                 return null;
