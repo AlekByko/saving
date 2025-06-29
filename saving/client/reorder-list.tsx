@@ -150,22 +150,20 @@ if (window.sandbox === 'reorder-list') {
     class App extends React.Component<AppState, AppState> {
 
         state = this.props;
-
-        componentDidMount(): void {
-            setTimeout(() => {
-                this.setState(state => {
-                    let { items } = state;
-                    items = [...items].sort(compareRandom);
-                    alert('BOOM! rearanged!');
-                    return {...state, items } satisfies AppState;
-                });
-            }, 5000);
-        }
-
+        whenOutsideEffect: React.MouseEventHandler<HTMLButtonElement> = () => {
+            this.setState(state => {
+                let { items } = state;
+                items = [...items].sort(compareRandom);
+                return { ...state, items } satisfies AppState;
+            });
+        };
         render() {
             const { items } = this.state;
             const props: typeof ReorderList.Props = { items };
-            return <ReorderList {...props} />;
+            return <div>
+                <div><ReorderList {...props} /></div>
+                <div><button onClick={this.whenOutsideEffect}>Outside effect</button></div>
+            </div>;
         }
     }
 
