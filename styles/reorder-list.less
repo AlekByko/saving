@@ -1,0 +1,38 @@
+.reorder-list {
+    padding: 10px;
+}
+
+.reorder-list-item {
+    position: relative;
+    padding: 10px;
+    border: solid 1px gray;
+
+    &.as-holding-place-top {
+        border-top-width: 4px;
+    }
+
+    &.as-holding-place-bottom {
+        border-bottom-width: 4px;
+
+    }
+
+    padding-left: 20px;
+}
+
+.reorder-list-item-drag-handle {
+    cursor: grab;
+    width: 16px;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+
+    background-image: repeating-linear-gradient(
+            45deg,
+            /* 👈 angle here */
+            #999,
+            #999 2px,
+            transparent 2px,
+            transparent 4px);
+
+}
