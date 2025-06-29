@@ -174,6 +174,7 @@ if (window.sandbox === 'reorder-list') {
         { key: 'A', name: 'Alpha' },
         { key: 'B', name: 'Beta' },
         { key: 'C', name: 'Gamma' },
+        { key: 'D', name: 'Delta' },
     ];
     ReactDOM.render(<App items={items} />, rootElement);
     rootElement.style.padding = '10px';
