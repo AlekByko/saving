@@ -207,9 +207,8 @@ export function willRunChildAttachedAndLogFile(
     });
 
     if (isNonNull(logFile)) {
-        logFile.on('close', (e: any) => {
+        logFile.on('close', () => {
             console.log('Log file closed.');
-            console.log(e);
             console.trace();
             disconnect('Log file closed.');
         });

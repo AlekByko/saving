@@ -1,1 +1,1 @@
-node ./node_modules/typescript/bin/tsc --pretty --project ./saving/server/tsconfig.json
+node ./node_modules/typescript/bin/tsc --pretty --build ./saving/server/tsconfig.json
