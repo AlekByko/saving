@@ -604,3 +604,4 @@ export function sureNonNull<T>(x: T | null, unto: string): asserts x is T & {} {
     return fail(message);
 }
 
+export function assureUndefined<T>(_: [undefined] extends [T] ? T : never) {}
