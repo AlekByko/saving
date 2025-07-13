@@ -133,7 +133,7 @@ export function thusDbTracker<Config, Key extends string, Context>(
             }, delay);
         }
 
-        private async willSaveAllNow() {
+        public async willSaveAllNow() {
             if (this.isSaving) return;
             this.isSaving = true;
             const configs = this.toUnsavedConfigs();
