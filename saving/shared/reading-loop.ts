@@ -1,6 +1,7 @@
 import { fail } from './core';
-import { Captured, capturedFrom, Choked, Read } from './reading-basics';
+import { capturedFrom, Read } from './reading-basics';
 
+/** @deprecated use scanList instead */
 export function readLoopOver<T, R>(
     read: Read<T>,
     readDelim: Read<null>,
@@ -43,23 +44,3 @@ export function readLoopOver<T, R>(
     };
 }
 
-export function readList<Item>(
-    text: string, index: number,
-    readItem: Read<Item>,
-    readDelim: Read<unknown>,
-): Choked | Captured<Item[]> {
-    const first = readItem(text, index);
-    if (first.isBad) return first;
-    const items = [first.value];
-    index = first.index;
-    while (true) {
-        const delim = readDelim(text, index);
-        if (delim.isBad) break;
-        index = delim.index;
-        const next = readItem(text, index);
-        if (next.isBad) return next;
-        items.push(next.value);
-        index = next.index;
-    }
-    return capturedFrom(index, items);
-}

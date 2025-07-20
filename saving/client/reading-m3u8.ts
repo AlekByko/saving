@@ -1,7 +1,7 @@
 import { alwaysNull, broke, cast, isUndefined, otherwise } from '../shared/core';
 import { capturedFrom, chokedFrom, diagnose, ParsedOrNot, Read, readLitOver, readReg } from '../shared/reading-basics';
-import { readList } from '../shared/reading-loop';
 import { readQuotedString } from '../shared/reading-quoted-string';
+import { scanList } from '../shared/scanning-list';
 import { ExtXSteamInf } from './ext-x';
 
 
@@ -26,7 +26,7 @@ function read_m3u8(text: string, index: number) {
     if (br.isBad) return chokedFrom(startIndex, 'br', br);
     index = br.index;
 
-    const allStreams = readList(text, index, readExtXSteamInfAndUrl, readBrs);
+    const allStreams = scanList(text, index, readExtXSteamInfAndUrl, readBrs);
     if (allStreams.isBad) return chokedFrom(startIndex, 'stream list', allStreams);
     return allStreams;
 }
@@ -58,7 +58,7 @@ function readExtXSteamInf(text: string, index: number) {
     index = prefix.index;
 
     type X = ReturnType<typeof readExtXStreamInfToken> extends ParsedOrNot<infer M> ? Read<M> : never;
-    const tokens = readList(text, index, readExtXStreamInfToken as X, readLitOver(','));
+    const tokens = scanList(text, index, readExtXStreamInfToken as X, readLitOver(','));
     if (tokens.isBad) return chokedFrom(startIndex, 'tokens', tokens);
     index = tokens.index;
 
