@@ -221,3 +221,4 @@ function dumpChoked(choked: Choked): Choked {
         return choked;
     }
 }
+export function atFull(match: RegExpMatchArray) { return match[0] }

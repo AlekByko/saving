@@ -1,8 +1,8 @@
 import { alwaysNull, broke, cast, isUndefined, otherwise } from '../shared/core';
-import { capturedFrom, chokedFrom, diagnose, ParsedOrNot, Read, readLitOver, readReg } from '../shared/reading-basics';
+import { atFull, capturedFrom, chokedFrom, diagnose, ParsedOrNot, Read, readLitOver, readReg } from '../shared/reading-basics';
 import { readQuotedString } from '../shared/reading-quoted-string';
 import { scanList } from '../shared/scanning-list';
-import { ExtXSteamInf } from './ext-x';
+import { ExtXMedia, ExtXSteamInf, M3U8 } from './m3u8';
 
 
 function readLine(text: string, index: number) {
@@ -26,7 +26,19 @@ function read_m3u8(text: string, index: number) {
     if (br.isBad) return chokedFrom(startIndex, 'br', br);
     index = br.nextIndex;
 
-    return readStreamList(text, startIndex, index);
+    const streams = readStreamList(text, startIndex, index);
+    if (streams.isBad) return chokedFrom(startIndex, 'streams', streams);
+    index = streams.nextIndex;
+
+    const media = readExtXMedia(text, index);
+    if (media.isBad) return chokedFrom(startIndex, 'media', media);
+    index = media.nextIndex;
+
+    const result: M3U8 = {
+        streams: streams.value,
+        media: media.value,
+    };
+    return capturedFrom(index, result);
 }
 
 function readStreamList(text: string, startIndex: number, index: number) {
@@ -99,14 +111,46 @@ function readExtXSteamInf(text: string, index: number) {
     return capturedFrom(index, result);
 }
 
-function readStreamTokens(text: string, index: number) {
-    type NoDistributivity = ReturnType<typeof readExtXStreamInfToken> extends ParsedOrNot<infer M> ? Read<M> : never;
-    const tokens = scanList(text, index, readExtXStreamInfToken as NoDistributivity, readLitOver(','));
+
+function readExtXMedia(text: string, index: number) {
+    const startIndex = index;
+    // #EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="aac",NAME="English",URI="audio_eng.m3u8"
+    const title = readReg(text, index, /#EXT-X-MEDIA:/y, alwaysNull);
+    if (title.isBad) return chokedFrom(startIndex, 'title', title);
+    index = title.nextIndex;
+
+    const tokens = readMediaTokens(text, index);
+    if (tokens.isBad) return chokedFrom(startIndex, 'media tokens', tokens);
+    index = tokens.nextIndex;
+
+    const draft: Partial<ExtXMedia> = {};
+    for (const token of tokens.value) {
+        switch (token.kind) {
+            case 'type': draft.type = token.type; break;
+            case 'group-id': draft.groupId = token.groupId; break;
+            case 'name': draft.name = token.name; break;
+            case 'uri': draft.uri = token.uri; break;
+            default: return broke(token);
+        }
+    }
+    const { type, groupId, name, uri } = draft;
+    if (isUndefined(type)) return chokedFrom(startIndex, 'No type.');
+    if (isUndefined(groupId)) return chokedFrom(startIndex, 'No group-id.');
+    if (isUndefined(name)) return chokedFrom(startIndex, 'No name.');
+    if (isUndefined(uri)) return chokedFrom(startIndex, 'No uri.');
+    const result: ExtXMedia = { type, groupId, name, uri };
+    return capturedFrom(index, result);
+}
+
+function readMediaTokens(text: string, index: number) {
+
+    type NoDistributivity = ReturnType<typeof readMediaToken> extends ParsedOrNot<infer M> ? Read<M> : never;
+    const tokens = scanList(text, index, readMediaToken as NoDistributivity, readLitOver(','));
     switch (tokens.kind) {
         case 'choked':
         case 'captured':
             return tokens;
-        case 'scanned': switch(tokens.subkind) {
+        case 'scanned': switch (tokens.subkind) {
             case 'few-but-bad-item':
             case 'few-but-bad-delim': return capturedFrom(tokens.attemptedIndex, tokens.fewItemsSofar);
             case 'no-items-scanned': return chokedFrom(tokens.attemptedIndex, 'no stream tokens');
@@ -116,27 +160,61 @@ function readStreamTokens(text: string, index: number) {
     }
 }
 
-function readBandwidth(text: string, index: number) {
-    return readReg(
-        text, index, /(\d+)/y,
-        ([_, textBandwidth]) => parseInt(textBandwidth, 10),
-    );
+type ExtXMediaTokenName = 'TYPE' | 'GROUP-ID' | 'NAME' | 'URI';
+function readMediaToken(text: string, index: number) {
+    const startIndex = index;
+    const head = readReg(text, index, /([\w-]+)=/y, ([_, textToken]) => textToken);
+    if (head.isBad) return head;
+    index = head.nextIndex;
+    const token = head.value;
+    cast<ExtXMediaTokenName>(token);
+    switch (token) {
+        case 'TYPE': {
+            const type = readReg(text, index, /\w+/y, atFull);
+            if (type.isBad) return chokedFrom(startIndex, 'type', type);
+            return capturedFrom(type.nextIndex, { kind: 'type' as const, type: type.value });
+        }
+        case 'GROUP-ID': {
+            const groupId = readQuotedString(text, index);
+            if (groupId.isBad) return chokedFrom(startIndex, 'group-id', groupId);
+            return capturedFrom(groupId.nextIndex, { kind: 'group-id' as const, groupId: groupId.value });
+        }
+        case 'NAME': {
+            const name = readQuotedString(text, index);
+            if (name.isBad) return chokedFrom(startIndex, 'name', name);
+            return capturedFrom(name.nextIndex, { kind: 'name' as const, name: name.value });
+        }
+        case 'URI': {
+            const uri = readQuotedString(text, index);
+            if (uri.isBad) return chokedFrom(startIndex, 'uri', uri);
+            return capturedFrom(uri.nextIndex, { kind: 'uri' as const, uri: uri.value });
+        }
+        default: return otherwise(token, chokedFrom(startIndex, `Bad media token: ${token}`));
+    }
 }
 
-function readResolution(text: string, index: number) {
-    return readReg(text, index, /(\d+)x(\d+)/y, ([_, textWidth, textHeight]) => {
-        const width = parseInt(textWidth, 10);
-        const height = parseInt(textHeight, 10);
-        return { width, height };
-    });
+function readStreamTokens(text: string, index: number) {
+    type NoDistributivity = ReturnType<typeof readStreamToken> extends ParsedOrNot<infer M> ? Read<M> : never;
+    const tokens = scanList(text, index, readStreamToken as NoDistributivity, readLitOver(','));
+    switch (tokens.kind) {
+        case 'choked':
+        case 'captured':
+            return tokens;
+        case 'scanned': switch (tokens.subkind) {
+            case 'few-but-bad-item':
+            case 'few-but-bad-delim': return capturedFrom(tokens.attemptedIndex, tokens.fewItemsSofar);
+            case 'no-items-scanned': return chokedFrom(tokens.attemptedIndex, 'no stream tokens');
+            default: return broke(tokens);
+        }
+        default: return broke(tokens);
+    }
 }
 
 type ExtXStreamInfTokenName = 'RESOLUTION' | 'BANDWIDTH' | 'CODECS';
-function readExtXStreamInfToken(text: string, index: number) {
+function readStreamToken(text: string, index: number) {
     const startIndex = index;
 
-    const regx = /(\w+)=/y;
-    const head = readReg(text, index, regx, ([_, textToken]) => textToken);
+    const head = readReg(text, index, /(\w+)=/y, ([_, textToken]) => textToken);
     if (head.isBad) return head;
     index = head.nextIndex;
 
@@ -144,12 +222,19 @@ function readExtXStreamInfToken(text: string, index: number) {
     cast<ExtXStreamInfTokenName>(token);
     switch (token) {
         case 'BANDWIDTH': {
-            const bandwidth = readBandwidth(text, index);
+            const bandwidth = readReg(
+                text, index, /(\d+)/y,
+                ([_, textBandwidth]) => parseInt(textBandwidth, 10),
+            );
             if (bandwidth.isBad) return chokedFrom(startIndex, 'bandwidth', bandwidth);
             return capturedFrom(bandwidth.nextIndex, { kind: 'bandwidth' as const, bandwidth: bandwidth.value });
         }
         case 'RESOLUTION': {
-            const resolution = readResolution(text, index);
+            const resolution = readReg(text, index, /(\d+)x(\d+)/y, ([_, textWidth, textHeight]) => {
+                const width = parseInt(textWidth, 10);
+                const height = parseInt(textHeight, 10);
+                return { width, height };
+            });
             if (resolution.isBad) return chokedFrom(startIndex, 'resolution', resolution);
             return capturedFrom(resolution.nextIndex, { kind: 'resolution' as const, resolution: resolution.value });
         }
