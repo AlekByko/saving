@@ -1,23 +1,22 @@
 import { fail, isDefined, isNull } from './core';
 
-declare var console: { log(...args: any[]): void; }
+declare var console: {
+    log(...args: any[]): void;
+    group(...args: any[]): void;
+    groupEnd(): void;
+}
 
 export interface Choked {
     kind: 'choked';
     isBad: true;
+    isScanned: false;
     index: number;
     reason?: string;
-    choked?: Choked;
+    child?: Choked;
 }
 
-export function chokedFrom(index: number, reason?: string): Choked {
-    return { kind: 'choked', isBad: true, index, reason };
-}
-
-export function chokedBecause(index: number, choked: Choked, reason: string): Choked {
-    const { reason: innerRason } = choked;
-    const fullReason = isDefined(innerRason) ? reason + ' ' + innerRason : reason;
-    return { kind: 'choked', isBad: true, index, reason: fullReason, choked };
+export function chokedFrom(index: number, reason?: string, child?: Choked): Choked {
+    return { kind: 'choked', isBad: true, isScanned: false, index, reason, child };
 }
 
 export type ParsedOrNot<T> = Choked | Captured<T>;
@@ -25,12 +24,14 @@ export type ParsedOrNot<T> = Choked | Captured<T>;
 export interface Captured<T = string> {
     kind: 'captured';
     isBad: false;
+    isScanned: false;
     index: number;
     value: T;
 }
 
+
 export function capturedFrom<T>(index: number, value: T): Captured<T> {
-    return { kind: 'captured', isBad: false, index, value };
+    return { kind: 'captured', isBad: false, isScanned: false, index, value };
 }
 export type Read<T> = (text: string, index: number) => Choked | Captured<T>;
 export function readLitOver<Liteal extends string>(literal: Liteal) {
@@ -48,14 +49,15 @@ export function readLit<Literal extends string>(text: string, index: number, lit
 
 export function readReg<T>(
     text: string, index: number, regexp: RegExp,
-    parse: (matched: RegExpExecArray) => T,
+    parse: (matched: RegExpExecArray) => T, failure?: string
 ): Choked | Captured<T> {
     // either sticky or global is enough to make lastIndex work:
     // if (!regexp.global) return fail('Regexp has to be global to update the lastIndex./gy: ' + regexp.source);
     if (!regexp.sticky) return fail('Regexp has to be sticky to respect the lastIndex./gy: ' + regexp.source);
     regexp.lastIndex = index;
     const matched = regexp.exec(text);
-    if (isNull(matched)) return chokedFrom(index, regexp.source);
+    const reason = isDefined(failure) ? failure + ' /' + regexp.source + '/' : '/' + regexp.source + '/';
+    if (isNull(matched)) return chokedFrom(index, reason);
     const [all] = matched;
     const parsed = parse(matched);
     return capturedFrom(index + all.length, parsed);
@@ -134,17 +136,24 @@ export function diagnose<Actual>(
     console.log(text);
     if (tried.isBad) {
         console.log(tried);
-        console.log('-2:', text[tried.index - 2]);
-        console.log('-1:', text[tried.index - 1]);
-        console.log('~0:', text[tried.index]);
-        console.log('+1:', text[tried.index + 1]);
-        console.log('+2:', text[tried.index + 2]);
+        const least = dumpChoked(tried);
+        dumpAt(text, least.index, -2);
+        dumpAt(text, least.index, -1);
+        dumpAt(text, least.index, 0);
+        dumpAt(text, least.index, +1);
+        dumpAt(text, least.index, +2);
 
-        console.log(text.substr(tried.index, 10) + '...');
+    console.log(text.substr(tried.index, 10) + '...');
     } else {
         console.log('passed ' + read.toDebugName());
         console.log(tried);
     }
+}
+
+function dumpAt(text: string, index: number, delta: number) {
+    const at = index + delta;
+    const off = delta > 0 ? '+' + delta : delta < 0 ? delta : '=>';
+    console.log(off + ': ' + at + ': ' + JSON.stringify(text[at]));
 }
 
 export type AddProp<Name extends string, Result extends object, Value> = {
@@ -197,4 +206,17 @@ export function compose<T, U, V>(
         return final;
     };
     return composeUnder;
+}
+
+function dumpChoked(choked: Choked): Choked {
+    const { index, reason, child } = choked;
+    console.group(index + ': ' + reason);
+    if (isDefined(child)) {
+        const result = dumpChoked(child);
+        console.groupEnd();
+        return result;
+    } else {
+        console.groupEnd();
+        return choked;
+    }
 }

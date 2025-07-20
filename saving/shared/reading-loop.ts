@@ -43,7 +43,11 @@ export function readLoopOver<T, R>(
     };
 }
 
-export function readList<Item>(text: string, index: number, readItem: Read<Item>, readDelim: Read<unknown>): Choked | Captured<Item[]> {
+export function readList<Item>(
+    text: string, index: number,
+    readItem: Read<Item>,
+    readDelim: Read<unknown>,
+): Choked | Captured<Item[]> {
     const first = readItem(text, index);
     if (first.isBad) return first;
     const items = [first.value];
