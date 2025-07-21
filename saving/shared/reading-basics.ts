@@ -4,19 +4,19 @@ declare var console: {
     log(...args: any[]): void;
     group(...args: any[]): void;
     groupEnd(): void;
+    trace(): void;
 }
 
 export interface Choked {
     kind: 'choked';
     isBad: true;
-    isScanned: false;
     index: number;
     reason?: string;
     child?: Choked;
 }
 
 export function chokedFrom(index: number, reason?: string, child?: Choked): Choked {
-    return { kind: 'choked', isBad: true, isScanned: false, index, reason, child };
+    return { kind: 'choked', isBad: true, index, reason, child };
 }
 
 export type ParsedOrNot<T> = Choked | Captured<T>;
@@ -24,14 +24,13 @@ export type ParsedOrNot<T> = Choked | Captured<T>;
 export interface Captured<T = string> {
     kind: 'captured';
     isBad: false;
-    isScanned: false;
     nextIndex: number;
     value: T;
 }
 
 
 export function capturedFrom<T>(nextIndex: number, value: T): Captured<T> {
-    return { kind: 'captured', isBad: false, isScanned: false, nextIndex, value };
+    return { kind: 'captured', isBad: false, nextIndex, value };
 }
 export type Read<T> = (text: string, index: number) => Choked | Captured<T>;
 export function readLitOver<Liteal extends string>(literal: Liteal) {
@@ -132,6 +131,7 @@ export function diagnose<Actual>(
     read: (text: string, index: number) => Choked | Captured<Actual>,
     text: string, index: number, shouldRun: boolean,
 ): void {
+    // console.trace();
     if (!shouldRun) return;
     const tried = read(text, index);
     console.log(text);
