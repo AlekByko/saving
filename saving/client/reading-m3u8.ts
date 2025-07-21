@@ -24,6 +24,7 @@ function read_m3u8(text: string, index: number) {
 
     const draft: Partial<M3U8> = {};
     draft.streams = [];
+    draft.unknown = [];
     while (true) {
         const br = readBrs(text, index);
         if (br.isBad) break;
@@ -40,6 +41,7 @@ function read_m3u8(text: string, index: number) {
             case 'media': draft.media = tag.media; break;
             case 'stream': draft.streams.push(tag.stream); break;
             case 'version': draft.version = tag.version; break;
+            case 'unknown': draft.unknown.push(tag.unknown); break;
             default: return broke(tag);
         }
     }
@@ -50,12 +52,12 @@ function read_m3u8(text: string, index: number) {
 
 function readTagBlock(text: string, index: number) {
     const startIndex = index;
-    const tag = readReg(text, index, /(#EXT-X[\w+-]+):/y, at1st);
-    if (tag.isBad) return chokedFrom(startIndex, 'tag', tag);
-    index = tag.nextIndex;
-    const name = tag.value;
-    cast<ExtTag>(name);
-    switch (name) {
+    const name = readTagName(text, index);
+    if (name.isBad) return chokedFrom(startIndex, 'name', name);
+    index = name.nextIndex;
+    const tag = name.value;
+    cast<ExtTag>(tag);
+    switch (tag) {
         case '#EXT-X-VERSION': {
             const version = readExtXVersion(text, startIndex);
             if (version.isBad) return chokedFrom(startIndex, 'version', version);
@@ -71,8 +73,27 @@ function readTagBlock(text: string, index: number) {
             if (stream.isBad) return chokedFrom(startIndex, 'stream', stream);
             return capturedFrom(stream.nextIndex, { kind: 'stream' as const, stream: stream.value });
         }
-        default: return otherwise(name, chokedFrom(startIndex, `Unknown tag: ${tag}`));
+        default: {
+            const unknown = readExtXUnknown(text, startIndex);
+            if (unknown.isBad) return chokedFrom(startIndex, 'unknown', unknown);
+            return capturedFrom(unknown.nextIndex, { kind: 'unknown' as const, unknown: unknown.value });
+        }
     }
+}
+
+function readExtXUnknown(text: string, index: number) {
+    const startIndex = index;
+    const name = readTagName(text, index);
+    if (name.isBad) return chokedFrom(startIndex, 'name', name);
+    index = name.nextIndex;
+    const rest = readLine(text, index);
+    if (rest.isBad) return chokedFrom(startIndex, 'text', rest);
+    index = rest.nextIndex;
+    return capturedFrom(index, { name: name.value, text: rest.value });
+}
+
+function readTagName(text: string, index: number) {
+    return readReg(text, index, /(#EXT-X[\w+-]+):/y, at1st);
 }
 
 function readExtXSteamInfAndUrl(text: string, index: number) {
@@ -182,6 +203,7 @@ function readExtXVersion(text: string, index: number) {
         const version = parseInt(text, 10);
         return version;
     });
+    if (value.isBad) return chokedFrom(startIndex, 'value', value);
     return value;
 }
 
