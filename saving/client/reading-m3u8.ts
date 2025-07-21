@@ -181,13 +181,12 @@ function readExtXMedia(text: string, index: number) {
 function readExtXMediaTokenList(text: string, index: number) {
 
     type NoDistributivity = ReturnType<typeof readExtXMediaToken> extends ParsedOrNot<infer M> ? Read<M> : never;
-    const tokens = scanList(text, index, readExtXMediaToken as NoDistributivity, readLitOver(','));
+    const tokens = scanList(text, index, readExtXMediaToken as NoDistributivity, readLitOver(','), readBr);
     switch (tokens.kind) {
         case 'choked':
         case 'captured':
             return tokens;
         case 'scanned': switch (tokens.subkind) {
-            case 'few-but-bad-item':
             case 'few-but-bad-delim': return capturedFrom(tokens.attemptedIndex, tokens.fewItemsSofar);
             case 'no-items-scanned': return chokedFrom(tokens.attemptedIndex, 'no stream tokens');
             default: return broke(tokens);
@@ -246,13 +245,12 @@ function readExtXMediaToken(text: string, index: number) {
 
 function readExtXStreamInfTokenList(text: string, index: number) {
     type NoDistributivity = ReturnType<typeof readExtXStreamInfToken> extends ParsedOrNot<infer M> ? Read<M> : never;
-    const tokens = scanList(text, index, readExtXStreamInfToken as NoDistributivity, readLitOver(','));
+    const tokens = scanList(text, index, readExtXStreamInfToken as NoDistributivity, readLitOver(','), readBr);
     switch (tokens.kind) {
         case 'choked':
         case 'captured':
             return tokens;
         case 'scanned': switch (tokens.subkind) {
-            case 'few-but-bad-item':
             case 'few-but-bad-delim': return capturedFrom(tokens.attemptedIndex, tokens.fewItemsSofar);
             case 'no-items-scanned': return chokedFrom(tokens.attemptedIndex, 'no stream tokens');
             default: return broke(tokens);
@@ -316,6 +314,16 @@ function readExtXStreamInfToken(text: string, index: number) {
 
 
 if (window.sandbox === 'reading-m3u8') {
+
+    const channel = new BroadcastChannel('debug');
+    console.log('listening for hls-url\'s...');
+    channel.addEventListener('message', x => {
+        if (x.data.topic === 'hls-url') {
+            console.warn(x.data.hlsUrl);
+        }
+    });
+
+
     {
         let text = `
 #EXTM3U
@@ -347,4 +355,30 @@ https://media-hls.doppiocdn.com/b-hls-14/84207531/84207531.m3u8
 `;
         diagnose(read_m3u8, text, 0, false);
     }
+    {
+        let text = `#EXTM3U
+#EXT-X-VERSION:5
+#EXT-X-STREAM-INF:BANDWIDTH=1500000,NAME="720p 1.5mbps",LANGUAGE="en-us",CODECS="avc1.4d401f,mp4a.40.02",RESOLUTION=1280x720
+chunklist_rOPd19i1560_session91717477_b1500000.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=1000000,NAME="360p 1.0mbps",LANGUAGE="en-us",CODECS="avc1.4d401f,mp4a.40.02",RESOLUTION=640x360
+chunklist_ra23a4E56jh_session91717477_b1000000.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=500000,NAME="180p 500kbps",LANGUAGE="en-us",CODECS="avc1.4d400a,mp4a.40.02",RESOLUTION=320x180
+chunklist_rAg0a80ac4F_session91717477_b500000.m3u8
+`;
+        diagnose(read_m3u8, text, 0, true);
+    }
+/*
+    {
+        let text = `#EXTM3U
+#EXT-X-VERSION:5
+#EXT-X-STREAM-INF:BANDWIDTH=1500000,NAME="720p 1.5mbps",LANGUAGE="en-us",CODECS="avc1.4d401f,mp4a.40.02",RESOLUTION=1280x720
+chunklist_rOPd19i1560_session91717477_b1500000.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=1000000,NAME="360p 1.0mbps",LANGUAGE="en-us",CODECS="avc1.4d401f,mp4a.40.02",RESOLUTION=640x360
+chunklist_ra23a4E56jh_session91717477_b1000000.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=500000,NAME="180p 500kbps",LANGUAGE="en-us",CODECS="avc1.4d400a,mp4a.40.02",RESOLUTION=320x180
+chunklist_rAg0a80ac4F_session91717477_b500000.m3u8
+`;
+        diagnose(read_m3u8, text, 0, true);
+    }
+*/
 }
