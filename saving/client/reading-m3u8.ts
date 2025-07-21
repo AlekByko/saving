@@ -1,7 +1,7 @@
 import { alwaysNull, broke, cast, isUndefined, otherwise } from '../shared/core';
 import { at1st, atFull, capturedFrom, chokedFrom, diagnose, ParsedOrNot, Read, readLitOver, readReg } from '../shared/reading-basics';
+import { readList } from '../shared/reading-list';
 import { readQuotedString } from '../shared/reading-quoted-string';
-import { scanList } from '../shared/scanning-list';
 import { ExtXMedia, ExtXSteamInf, M3U8 } from './m3u8';
 
 
@@ -181,18 +181,8 @@ function readExtXMedia(text: string, index: number) {
 function readExtXMediaTokenList(text: string, index: number) {
 
     type NoDistributivity = ReturnType<typeof readExtXMediaToken> extends ParsedOrNot<infer M> ? Read<M> : never;
-    const tokens = scanList(text, index, readExtXMediaToken as NoDistributivity, readLitOver(','), readBr);
-    switch (tokens.kind) {
-        case 'choked':
-        case 'captured':
-            return tokens;
-        case 'scanned': switch (tokens.subkind) {
-            case 'few-but-bad-delim': return capturedFrom(tokens.attemptedIndex, tokens.fewItemsSofar);
-            case 'no-items-scanned': return chokedFrom(tokens.attemptedIndex, 'no stream tokens');
-            default: return broke(tokens);
-        }
-        default: return broke(tokens);
-    }
+    const tokens = readList(text, index, readExtXMediaToken as NoDistributivity, readLitOver(','), readBr);
+    return tokens;
 }
 
 
@@ -245,18 +235,8 @@ function readExtXMediaToken(text: string, index: number) {
 
 function readExtXStreamInfTokenList(text: string, index: number) {
     type NoDistributivity = ReturnType<typeof readExtXStreamInfToken> extends ParsedOrNot<infer M> ? Read<M> : never;
-    const tokens = scanList(text, index, readExtXStreamInfToken as NoDistributivity, readLitOver(','), readBr);
-    switch (tokens.kind) {
-        case 'choked':
-        case 'captured':
-            return tokens;
-        case 'scanned': switch (tokens.subkind) {
-            case 'few-but-bad-delim': return capturedFrom(tokens.attemptedIndex, tokens.fewItemsSofar);
-            case 'no-items-scanned': return chokedFrom(tokens.attemptedIndex, 'no stream tokens');
-            default: return broke(tokens);
-        }
-        default: return broke(tokens);
-    }
+    const tokens = readList(text, index, readExtXStreamInfToken as NoDistributivity, readLitOver(','), readBr);
+    return tokens;
 }
 
 type ExtXStreamInfTokenName = 'RESOLUTION' | 'BANDWIDTH' | 'CODECS' | 'FRAME-RATE' | 'CLOSED-CAPTIONS' | 'NAME';
