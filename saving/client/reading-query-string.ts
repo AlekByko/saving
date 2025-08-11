@@ -9,6 +9,12 @@ export function readQueryStringLiteralParam<S extends string, Or>(
     if (seeIfValid(value)) return value;
     return or;
 }
+export function readStringFromQueryStringOr<Or>(regexp: RegExp, or: Or) {
+    const matched = regexp.exec(window.location.search);
+    if (isNull(matched)) return or;
+    const [_full, value] = matched;
+    return value;
+}
 
 export function readNumberFromQueryString<Or>(
     regexp: RegExp, or: Or

@@ -12,8 +12,8 @@ interface DetectedFace {
 interface FaceDetectionResponse {
     faces: DetectedFace[];
 }
-const hostAndPort = '192.168.0.52:8000';
-export async function willDetectFace(image: HTMLImageElement) {
+
+export async function willDetectFace(image: HTMLImageElement, hostAndPort: string) {
     const url = `http://${hostAndPort}/detect-face`;
 
     const base64 = getBase64(image);
