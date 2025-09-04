@@ -222,4 +222,4 @@ function dumpChoked(choked: Choked): Choked {
     }
 }
 export function atFull(match: RegExpMatchArray) { return match[0]; }
-export function at1st(match: RegExpMatchArray) { return match[1]; }
+export function atFirst(match: RegExpMatchArray) { return match[1]; }

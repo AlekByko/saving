@@ -1,6 +1,6 @@
 import { alwaysNull, broke, cast, isUndefined, otherwise } from '../shared/core';
 import { ExtXMedia, ExtXSteamInf, M3U8 } from '../shared/m3u8';
-import { at1st, atFull, capturedFrom, chokedFrom, diagnose, ParsedOrNot, Read, readLitOver, readReg } from '../shared/reading-basics';
+import { atFirst, atFull, capturedFrom, chokedFrom, diagnose, ParsedOrNot, Read, readLitOver, readReg } from '../shared/reading-basics';
 import { readList } from '../shared/reading-list';
 import { readQuotedString } from '../shared/reading-quoted-string';
 
@@ -113,7 +113,7 @@ function readExtXUnknown(text: string, index: number) {
 }
 
 function readTagName(text: string, index: number) {
-    return readReg(text, index, /(#EXT-X[\w+-]+):?/y, at1st);
+    return readReg(text, index, /(#EXT-X[\w+-]+):?/y, atFirst);
 }
 
 function readExtXSteamInfAndUrl(text: string, index: number) {
@@ -224,12 +224,19 @@ function readExtXVersion(text: string, index: number) {
 function readExtXMouflon(text: string, startIndex: number) {
     let index = startIndex;
     // #EXT-X-MOUFLON:PSCH:v1:Zokee2OhPh9kugh4
-    const name = readReg(text, index, /#EXT-X-MOUFLON:PSCH:v1:/y, alwaysNull);
-    if (name.isBad) return name;
+    const name = readReg(text, index, /#EXT-X-MOUFLON:/y, alwaysNull);
+    if (name.isBad) return chokedFrom(startIndex, 'name', name);
     index = name.nextIndex;
-    const key = readReg(text, index, /[0-9a-zA-Z]+/y, ([full]) => full);
-    if (key.isBad) return chokedFrom(startIndex, 'key', key);
-    return key;
+
+    const psch = readReg(text, index, /PSCH:([0-9a-z]+)/y, atFirst);
+    if (psch.isBad) return chokedFrom(startIndex, 'psch', psch);
+    index = psch.nextIndex;
+
+    const pkey = readReg(text, index, /:([0-9a-zA-Z]+)/y, atFirst);
+    if (pkey.isBad) return chokedFrom(startIndex, 'key', pkey);
+    index = pkey.nextIndex;
+
+    return capturedFrom(index, { psch: psch.value, pkey: pkey.value });
 }
 
 type ExtXMediaAttrName = 'TYPE' | 'GROUP-ID' | 'NAME' | 'URI';
@@ -278,7 +285,7 @@ type ExtXStreamInfAttrName =
 function readExtXStreamInfAttr(text: string, index: number) {
     const startIndex = index;
 
-    const head = readReg(text, index, /([-\w]+)=/y, at1st);
+    const head = readReg(text, index, /([-\w]+)=/y, atFirst);
     if (head.isBad) return head;
     index = head.nextIndex;
 

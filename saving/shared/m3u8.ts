@@ -22,11 +22,15 @@ interface NameText {
     name: string;
     text: string;
 }
+export interface Mouflon {
+    psch: string;
+    pkey: string;
+}
 export interface M3U8 {
     streams: ExtXSteamInf[];
     media?: ExtXMedia;
     version?: number;
-    mouflon?: string;
+    mouflon?: Mouflon;
     isIndependentSegments?: boolean;
     unknown?: NameText[];
 }
