@@ -43,11 +43,12 @@ export function readM3U8(text: string, index: number) {
             case 'version': draft.version = tag.version; break;
             case 'independent-segments': draft.isIndependentSegments = true; break;
             case 'unknown': draft.unknown.push(tag.unknown); break;
+            case 'mouflon': draft.mouflon = tag.mouflon; break;
             default: return broke(tag);
         }
     }
-    const { media, streams } = draft;
-    const result: M3U8 = { streams, media };
+    const { media, streams, ...rest } = draft;
+    const result: M3U8 = { ...rest, streams, media };
     return capturedFrom(index, result);
 }
 
@@ -55,6 +56,7 @@ type ExtTagName =
     | '#EXT-X-STREAM-INF'
     | '#EXT-X-MEDIA'
     | '#EXT-X-VERSION'
+    | '#EXT-X-MOUFLON'
     | '#EXT-X-INDEPENDENT-SEGMENTS';
 
 function readTagBlock(text: string, index: number) {
@@ -69,6 +71,11 @@ function readTagBlock(text: string, index: number) {
             const version = readExtXVersion(text, startIndex);
             if (version.isBad) return chokedFrom(startIndex, 'version', version);
             return capturedFrom(version.nextIndex, { kind: 'version' as const, version: version.value });
+        }
+        case '#EXT-X-MOUFLON': {
+            const mouflon = readExtXMouflon(text, startIndex);
+            if (mouflon.isBad) return chokedFrom(startIndex, 'mouflon', mouflon);
+            return capturedFrom(mouflon.nextIndex, { kind: 'mouflon' as const, mouflon: mouflon.value });
         }
         case '#EXT-X-MEDIA': {
             const media = readExtXMedia(text, startIndex);
@@ -205,13 +212,24 @@ function readExtXVersion(text: string, index: number) {
     const name = readReg(text, index, /#EXT-X-VERSION:/y, alwaysNull);
     if (name.isBad) return chokedFrom(startIndex, 'name', name);
     index = name.nextIndex;
-    const value = readReg(text, index, /\d+/y, matched => {
-        const text = at1st(matched);
-        const version = parseInt(text, 10);
+    const value = readReg(text, index, /\d+/y, ([full]) => {
+        const version = parseInt(full, 10);
         return version;
     });
     if (value.isBad) return chokedFrom(startIndex, 'value', value);
     return value;
+}
+
+
+function readExtXMouflon(text: string, startIndex: number) {
+    let index = startIndex;
+    // #EXT-X-MOUFLON:PSCH:v1:Zokee2OhPh9kugh4
+    const name = readReg(text, index, /#EXT-X-MOUFLON:PSCH:v1:/y, alwaysNull);
+    if (name.isBad) return name;
+    index = name.nextIndex;
+    const key = readReg(text, index, /[0-9a-zA-Z]+/y, ([full]) => full);
+    if (key.isBad) return chokedFrom(startIndex, 'key', key);
+    return key;
 }
 
 type ExtXMediaAttrName = 'TYPE' | 'GROUP-ID' | 'NAME' | 'URI';
