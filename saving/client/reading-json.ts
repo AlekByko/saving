@@ -23,6 +23,11 @@ export function skipJson(text: string, index: number): undefined | number {
             }
             case 'in-obj': {
                 switch (at) {
+                    case '{': {
+                        stack.push('in-obj');
+                        index += 1;
+                        continue;
+                    }
                     case '}': {
                         stack.pop();
                         index += 1;
