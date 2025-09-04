@@ -31,10 +31,10 @@
 
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
+    "editor.snippetSuggestions": "none",
     "emmet.showExpandedAbbreviation": "never",
     "workbench.editor.enablePreview": false,
     "workbench.editor.enablePreviewFromQuickOpen": false,
-    "editor.snippetSuggestions": "none",
     "typescript.tsdk": "../../node_modules/typescript/lib",
     "eslint.validate": [
         "typescript",
