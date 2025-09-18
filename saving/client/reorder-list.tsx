@@ -50,13 +50,15 @@ export function thusReorderList<ItemProps extends object>(
         }
 
         whenDragLeave: DragEventHandler<HTMLDivElement> = e => {
-            const isStillInside = (e.relatedTarget as HTMLElement)?.closest('.reorder-list-item');
+            e.stopPropagation();
+            const isStillInside = seeIfStillInside(e);
             if (!isStillInside) {
                 this.setState({ hovered: null });
             }
         };
 
         whenDrop: DragEventHandler<HTMLDivElement> = _e => {
+            _e.stopPropagation();
             const { draggedKey, hovered, items } = this.state;
             if (isNull(draggedKey)) return;
             if (isNull(hovered)) return;
@@ -76,6 +78,7 @@ export function thusReorderList<ItemProps extends object>(
 
         whenDragOver: DragEventHandler<HTMLDivElement> = e => {
             e.preventDefault();
+            e.stopPropagation();
             const key = e.currentTarget.getAttribute('data-key');
             if (isNull(key)) return;
             let where: HoldingPlace;
@@ -109,12 +112,15 @@ export function thusReorderList<ItemProps extends object>(
         };
 
         whenDragEnd: DragEventHandler<HTMLDivElement> = _e => {
+            _e.stopPropagation();
             this.setState({ draggedKey: null, hovered: null });
         };
 
         whenDragStart: DragEventHandler<HTMLDivElement> = e => {
             const key = e.currentTarget.getAttribute('data-key');
             if (isNull(key)) return;
+            const isGrabbedByHandle = seeIfGrabbedByHandle(e);
+            if (!isGrabbedByHandle) return;
             this.setState({ draggedKey: key });
         };
 
@@ -174,6 +180,21 @@ export function thusReorderList<ItemProps extends object>(
             default: return broke(defaults.type);
         }
     }
+
+    function seeIfGrabbedByHandle(e: React.DragEvent<HTMLDivElement>): boolean {
+        const target = e.target as HTMLElement | null;
+        if (isNull(target)) return false;
+        if (!target.classList.contains('reorder-list-item-drag-handle')) return false;
+        return true;
+    }
+
+    function seeIfStillInside(e: React.DragEvent<HTMLDivElement>): boolean {
+        const relatedTarget = e.relatedTarget as HTMLElement | null;
+        if (isNull(relatedTarget)) return false;
+        const reoderListElement = relatedTarget.closest('.reorder-list-item');
+        if (isNull(reoderListElement)) return false;
+        return true;
+    }
 }
 
 if (window.sandbox === 'reorder-list') {
@@ -188,10 +209,16 @@ if (window.sandbox === 'reorder-list') {
             return <div>{name}</div>
         }
     }
-    const ReorderList = thusReorderList({
+
+    const HorizontalList = thusReorderList({
         type: 'horizontal',
         Item: Item,
         keyOf: (x: ItemProps) => x.key,
+    });
+    const VericalList = thusReorderList({
+        type: 'vertical',
+        Item: HorizontalList,
+        keyOf: (x: ReorderListProps<ItemProps>) => x.items.map(x => x.name).join('/'),
     });
     interface AppState { items: ItemProps[] }
     class App extends React.Component<AppState, AppState> {
@@ -206,9 +233,9 @@ if (window.sandbox === 'reorder-list') {
         };
         render() {
             const { items } = this.state;
-            const props: typeof ReorderList.Props = { items };
+            const props: typeof VericalList.Props = { items: [{ items }, { items: items.slice().reverse() }] };
             return <div>
-                <div><ReorderList {...props} /></div>
+                <div><VericalList {...props} /></div>
                 <div><button onClick={this.whenOutsideEffect}>Outside effect</button></div>
             </div>;
         }
