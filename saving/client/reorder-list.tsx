@@ -11,12 +11,13 @@ export interface ReorderListProps<Item> {
 
 export function thusReorderList<ItemProps extends object>(
     defaults: {
+        type: 'vertical' | 'horizontal',
         Item: ReactConstructor<ItemProps>,
         keyOf: (item: ItemProps) => string;
     }
 ) {
 
-    type HoldingPlace = 'top' | 'bottom';
+    type HoldingPlace = 'start' | 'end';
 
     interface Hovered { key: string; where: HoldingPlace; }
 
@@ -64,8 +65,8 @@ export function thusReorderList<ItemProps extends object>(
             let holdingAt = items.findIndex(x => areStringsEqual(defaults.keyOf(x), hovered.key));
             if (holdingAt < 0) return;
             switch (hovered.where) {
-                case 'top': break;
-                case 'bottom': holdingAt += 1; break;
+                case 'start': break;
+                case 'end': holdingAt += 1; break;
                 default: return broke(hovered.where);
             }
             const dragged = items[draggedAt];
@@ -77,15 +78,33 @@ export function thusReorderList<ItemProps extends object>(
             e.preventDefault();
             const key = e.currentTarget.getAttribute('data-key');
             if (isNull(key)) return;
-            const { clientY } = e;
-            const { top, height } = e.currentTarget.getBoundingClientRect();
-            const midY = top + height / 2;
-            let where;
-            if (clientY > midY) {
-                where = 'bottom' as const;
-            } else {
-                where = 'top' as const;
+            let where: HoldingPlace;
+            switch (defaults.type) {
+                case 'vertical': {
+                    const { clientY } = e;
+                    const { top, height } = e.currentTarget.getBoundingClientRect();
+                    const midY = top + height / 2;
+                    if (clientY > midY) {
+                        where = 'end';
+                    } else {
+                        where = 'start';
+                    }
+                    break;
+                }
+                case 'horizontal': {
+                    const { clientX } = e;
+                    const { left, width } = e.currentTarget.getBoundingClientRect();
+                    const midX = left + width / 2;
+                    if (clientX > midX) {
+                        where = 'end';
+                    } else {
+                        where = 'start';
+                    }
+                    break;
+                }
+                default: return broke(defaults.type);
             }
+
             this.setState({ hovered: { key, where } });
         };
 
@@ -101,7 +120,8 @@ export function thusReorderList<ItemProps extends object>(
 
         render() {
             const { items, draggedKey, hovered } = this.state;
-            return <div className="reorder-list">
+            const listClass = 'reorder-list ' + seeWhatOrientationClassIs();
+            return <div className={listClass}>
                 {items.map(item => {
                     const key = defaults.keyOf(item);
                     const draggedClass = draggedKey === key ? 'as-dragged' : undefined;
@@ -117,7 +137,7 @@ export function thusReorderList<ItemProps extends object>(
                         onDragOver={this.whenDragOver}
                         onDrop={this.whenDrop}
                         onDragLeave={this.whenDragLeave}
-                    ><div className="reorder-list-item-drag-handle"></div><defaults.Item {...item} /></div>;
+                    ><div className="reorder-list-item-drag-handle" /><defaults.Item {...item} /></div>;
                 })}
             </div>;
         }
@@ -128,10 +148,30 @@ export function thusReorderList<ItemProps extends object>(
         if (hovered.key !== key) return undefined;
         if (hovered.key === draggedKey) return undefined;
         const { where } = hovered;
-        switch (where) {
-            case 'top': return 'as-holding-place-at-top';
-            case 'bottom': return 'as-holding-place-at-bottom';
-            default: return broke(where);
+        switch (defaults.type) {
+            case 'vertical': {
+                switch (where) {
+                    case 'start': return 'as-holding-place-at-top';
+                    case 'end': return 'as-holding-place-at-bottom';
+                    default: return broke(where);
+                }
+            }
+            case 'horizontal': {
+                switch (where) {
+                    case 'start': return 'as-holding-place-at-left';
+                    case 'end': return 'as-holding-place-at-right';
+                    default: return broke(where);
+                }
+            }
+            default: return broke(defaults.type);
+        }
+    }
+
+    function seeWhatOrientationClassIs() {
+        switch (defaults.type) {
+            case 'vertical': return 'as-vertical';
+            case 'horizontal': return 'as-horizontal';
+            default: return broke(defaults.type);
         }
     }
 }
@@ -149,6 +189,7 @@ if (window.sandbox === 'reorder-list') {
         }
     }
     const ReorderList = thusReorderList({
+        type: 'horizontal',
         Item: Item,
         keyOf: (x: ItemProps) => x.key,
     });

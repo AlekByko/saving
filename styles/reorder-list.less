@@ -1,4 +1,13 @@
 .reorder-list {
+    display: flex;
+
+    &.as-vertical {
+        flex-direction: column;
+    }
+
+    &.as-horizontal {
+        flex-direction: row;
+    }
 }
 
 .reorder-list-item {
@@ -16,6 +25,14 @@
 
     &.as-holding-place-at-bottom {
         border-bottom-width: 4px;
+    }
+
+    &.as-holding-place-at-left {
+        border-left-width: 4px;
+    }
+
+    &.as-holding-place-at-right {
+        border-right-width: 4px;
     }
 
     padding-left: 20px;
