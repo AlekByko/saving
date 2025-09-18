@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { DragEventHandler } from 'react';
 import ReactDOM from 'react-dom';
-import { areStringsEqual, broke, compareRandom, isNull } from '../shared/core';
+import { areStringsEqual, broke, compareRandom, isNonNull, isNull } from '../shared/core';
 import { addClassIfDefined, ReactConstructor } from './reacting';
 
 
@@ -40,6 +40,7 @@ export function thusReorderList<ItemProps extends object>(
         static Props: Props;
 
         state = makeState(this.props);
+        listElement: HTMLDivElement | null = null;
 
         static getDerivedStateFromProps(props: Props, state: State): State | null {
             const { items } = props;
@@ -51,7 +52,9 @@ export function thusReorderList<ItemProps extends object>(
 
         whenDragLeave: DragEventHandler<HTMLDivElement> = e => {
             e.stopPropagation();
-            const isStillInside = seeIfStillInside(e);
+            const { listElement } = this;
+            if (isNull(listElement)) return this.setState({ hovered: null });
+            const isStillInside = seeIfStillInside(listElement, e);
             if (!isStillInside) {
                 this.setState({ hovered: null });
             }
@@ -119,15 +122,14 @@ export function thusReorderList<ItemProps extends object>(
         whenDragStart: DragEventHandler<HTMLDivElement> = e => {
             const key = e.currentTarget.getAttribute('data-key');
             if (isNull(key)) return;
-            const isGrabbedByHandle = seeIfGrabbedByHandle(e);
-            if (!isGrabbedByHandle) return;
+            e.stopPropagation();
             this.setState({ draggedKey: key });
         };
 
         render() {
             const { items, draggedKey, hovered } = this.state;
             const listClass = 'reorder-list ' + seeWhatOrientationClassIs();
-            return <div className={listClass}>
+            return <div className={listClass} ref={e => this.listElement = e}>
                 {items.map(item => {
                     const key = defaults.keyOf(item);
                     const draggedClass = draggedKey === key ? 'as-dragged' : undefined;
@@ -181,19 +183,15 @@ export function thusReorderList<ItemProps extends object>(
         }
     }
 
-    function seeIfGrabbedByHandle(e: React.DragEvent<HTMLDivElement>): boolean {
-        const target = e.target as HTMLElement | null;
-        if (isNull(target)) return false;
-        if (!target.classList.contains('reorder-list-item-drag-handle')) return false;
-        return true;
+    function seeIfChild(parent: HTMLElement, child: HTMLElement) {
+        for (let el = child.parentElement; isNonNull(el); el = el.parentElement) {
+            if (el === parent) return true;
+        }
+        return false;
     }
 
-    function seeIfStillInside(e: React.DragEvent<HTMLDivElement>): boolean {
-        const relatedTarget = e.relatedTarget as HTMLElement | null;
-        if (isNull(relatedTarget)) return false;
-        const reoderListElement = relatedTarget.closest('.reorder-list-item');
-        if (isNull(reoderListElement)) return false;
-        return true;
+    function seeIfStillInside(listElement: HTMLElement, e: React.DragEvent<HTMLDivElement>): boolean {
+        return seeIfChild(listElement, e.currentTarget);
     }
 }
 
