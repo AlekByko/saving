@@ -1,9 +1,8 @@
-import { isUndefined } from '../shared/core';
+import { isDefined } from '../shared/core';
 
 export function addTag(tags: string[] | undefined, tag: string): string[] | undefined {
-    if (isUndefined(tags)) {
-        return [tag];
-    } else {
-        return [...tags, tag].toSet().toArray().sort();
-    }
+    tags = isDefined(tags) ? tags : [];
+    tags = tags.filter(x => x.trim() !==  '');
+    if (tag.trim() === '') return tags.length > 0 ? tags : undefined;
+    return [...tags, tag].toSet().toArray();
 }
