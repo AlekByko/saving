@@ -1,4 +1,5 @@
 import { atFirst, readReg } from './reading-basics';
+import { TimeInterval } from './time-interval';
 
 export function withTimeInternalRead<R, E>(
     result: R,
@@ -7,6 +8,7 @@ export function withTimeInternalRead<R, E>(
     haveHours: (result: R, hours: number) => R,
     haveMinutes: (result: R, minutes: number) => R,
     haveSeconds: (result: R, seconds: number) => R,
+    haveMilliseconds: (result: R, milliseconds: number) => R,
     haveError: (reason: string, text: string) => E
 ): R | E {
     let index = 0;
@@ -39,24 +41,35 @@ export function withTimeInternalRead<R, E>(
         const seconds = parseInt(secondsRead.value, 10);
         result = haveSeconds(result, seconds);
     }
+    const millisecondsRead = readReg(text, index, /\s*(\d+)ms/y, atFirst);
+    if (!millisecondsRead.isBad) {
+        hadAnything = true;
+        index = millisecondsRead.nextIndex;
+        const milliseconds = parseInt(millisecondsRead.value, 10);
+        result = haveMilliseconds(result, milliseconds);
+    }
 
     if (hadAnything) return result;
 
     return haveError('Bad time internval.', text);
 }
-
 export function parseTimeInternalOr<Or>(text: string, or: (reason: string) => Or) {
-    const read = withTimeInternalRead({
+    const newLocal: TimeInterval = {
         days: 0,
         hours: 0,
         minutes: 0,
         seconds: 0,
-    }, text,
+        milliseconds: 0,
+    };
+    const read = withTimeInternalRead(newLocal, text,
         (read, days) => (read.days = days, read),
         (read, hours) => (read.hours = hours, read),
         (read, minutes) => (read.minutes = minutes, read),
         (read, seconds) => (read.seconds = seconds, read),
+        (read, milliseconds) => (read.milliseconds = milliseconds, read),
         (reason) => (or(reason), null),
     );
     return read;
 }
+
+
