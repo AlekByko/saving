@@ -1,6 +1,10 @@
 import random
 import re
 
+#########################################################
+### YOU MAY NOT BUILD/RETURN TEMPLATES IN EVALUATUION ###
+### OR ELSE ALL HELLS COME LOOSE AND YOU ARE FUCKED   ###
+#########################################################
 
 def evaluateToken(vars, token):
     def lookupVar(match):
@@ -30,15 +34,15 @@ def evaluateToken(vars, token):
     return token
 
 def evaluateLine(vars, line):
-    reg = r"^\$([-_\w\d]+)\s*(::|:)\s*(.*)" # <----------- "=<" has to come first because it's longer
+    reg = r"^\$([-_\w\d]+)\s*(~later~|~now~)\s*(.*)" # <----------- "=<" has to come first because it's longer
     pairs = re.findall(reg, line)
 
     if pairs:
         for pair in pairs:
             name, operator, token = pair
-            if operator == ':':
+            if operator == '~later~':
                 vars[name] = token
-            elif operator == '::':
+            elif operator == '~now~':
                 evaluated = evaluateToken(vars, token)
                 vars[name] = evaluated
         return None
@@ -61,15 +65,14 @@ def process(text):
 
 def run():
     input = '''
-        $free : {red|green|blue}
-        $free
-        $free
-        $fixed :: {red|green|blue}
-        $fixed
-        $fixed
+        $a ~now~ {red|green|blue}
+        $a
+        $a
+        $b ~later~ {red|green|blue}
+        $b
+        $b
     '''
     ouput = process(input)
-    print('============================')
     print(ouput)
 
 run()
