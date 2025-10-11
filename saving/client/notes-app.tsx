@@ -1,20 +1,20 @@
 import React, { FormEventHandler } from 'react';
+import { Drop } from './drop';
 import { NotesGlob } from './notes-glob';
 
 export interface NotesAppProps {
+    drop: Drop;
     glob: NotesGlob;
 }
-
-
 
 export function thusNotesApp() {
     return class NotesApp extends React.Component<NotesAppProps> {
         render() {
-            const { notesDir } = this.props.glob;
+            const { drop, glob: { notesDir } } = this.props;
             return <div>
                 <div>Notes App</div>
                 <div>{notesDir.name}</div>
-                <div><Note /></div>
+                <div><Note drop={drop} /></div>
             </div>;
         }
     }
@@ -22,7 +22,10 @@ export function thusNotesApp() {
 
 const plainTextOnly = 'plaintext-only' as never;
 
-class Note extends React.Component {
+interface NoteProps {
+    drop: Drop;
+}
+class Note extends React.Component<NoteProps> {
     whenChangedContent: FormEventHandler<HTMLDivElement> = e => {
         const { currentTarget: { innerText } } = e;
         console.log(innerText);

@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { isNonNull } from '../shared/core';
+import { Drop } from './drop';
 import { knownNotesDirRef } from './file-system-entries';
 import { willOpenKnownDb } from './known-database';
 import { NotesAppProps, thusNotesApp } from './notes-app';
@@ -31,7 +32,8 @@ async function run() {
     const notesDir = await willClaimDir(db, rootElement, knownNotesDirRef);
 
     const glob: NotesGlob = { db, notesDir };
-    const props: NotesAppProps = { glob};
+    const dump = new Drop(notesDir, 'test.txt');
+    const props: NotesAppProps = { drop, glob };
     const NotesApp = thusNotesApp();
     ReactDOM.render(<NotesApp {...props} />, rootElement)
 }
