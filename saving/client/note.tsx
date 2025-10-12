@@ -1,13 +1,11 @@
 import React, { FormEventHandler } from 'react';
 import { broke, fail, isNull } from '../shared/core';
 import { Drop } from './drop';
-import { NotesGlob } from './notes-glob';
 
 const plainTextOnly = 'plaintext-only' as never;
 
 export interface NoteProps {
     key: string;
-    glob: NotesGlob;
     drop: Drop;
 }
 

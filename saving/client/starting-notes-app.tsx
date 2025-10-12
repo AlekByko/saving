@@ -24,7 +24,7 @@ async function run() {
     const glob: NotesGlob = { db, notesDir };
     const drop = new Drop(notesDir, 'test.txt');
     const key = toRandKey();
-    const note: NoteProps = { key, drop, glob };
+    const note: NoteProps = { key, drop };
     const notes = [note];
     const props: NotesAppProps = { notes, glob };
     const NotesApp = thusNotesApp();
