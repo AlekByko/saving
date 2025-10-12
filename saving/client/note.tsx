@@ -56,9 +56,9 @@ export function thusNote() {
         }
 
         render() {
-            const {drop} = this.props;
+            const { key, drop } = this.props;
             const { state } = this;
-            return <div>
+            return <div key={key}>
                 <div>{drop.dir.name}/{drop.filename}</div>
                 {(() => {
                     switch (state.kind) {

@@ -7,14 +7,23 @@ export interface NotesAppProps {
     glob: NotesGlob;
 }
 
+interface State {
+    notes: NoteProps[];
+}
+
+function makeState({ notes }: NotesAppProps): State {
+    return { notes };
+}
+
 export function thusNotesApp() {
     const Note = thusNote();
-    return class NotesApp extends React.Component<NotesAppProps> {
+    return class NotesApp extends React.Component<NotesAppProps, State> {
+        state = makeState(this.props);
         render() {
-            const { notes } = this.props;
+            const { notes } = this.state;
             return <div>
                 {notes.map(note => {
-                    return <div key={note.key}><Note {...note} /></div>;
+                    return <Note {...note} />;
                 })}
             </div>;
         }
