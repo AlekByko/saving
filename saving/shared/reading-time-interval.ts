@@ -1,5 +1,61 @@
-import { atFirst, readReg } from './reading-basics';
+import { atFirst, capturedFrom, chokedFrom, readReg } from './reading-basics';
 import { TimeInterval } from './time-interval';
+
+interface TimeInternalRead {
+    days?: number;
+    hours?: number;
+    minutes?: number;
+    seconds?: number;
+    milliseconds?: number;
+}
+export function readTimeInternal(
+    text: string, startIndex: number,
+) {
+    if (startIndex >= text.length) return chokedFrom(startIndex, 'EOL');
+    let index = startIndex;
+    const daysRead = readReg(text, index, /\s*(\d+)d/y, atFirst);
+    let hasAnything = false;
+    const result: TimeInternalRead = {};
+    if (!daysRead.isBad) {
+        hasAnything = true;
+        index = daysRead.nextIndex;
+        const days = parseInt(daysRead.value, 10);
+        result.days = days;
+    }
+    const hoursRead = readReg(text, index, /\s*(\d+)h/y, atFirst);
+    if (!hoursRead.isBad) {
+        hasAnything = true;
+        index = hoursRead.nextIndex;
+        const hours = parseInt(hoursRead.value, 10);
+        result.hours = hours;
+    }
+    const minutesRead = readReg(text, index, /\s*(\d+)m/y, atFirst);
+    if (!minutesRead.isBad) {
+        hasAnything = true;
+        index = minutesRead.nextIndex;
+        const minutes = parseInt(minutesRead.value, 10);
+        result.minutes = minutes;
+    }
+    const secondsRead = readReg(text, index, /\s*(\d+)s/y, atFirst);
+    if (!secondsRead.isBad) {
+        hasAnything = true;
+        index = secondsRead.nextIndex;
+        const seconds = parseInt(secondsRead.value, 10);
+        result.seconds = seconds;
+    }
+    const millisecondsRead = readReg(text, index, /\s*(\d+)ms/y, atFirst);
+    if (!millisecondsRead.isBad) {
+        hasAnything = true;
+        index = millisecondsRead.nextIndex;
+        const milliseconds = parseInt(millisecondsRead.value, 10);
+        result.milliseconds = milliseconds;
+    }
+    if (hasAnything) {
+        return capturedFrom(index, result);
+    } else {
+        return chokedFrom(startIndex);
+    }
+}
 
 export function withTimeInternalRead<R, E>(
     result: R,

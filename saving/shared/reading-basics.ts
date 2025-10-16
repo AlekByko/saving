@@ -47,12 +47,11 @@ export function readLit<Literal extends string>(text: string, index: number, lit
 }
 
 export function readReg<T>(
-    text: string, index: number, regexp: RegExp,
+    text: string, index: number, regexp_: RegExp,
     parse: (matched: RegExpExecArray) => T, failure?: string
 ): Choked | Captured<T> {
-    // either sticky or global is enough to make lastIndex work:
-    // if (!regexp.global) return fail('Regexp has to be global to update the lastIndex./gy: ' + regexp.source);
-    if (!regexp.sticky) return fail('Regexp has to be sticky to respect the lastIndex./gy: ' + regexp.source);
+    if (regexp_.flags !== 'y' && regexp_.flags !== '') return fail(`Regexp has unexpected flags: ${regexp_.flags}`);
+    const regexp = new RegExp(regexp_.source, 'y');
     regexp.lastIndex = index;
     const matched = regexp.exec(text);
     const reason = isDefined(failure) ? failure + ' /' + regexp.source + '/' : '/' + regexp.source + '/';
