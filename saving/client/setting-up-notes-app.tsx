@@ -5,7 +5,9 @@ import { KnownPickedDirRef } from '../shared/identities';
 import { willSaveDirRef, willTryGetDirFromDb } from './reading-writing-files';
 
 
-export async function willClaimDir(db: IDBDatabase, element: HTMLElement, ref: KnownPickedDirRef) {
+export async function willClaimDir(
+    db: IDBDatabase, element: HTMLElement, ref: KnownPickedDirRef,
+) {
     return new Promise<FileSystemDirectoryHandle>(async resolve => {
         const dir = await willTryGetDirFromDb(db, ref);
         if (isNonNull(dir)) {
@@ -21,7 +23,7 @@ export async function willClaimDir(db: IDBDatabase, element: HTMLElement, ref: K
             };
             render() {
                 return <div>
-                    <button onClick={this.whenPickingNotesDir}>Pick Notes Dir</button>
+                    <button onClick={this.whenPickingNotesDir}>Pick Dir</button>
                 </div>
             }
         }

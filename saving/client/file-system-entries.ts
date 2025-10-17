@@ -15,3 +15,4 @@ export const knownEdConfigDirRef = 'config-dir' as KnownPickedDirRef;
 export const knownArchiveDirRef = 'archive-dir' as KnownPickedDirRef;
 export const knownMatesDirRef = 'pairs-dir' as KnownPickedDirRef;
 export const knownFacesDirRef = 'faces-dir' as KnownPickedDirRef;
+export const knownVidsDirRef = 'vids-dir' as KnownPickedDirRef;
