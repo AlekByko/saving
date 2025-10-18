@@ -29,6 +29,13 @@ export function thusVidApp() {
 
         state = this.makeState();
 
+        whenSelectingAll: MouseEventHandler<HTMLButtonElement> = async _e => {
+            this.setState(state => {
+                let { items } = state;
+                items = items.map(x => ({ ...x, isSelected: true } satisfies VidItemProps));
+                return { ...state, items } satisfies State;
+            });
+        }
         whenDeletigVids: MouseEventHandler<HTMLButtonElement> = async _e => {
             if (!confirm('Are you sure?')) return;
             const removedNames = new Set<string>();
@@ -53,9 +60,12 @@ export function thusVidApp() {
         render() {
             const { items } = this.state;
             const selectedCount = countAllThat(items, x => x.isSelected);
+            const canSelectAll = selectedCount < items.length;
+            const canDelete = selectedCount > 0;
             return <div>
                 <div className="vid-toolbar">
-                    <button onClick={this.whenDeletigVids} disabled={selectedCount < 1}>{selectedCount > 0 ? `Deleted (${selectedCount})` : 'Delete'}</button>
+                    <button onClick={this.whenSelectingAll} disabled={!canSelectAll}>{canSelectAll ? `Select All` : `Selected`}</button>
+                    <button onClick={this.whenDeletigVids} disabled={!canDelete}>{canDelete ? `Deleted (${selectedCount})` : 'Delete'}</button>
                 </div>
                 <div className="vid-list">
                     {items.map(item => {
