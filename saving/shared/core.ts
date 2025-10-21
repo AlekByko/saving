@@ -622,3 +622,4 @@ export function defaultAndWhine<V extends number, D>(name: string, defaulted: D,
         return value;
     }
 }
+export function sure<T>(_: () => T) {}
