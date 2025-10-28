@@ -2,17 +2,29 @@ import React, { ChangeEventHandler, LegacyRef, MouseEventHandler } from 'react';
 import { isNonNull, isNull } from '../shared/core';
 import { addClassIf } from './reacting';
 
+export interface VidPromptSettings {
+    template: string;
+    prompt: string;
+    seed: number;
+}
 export interface VidItemProps {
     isSelected: boolean;
     file: FileSystemFileHandle;
     onToggled: (filename: string) => void;
-    onRequestedPrompt: (filename: string) => Promise<any>;
+    onRequestedPromptSettings: (filename: string) => Promise<VidPromptSettings | null>;
     onDeleting: (filename: string) => void;
 }
 export function thusVidItem() {
-    return class VidItem extends React.PureComponent<VidItemProps> {
+    interface State {
+        settings: VidPromptSettings | null;
+    }
+    function makeState(): State {
+        return { settings: null };
+    }
+    return class VidItem extends React.PureComponent<VidItemProps, State> {
 
         static Props: VidItemProps;
+        state = makeState();
 
         whenSelectingItem: ChangeEventHandler<HTMLInputElement> = () => {
             this.props.onToggled(this.props.file.name);
@@ -34,12 +46,18 @@ export function thusVidItem() {
         private videoUrl: string | null = null;
         private isLoading = false;
         whenRequestingPrompt: MouseEventHandler<HTMLButtonElement> = async _e => {
-            const { seed, template } = await this.props.onRequestedPrompt(this.props.file.name);
-            console.log(seed);
-            console.log(template);
+            const filename = this.props.file.name;
+            const settings = await this.props.onRequestedPromptSettings(this.props.file.name);
+            if (isNull(settings)) return console.log(`No prompt settings for ${filename}.`);
+            this.setState({ settings });
         };
         whenDeleting: MouseEventHandler<HTMLButtonElement> = _e => {
+            if (!confirm(`Are you sure?`)) return;
             this.props.onDeleting(this.props.file.name);
+        };
+
+        whenClosing: MouseEventHandler<HTMLButtonElement> = _e => {
+            this.setState({ settings: null });
         };
 
         componentWillUnmount(): void {
@@ -51,18 +69,35 @@ export function thusVidItem() {
         }
 
         render() {
+            const { settings } = this.state;
             const { isSelected, file: { name } } = this.props;
             return <div className={'vid-item' + addClassIf(isSelected, 'as-selected')}>
-                <div className="vid-item-tools">
-                    <label>{name}</label>
-                    <label>
-                        <input type="checkbox" checked={isSelected} onChange={this.whenSelectingItem} /> Select
+                <div className="vid-item-name-and-tools">
+                    <label title={isSelected ? 'Deselect' : 'Select'}>
+                        <input type="checkbox" checked={isSelected} onChange={this.whenSelectingItem} /> {name}
                     </label>
-                    <button onClick={this.whenRequestingPrompt}>Prompt</button>
-                    <button onClick={this.whenDeleting}>Delete</button>
+                    <div className="vid-item-tools">
+                        <button onClick={this.whenRequestingPrompt}>Prompt</button>
+                        <button onClick={this.whenDeleting}>Delete</button>
+                    </div>
                 </div>
-                <div>
+                <div className="vid-item-vid">
                     <video ref={this.whenVideoElement} />
+                    {(() => {
+                        if (isNull(settings)) return null;
+                        const { seed, prompt, template } = settings;
+                        return <div className="vid-prompt-settings">
+                            <div className="vid-prompt-seed-and-tools">
+                                <input className="vid-prompt-seed" defaultValue={seed} />
+                                <div className="vid-prompt-tools">
+                                    <button>Copy</button>
+                                    <button onClick={this.whenClosing}>Close</button>
+                                </div>
+                            </div>
+                            <textarea className="vid-prompt-template" rows={10}>{template}</textarea>
+                            <textarea className="vid-prompt-prompt">{prompt}</textarea>
+                        </div>;
+                    })()}
                 </div>
             </div>;
         }

@@ -3,7 +3,7 @@ import { countAllThat } from '../shared/arrays';
 import { isNull, isUndefined } from '../shared/core';
 import { willTryMakePostRequest } from './ajaxing';
 import { willTryGetDir } from './reading-writing-files';
-import { thusVidItem, VidItemProps } from './vid-item';
+import { thusVidItem, VidItemProps, VidPromptSettings } from './vid-item';
 
 export interface VidAppProps {
     vids: FileSystemFileHandle[];
@@ -35,30 +35,44 @@ export function thusVidApp() {
         };
 
         whenRequestedPrompt = async (filename: string) => {
-            const url = 'http://127.0.0.1:8080/workflow';
-            const body = {
+
+            const triedWorkflow = await willTryMakePostRequest('http://127.0.0.1:8080/workflow', {
                 video_dirpath: this.props.vidsDirPath,
                 video_filename: filename,
-            };
-            const tried = await willTryMakePostRequest(url, body);
-            if (tried.kind !== 'got-response') return console.log('Bad try:', tried);
-            let text = await tried.response.json() as string; // parsing first time
+            });
+            if (triedWorkflow.kind !== 'got-response') {
+                console.log('Bad workflow attempt:', triedWorkflow);
+                return null;
+            }
+            let text = await triedWorkflow.response.json() as string; // parsing first time
             text = text.replaceAll(': NaN', ': 0');
             const json = JSON.parse(text); // parsing second time
             console.log(json);
-            const result = { seed: -1, template: 'No template.', size: 'No size', prompt: `No prompt` };
+            const result: VidPromptSettings = { seed: -1, template: 'No template.', prompt: `No prompt` };
             const { promptNodeId, seedNodeId } = this.props;
             for (const node of json.nodes) {
                 if (node.id === seedNodeId) {
                     result.seed = node.widgets_values[0];
                 }
-                if (node.type === 'PresetSizeNode') {
-                    result.size = node.widgets_values[0];
-                }
+                // if (node.type === 'PresetSizeNode') {
+                //     result.size = node.widgets_values[0];
+                // }
                 if (node.id === promptNodeId) {
                     result.template = node.widgets_values[0];
                 }
             }
+
+            const triedPrompt = await willTryMakePostRequest('http://127.0.0.1:8080/prompt', {
+                template: result.template,
+                seed: result.seed,
+            });
+            if (triedPrompt.kind !== 'got-response') {
+                console.log('Bad prompt attempt:', triedPrompt);
+                return null;
+            }
+            text = await triedPrompt.response.json() as string; // parsing first time
+            // console.log(text);
+            result.prompt = text;
             return result;
         }
 
@@ -122,7 +136,7 @@ export function thusVidApp() {
                 file,
                 isSelected: false,
                 onToggled: this.whenTogglingItem,
-                onRequestedPrompt: this.whenRequestedPrompt,
+                onRequestedPromptSettings: this.whenRequestedPrompt,
                 onDeleting: this.whenDeleting
             } satisfies VidItemProps));
             return { items };
