@@ -14,6 +14,11 @@ if (window.sandbox === 'starting-vids-app') {
     const vidsDirPath = readStringFromQueryStringOr(/[?&]vidsDir=([-/\\:_\w\d]+)/, null);
     const promptNodeId = readNumberFromQueryString(/[?&]promptNode=([\d]+)/, null);
     const seedNodeId = readNumberFromQueryString(/[?&]seedNode=([\d]+)/, null);
+    function onSkipping(delta: number): void {
+        let url = window.location.href;
+        url = url.replaceAll(/skip=\d+/g, `skip=${skip + delta}`)
+        window.location.href = url;
+    }
     async function run() {
         if (isNull(vidsDirPath)) return alert(`No vidsDir.`);
         if (isNull(promptNodeId)) return alert(`No promptNode.`);
@@ -29,7 +34,7 @@ if (window.sandbox === 'starting-vids-app') {
 
         const App = thusVidApp();
         const props: VidAppProps = {
-            vidsDirPath, vids, vidsDir, seedNodeId, promptNodeId,
+            vidsDirPath, vids, vidsDir, seedNodeId, promptNodeId, onSkipping,
         };
         ReactDOM.render(<App {...props} />, rootElement);
     }

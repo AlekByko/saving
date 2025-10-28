@@ -11,6 +11,7 @@ export interface VidAppProps {
     vidsDir: FileSystemDirectoryHandle;
     seedNodeId: number;
     promptNodeId: number;
+    onSkipping: (delta: number) => void;
 }
 export function thusVidApp() {
 
@@ -128,7 +129,16 @@ export function thusVidApp() {
                 return { ...state, items } satisfies State;
             });
         };
-
+        whenSkippingPlus10: MouseEventHandler<HTMLAnchorElement> = e => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.props.onSkipping(10);
+        };
+        whenSkippingPlus05: MouseEventHandler<HTMLAnchorElement> = e => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.props.onSkipping(5);
+        };
 
         private makeState(): State {
             const { vids } = this.props;
@@ -155,6 +165,8 @@ export function thusVidApp() {
                     <button onClick={this.whenSelectingAll} disabled={!canSelectAll}>{canSelectAll ? `Select All` : `Selected`}</button>
                     <button onClick={this.whenDeletingSelected} disabled={!canDelete}>{canDelete ? `Delete (${selectedCount})` : 'Delete'}</button>
                     <button onClick={this.whenMovingSelected} disabled={!canMove}>{canMove ? `Move (${selectedCount})` : 'Move'}</button>
+                    <a href="#" onClick={this.whenSkippingPlus10}>+10</a>
+                    <a href="#" onClick={this.whenSkippingPlus05}>+5</a>
                 </div>
                 <div className="vid-list">
                     {items.map(item => {
