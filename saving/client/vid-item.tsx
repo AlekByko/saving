@@ -13,6 +13,7 @@ export interface VidItemProps {
     onToggled: (filename: string) => void;
     onRequestedPromptSettings: (filename: string) => Promise<VidPromptSettings | null>;
     onDeleting: (filename: string) => void;
+    onHering: (filename: string) => void;
 }
 export function thusVidItem() {
     interface State {
@@ -59,6 +60,9 @@ export function thusVidItem() {
         whenClosing: MouseEventHandler<HTMLButtonElement> = _e => {
             this.setState({ settings: null });
         };
+        whenHering: MouseEventHandler<HTMLButtonElement> = _e => {
+            this.props.onHering(this.props.file.name);
+        };
 
         componentWillUnmount(): void {
             const { videoUrl } = this;
@@ -77,6 +81,7 @@ export function thusVidItem() {
                         <input type="checkbox" checked={isSelected} onChange={this.whenSelectingItem} /> {name}
                     </label>
                     <div className="vid-item-tools">
+                        <button onClick={this.whenHering}>Here</button>
                         <button onClick={this.whenRequestingPrompt}>Prompt</button>
                         <button onClick={this.whenDeleting}>Delete</button>
                     </div>

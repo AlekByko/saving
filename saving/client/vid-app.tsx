@@ -6,18 +6,33 @@ import { willTryGetDir } from './reading-writing-files';
 import { thusVidItem, VidItemProps, VidPromptSettings } from './vid-item';
 
 export interface VidAppProps {
-    vids: FileSystemFileHandle[];
+    allVids: FileSystemFileHandle[];
+    skip: number;
+    count: number;
     vidsDirPath: string;
     vidsDir: FileSystemDirectoryHandle;
     seedNodeId: number;
     promptNodeId: number;
     onSkipping: (delta: number) => void;
 }
+interface State {
+    items: VidItemProps[];
+}
+
+
+function makeState(
+    props: VidAppProps,
+    makeItem: (handle: FileSystemFileHandle) => VidItemProps,
+): State {
+    const { allVids, skip, count } = props;
+    const vids = allVids.slice(skip, skip + count);
+    const items = vids.map(makeItem);
+    return { items };
+}
+
+
 export function thusVidApp() {
 
-    interface State {
-        items: VidItemProps[];
-    }
 
     const Item = thusVidItem();
 
@@ -140,19 +155,22 @@ export function thusVidApp() {
             this.props.onSkipping(5);
         };
 
-        private makeState(): State {
-            const { vids } = this.props;
-            const items = vids.map(file => ({
+        whenHering = (filename: string) => {
+            this.props.onHering(filename);
+        };
+
+        private _makeItem = (file: FileSystemFileHandle) => {
+            return {
                 file,
                 isSelected: false,
                 onToggled: this.whenTogglingItem,
                 onRequestedPromptSettings: this.whenRequestedPrompt,
-                onDeleting: this.whenDeleting
-            } satisfies VidItemProps));
-            return { items };
+                onDeleting: this.whenDeleting,
+                onHering: this.whenHering,
+            } satisfies VidItemProps;
         }
 
-        state = this.makeState();
+        state = makeState(this.props, this._makeItem);
 
         render() {
             const { items } = this.state;

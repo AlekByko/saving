@@ -29,12 +29,14 @@ if (window.sandbox === 'starting-vids-app') {
 
 
         const vidsDir = await willClaimDir(db, rootElement, knownVidsDirRef);
-        const handles = await willReadAllFileHandles(vidsDir);
-        let vids = handles.filter(x => x.name.endsWith('.mp4')).sort((a, b) => compareStrings(a.name, b.name)).slice(skip, skip + count);
+        const allVids = (await willReadAllFileHandles(vidsDir))
+            .filter(x => x.name.endsWith('.mp4'))
+            .sort((a, b) => compareStrings(a.name, b.name));
+
 
         const App = thusVidApp();
         const props: VidAppProps = {
-            vidsDirPath, vids, vidsDir, seedNodeId, promptNodeId, onSkipping,
+            vidsDirPath, allVids, vidsDir, seedNodeId, promptNodeId, onSkipping, skip, count,
         };
         ReactDOM.render(<App {...props} />, rootElement);
     }
