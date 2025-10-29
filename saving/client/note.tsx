@@ -24,7 +24,7 @@ export function thusNote() {
             const { currentTarget: { innerText } } = e;
             // console.log(innerText);
             const { drop } = this.props;
-            await drop.willSave(innerText);
+            await drop.willOverwrite(innerText);
         };
 
         async componentDidMount() {
