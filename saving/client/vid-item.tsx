@@ -52,8 +52,8 @@ export function thusVidItem() {
             if (isNull(settings)) return console.log(`No prompt settings for ${filename}.`);
             this.setState({ settings });
         };
-        whenDeleting: MouseEventHandler<HTMLButtonElement> = _e => {
-            if (!confirm(`Are you sure?`)) return;
+        whenDeleting: MouseEventHandler<HTMLButtonElement> = e => {
+            if (!e.shiftKey && !confirm(`Are you sure?`)) return;
             this.props.onDeleting(this.props.file.name);
         };
 
