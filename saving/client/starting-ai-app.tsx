@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { isNonNull, isNull, isUndefined, keysOf } from '../shared/core';
+import { isNonNull, isNull, isUndefined } from '../shared/core';
 import { thusAiApp } from './ai-app';
-import { ACuiWorkflow } from './comfyui-info';
+import { CuiWorkflow, findNodesAllThat } from './comfyui-info';
 import { knownConfigsDirRef } from './file-system-entries';
 import { willOpenKnownDb } from './known-database';
 import { willReadJsonFromFileHandle } from './reading-from-file-handles';
@@ -43,7 +43,8 @@ if (window.sandbox === 'starting-ai-app') {
         if (isNull(templateDir)) return alert(`No dir at: ${templateSubDirnames.join('/')}`);
         const templateHandle = await willGetFileHandleOr(templateDir, templateName, null);
         if (isNull(templateHandle)) return alert(`No file at: ${templateSubDirnames.join('/')} ${templateName}`);
-        const workflow: ACuiWorkflow = await willReadJsonFromFileHandle(templateHandle);
+        const workflow: CuiWorkflow = await willReadJsonFromFileHandle(templateHandle);
+
         console.log(workflow);
         // if (2 > 1) return;
         const props: typeof App.Props = {
@@ -52,16 +53,21 @@ if (window.sandbox === 'starting-ai-app') {
                 console.log(text);
                 window.name = text;
 
-                const keys = keysOf(workflow);
-                const foundKey = keys.find(key => workflow[key]._meta.title === 'Positive Prompt');
-                if (isUndefined(foundKey)) return alert(`No positive prompt node.`);
-                const nodePrompt = workflow[foundKey];
-                if (nodePrompt.class_type !== 'CLIPTextEncode') return alert(`Bad prompt node: ${nodePrompt.class_type}`);
-                nodePrompt.inputs.text = text;
+                const nodes = findNodesAllThat(workflow, x => x.class_type === 'CLIPTextEncode');
+                const node = nodes.find(x => x._meta.title === 'Positive Prompt');
+                if (isUndefined(node)) return alert(`No positive prompt node.`);
+                node.inputs.text = text;
 
+                const samplers = findNodesAllThat(workflow, x => x.class_type === 'KSamplerAdvanced');
+                const seed = makeRandom();
+                samplers.forEach(x => {
+                    x.inputs.noise_seed = seed;
+                });
+
+                const ticketId = makeRandom();
                 const payload = {
                     prompt: workflow,
-                    client_id: makeRandom(),
+                    client_id: ticketId,
                 };
                 const body = JSON.stringify(payload);
                 const res = await fetch(`http://127.0.0.1:8000/prompt`, {
@@ -79,3 +85,4 @@ if (window.sandbox === 'starting-ai-app') {
     }
     run();
 }
+
