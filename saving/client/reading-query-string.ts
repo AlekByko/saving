@@ -9,6 +9,11 @@ export function readQueryStringLiteralParam<S extends string, Or>(
     if (seeIfValid(value)) return value;
     return or;
 }
+export function readPathFromQueryStringOr<Or>(name: string, or: Or) {
+    const re = /[?&]____________________=([-/\\:_\w\d\.]+)/;
+    const reg = new RegExp(re.source.replace('____________________', name));
+    return readStringFromQueryStringOr(reg, or);
+}
 export function readStringFromQueryStringOr<Or>(regexp: RegExp, or: Or) {
     const matched = regexp.exec(window.location.search);
     if (isNull(matched)) return or;

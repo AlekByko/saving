@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { compareStrings, isNonNull, isNull } from '../shared/core';
 import { knownVidsDirRef } from './file-system-entries';
 import { willOpenKnownDb } from './known-database';
-import { readNumberFromQueryString, readStringFromQueryStringOr } from './reading-query-string';
+import { readNumberFromQueryString, readPathFromQueryStringOr, readStringFromQueryStringOr } from './reading-query-string';
 import { willReadAllFileHandles } from './reading-writing-files';
 import { willClaimDir } from './setting-up-notes-app';
 import { thusVidApp, VidAppProps } from './vid-app';
@@ -15,7 +15,7 @@ if (window.sandbox === 'starting-vids-app') {
     }
     const skip = readNumberFromQueryString(/[?&]skip=(\d+)/, 0);
     const count = readNumberFromQueryString(/[?&]count=(\d+)/, 0);
-    const vidsDirPath = readStringFromQueryStringOr(/[?&]vidsDir=([-/\\:_\w\d]+)/, null);
+    const vidsDirPath = readPathFromQueryStringOr('vidsDir', null);
     const promptNodeId = readNumberFromQueryString(/[?&]promptNode=([\d]+)/, null);
     const seedNodeId = readNumberFromQueryString(/[?&]seedNode=([\d]+)/, null);
     function onSkipping(delta: number): void {
