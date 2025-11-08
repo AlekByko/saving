@@ -14,6 +14,14 @@ export function stripAllComments(text: string) {
     text = stripSlashStarComments(text);
     return text;
 }
+
+export function normalizeNewLines(text: string): string {
+    text = text // <-------------------------------------HAS TO BE DONE OUTSIDE!!
+        .replace('\r\n', '\n')
+        .replace('\r', '\n');
+    return text;
+}
+
 if (window.sandbox === 'executing-prompt-template') {
     console.log(stripAllComments(`
 a b c _/* fffuck!!!!

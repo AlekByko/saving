@@ -8,10 +8,6 @@ interface LineInfo {
 }
 export function indexNewLines(text: string): LineInfo[] {
 
-    text = text // <-------------------------------------HAS TO BE DONE OUTSIDE!!
-        .replace('\r\n', '\n')
-        .replace('\r', '\n');
-
     const reg = /\n/g;
     let lineIndex = -1;
     let startAt = 0;

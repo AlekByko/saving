@@ -67,8 +67,8 @@ export function readMarch<Unexpected>(
     if (index > length) return chokedFrom(startIndex, 'Unstarted template.', eofAt(index)); // <--  using index > length, not index >= length, becuase empty string is a valid empty text
     while (true) {
         const literal = shouldStopAtLineBreak
-            ? readReg(text, index, /[-_ \w\d]*/, atFull)
-            : readReg(text, index, /[-_\s\w\d]*/, atFull);
+            ? readReg(text, index, /[-,.:_ \w\d]*/, atFull)
+            : readReg(text, index, /[-,.:_\s\w\d]*/, atFull);
         if (literal.isBad) return chokedFrom(startIndex, 'Bad literal.', literal);
         if (literal.value.length > 0) {
             result.push({ kind: 'literal', literal: literal.value });

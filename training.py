@@ -1,5 +1,5 @@
 
-import numpy as np
+import numpy as np 
 from keras.callbacks import ModelCheckpoint
 
 from autoencoder_one_conv import Coders

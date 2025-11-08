@@ -52,7 +52,7 @@ export function thusVidApp() {
 
         whenRequestedPrompt = async (filename: string) => {
 
-            const triedWorkflow = await willTryMakePostRequest('http://127.0.0.1:8080/workflow', {
+            const triedWorkflow = await willTryMakePostRequest('http://127.0.0.1:8087/workflow', {
                 video_dirpath: this.props.vidsDirPath,
                 video_filename: filename,
             });
@@ -78,7 +78,7 @@ export function thusVidApp() {
                 }
             }
 
-            const triedPrompt = await willTryMakePostRequest('http://127.0.0.1:8080/prompt', {
+            const triedPrompt = await willTryMakePostRequest('http://127.0.0.1:8087/prompt', {
                 template: result.template,
                 seed: result.seed,
             });
