@@ -48,10 +48,15 @@ if (window.sandbox === 'starting-ai-app') {
                 console.log(params);
                 window.name = template;
 
-                const nodes = findNodesThat(workflow, x => x.class_type === 'CLIPTextEncode');
-                const node = nodes.find(x => x._meta.title === 'Positive Prompt');
-                if (isUndefined(node)) return alert(`No positive prompt node.`);
-                node.inputs.text = prompt;
+                const textNodes = findNodesThat(workflow, x => x.class_type === 'CLIPTextEncode');
+
+                const promptNode = textNodes.find(x => x._meta.title === 'Positive Prompt');
+                if (isUndefined(promptNode)) return alert(`No positive prompt node.`);
+                promptNode.inputs.text = prompt;
+
+                const templateNode = textNodes.find(x => x._meta.title === 'Template');
+                if (isUndefined(templateNode)) return alert(`No template node.`);
+                templateNode.inputs.text = template;
 
                 const samplers = findNodesThat(workflow, x => x.class_type === 'KSamplerAdvanced');
                 samplers.forEach(x => {

@@ -1,4 +1,5 @@
 import { isNull, isUndefined } from '../shared/core';
+import { dumpChockedAndContext } from '../shared/reading-basics';
 import { Random } from './randomizing';
 import { readMarch } from './reading-templates';
 import { normalizeNewLines, stripAllComments } from './stripping-comments';
@@ -38,7 +39,7 @@ function renderMarch(march: March, random: Random, variables: Variables): string
         if (isNull(chunk)) continue;
         chunks.push(chunk);
     }
-    return chunks.join('');
+    return chunks.join('').split('\n').filter(x => x.trim() !== '').join('')
 }
 
 export function executeTemplate(text: string, seed: number) {
@@ -46,7 +47,7 @@ export function executeTemplate(text: string, seed: number) {
     text = stripAllComments(text);
     const random = new Random(seed);
     const march = readMarch(text, 0, 0, false, (_index, _march, chocked) => chocked);
-    if (march.isBad) return (console.log(march), 'BAD MARCH');
+    if (march.isBad) return (console.log(march), console.log(dumpChockedAndContext(march, text)), 'BAD MARCH');
     const variables = new Map<string, string>();
     text = renderMarch(march.value, random, variables);
     return text;
