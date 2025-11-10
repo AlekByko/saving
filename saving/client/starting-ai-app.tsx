@@ -8,7 +8,7 @@ import { makeSeed } from './ed-backend';
 import { knownConfigsDirRef } from './file-system-entries';
 import { willOpenKnownDb } from './known-database';
 import { readPathFromQueryStringOr, readStringFromQueryStringOr } from './reading-query-string';
-import { willReadJsonFromFileHandleAtPath, willTryLoadDirRef } from './reading-writing-files';
+import { willMakeJsonDrop, willTryLoadDirRef } from './reading-writing-files';
 
 if (window.sandbox === 'starting-ai-app') {
 
@@ -43,13 +43,19 @@ if (window.sandbox === 'starting-ai-app') {
         if (isNull(workspacePath)) return alert(`No workspace.`);
         console.log({ workspacePath });
 
-        const workspace: AiWorkspace | null = await willReadJsonFromFileHandleAtPath(configsDir, workspacePath);
-        if (isNull(workspace)) return alert(`No workspace.`);
-        console.log(workspace);
+        const droppedWorkspace = await willMakeJsonDrop<AiWorkspace>(configsDir, workspacePath);
+        if (isNull(droppedWorkspace)) return alert(`No workspace drop.`);
+        console.log(droppedWorkspace);
 
+        const workspace = await droppedWorkspace.willLoad();
+        if (isUndefined(workspace)) return alert(`No workspace.`);
         const { workflowPath } = workspace;
-        const workflow: CuiWorkflow | null = await willReadJsonFromFileHandleAtPath(configsDir, workflowPath);
-        if (isNull(workflow)) return alert(`No workflow.`);
+
+        const droppedWorkflow = await willMakeJsonDrop<CuiWorkflow>(configsDir, workflowPath);
+        if (isNull(droppedWorkflow)) return alert(`No workflow drop.`);
+
+        const workflow = await droppedWorkflow.willLoad();
+        if (isUndefined(workflow)) return alert(`No workflow.`);
         dump(`Got workflow at: ${workflowPath}`, workflow);
 
 

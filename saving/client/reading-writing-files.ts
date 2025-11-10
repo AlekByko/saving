@@ -2,8 +2,8 @@ import { alwaysTrue, broke, fail, isNull } from '../shared/core';
 import { KnownPickedDirRef } from '../shared/identities';
 import { willFindAllInStoreOf, willPutAllToStoreOf } from "./databasing";
 import { KnownPickedDirEntry } from "./file-system-entries";
+import { JsonDrop } from './json-drop';
 import { knownDbStores } from "./known-settings";
-import { willReadJsonFromFileHandle } from './reading-from-file-handles';
 
 // https://web.dev/file-system-access/
 export async function willTryGetAllDirsFromDb(db: IDBDatabase): Promise<KnownPickedDirEntry[]> {
@@ -120,15 +120,26 @@ export async function willTrySaveFile(
     text: string | Blob,
     shouldCreate: boolean
 ): Promise<boolean> {
-    if (isNull(baseDir)) return false;
-    if (!await willCheckIfPermitted(baseDir, 'readwrite')) return false;
-
-    const file = await willTryGetFile(baseDir, name, shouldCreate);
+    const file = await willGetFileHandlePermittedOr(baseDir, name, shouldCreate, null);
     if (isNull(file)) return false;
-    if (!await willCheckIfPermitted(file, 'readwrite')) return false;
-
     await willSaveFile(file, text);
     return true;
+}
+
+export async function willGetFileHandlePermittedOr<Or>(
+    baseDir: FileSystemDirectoryHandle | null,
+    name: string,
+    shouldCreate: boolean,
+    or: Or,
+) {
+    if (isNull(baseDir)) return or;
+    if (!await willCheckIfPermitted(baseDir, 'readwrite')) return or;
+
+    const file = await willTryGetFile(baseDir, name, shouldCreate);
+    if (isNull(file)) return or;
+    if (!await willCheckIfPermitted(file, 'readwrite')) return or;
+
+    return file;
 }
 
 export async function willTryGetFile(
@@ -233,7 +244,7 @@ export async function willMoveFiles(sourceDir: FileSystemDirectoryHandle, target
     }
 }
 
-export async function willReadJsonFromFileHandleAtPath(
+export async function willMakeJsonDrop<Json extends object>(
     dir: FileSystemDirectoryHandle,
     path: string
 ) {
@@ -243,6 +254,6 @@ export async function willReadJsonFromFileHandleAtPath(
     if (isNull(fileDir)) return (alert(`No dir at: ${subdirsNames.join('/')}`), null);
     const fileHandle = await willGetFileHandleOr(fileDir, fileName, null);
     if (isNull(fileHandle)) return (alert(`No file at: ${subdirsNames.join('/')} ${fileName}`), null);
-    const content = await willReadJsonFromFileHandle(fileHandle);
-    return content;
+    const drop = new JsonDrop<Json>(fileHandle);
+    return drop;
 }

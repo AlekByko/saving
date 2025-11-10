@@ -14,19 +14,18 @@ export async function willReadImageFromFile(file: File) {
     return { image, url };
 }
 
-export async function willReadJsonFromFileHandle<T = any>(handle: FileSystemFileHandle): Promise<T> {
+export async function willReadJsonFromFileHandleOr<Or, T = {}>(handle: FileSystemFileHandle, or: Or): Promise<T | Or> {
     const file = await handle.getFile();
-    const json = await file.text();
-    const obj = JSON.parse(json);
-    return obj as T;
+    const text = await file.text();
+    const obj = parseJsonOr<T, Or>(text, or);
+    return obj;
 }
 
 
-export function parseJsonOr<Or>(text: string, or: Or) {
+export function parseJsonOr<Json, Or>(text: string, or: Or): Json | Or {
     try {
         return JSON.parse(text);
-    }
-    catch {
+    } catch {
         return or;
     }
 }
