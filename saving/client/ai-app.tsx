@@ -35,6 +35,11 @@ export function thusAiApp() {
             const { onScheduling } = this.props;
             onScheduling({ prompt, width: 640, height: 640, template, seed });
         };
+
+        whenScheduling4: MouseEventHandler<HTMLButtonElement> = _e => {
+            this.scheduleMany(4);
+        }
+
         whenSpinning: MouseEventHandler<HTMLButtonElement> = _e => {
             this.setState(state => {
                 const { template } = state;
@@ -43,6 +48,16 @@ export function thusAiApp() {
                 return { ...state, seed, prompt } satisfies State;
             });
         };
+
+        private scheduleMany(count: number) {
+            const { onScheduling } = this.props;
+            const { template } = this.state;
+            for (let i = 0; i < count; i++) {
+                const seed = makeSeed();
+                const prompt = executeTemplate(template, seed);
+                onScheduling({ prompt, width: 640, height: 640, template, seed });
+            }
+        }
 
         makeState(): State {
             const { text: template } = this.props;
@@ -67,6 +82,7 @@ export function thusAiApp() {
                 <div className="ai-buttons">
                     <button onClick={this.whenScheduling} disabled={!canSchedule}>Schedule</button>
                     <button onClick={this.whenSpinning}>Spin</button>
+                    <button onClick={this.whenScheduling4}>Schedule 4</button>
                 </div>
             </div>;
         }

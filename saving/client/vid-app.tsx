@@ -2,6 +2,7 @@ import React, { MouseEventHandler } from 'react';
 import { countAllThat } from '../shared/arrays';
 import { isNull } from '../shared/core';
 import { willTryMakePostRequest } from './ajaxing';
+import { CuiWorkflow, findNodesThat } from './comfyui-info';
 import { willTryGetDir } from './reading-writing-files';
 import { thusVidItem, VidItemProps, VidPromptSettings } from './vid-item';
 
@@ -55,6 +56,7 @@ export function thusVidApp() {
             const triedWorkflow = await willTryMakePostRequest('http://127.0.0.1:8087/workflow', {
                 video_dirpath: this.props.vidsDirPath,
                 video_filename: filename,
+                metadata_tag: 'prompt',
             });
             if (triedWorkflow.kind !== 'got-response') {
                 console.log('Bad workflow attempt:', triedWorkflow);
@@ -62,33 +64,20 @@ export function thusVidApp() {
             }
             let text = await triedWorkflow.response.json() as string; // parsing first time
             text = text.replaceAll(': NaN', ': 0');
-            const json = JSON.parse(text); // parsing second time
-            console.log(json);
+            const workflow: CuiWorkflow = JSON.parse(text); // parsing second time
+            console.log(workflow);
             const result: VidPromptSettings = { seed: -1, template: 'No template.', prompt: `No prompt` };
             const { promptNodeId, seedNodeId } = this.props;
-            for (const node of json.nodes) {
-                if (node.id === seedNodeId) {
-                    result.seed = node.widgets_values[0];
+            void promptNodeId, seedNodeId;
+            for (const node of findNodesThat(workflow, x => x.class_type === 'CLIPTextEncode')) {
+                if (node._meta.title === 'Positive Prompt') {
+                    result.prompt = node.inputs.text;
                 }
-                // if (node.type === 'PresetSizeNode') {
-                //     result.size = node.widgets_values[0];
-                // }
-                if (node.id === promptNodeId) {
-                    result.template = node.widgets_values[0];
+                if (node._meta.title === 'Template') {
+                    result.template = node.inputs.text;
                 }
             }
 
-            const triedPrompt = await willTryMakePostRequest('http://127.0.0.1:8087/prompt', {
-                template: result.template,
-                seed: result.seed,
-            });
-            if (triedPrompt.kind !== 'got-response') {
-                console.log('Bad prompt attempt:', triedPrompt);
-                return null;
-            }
-            text = await triedPrompt.response.json() as string; // parsing first time
-            // console.log(text);
-            result.prompt = text;
             return result;
         };
 

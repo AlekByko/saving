@@ -39,7 +39,7 @@ function renderMarch(march: March, random: Random, variables: Variables): string
         if (isNull(chunk)) continue;
         chunks.push(chunk);
     }
-    return chunks.join('').split('\n').filter(x => x.trim() !== '').join('')
+    return chunks.join('').split('\n').filter(x => x.trim() !== '').join(' ');
 }
 
 export function executeTemplate(text: string, seed: number) {
