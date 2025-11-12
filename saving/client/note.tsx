@@ -1,15 +1,20 @@
 import React, { FormEventHandler } from 'react';
 import { broke, fail, isNull } from '../shared/core';
 import { enableMoving } from './moving-by-mouse';
+import { NoteKey } from './notes-workspace';
 import { Resizable } from './resizable';
 import { TextDrop } from './text-drop';
 
 const plainTextOnly = 'plaintext-only' as never;
 
 export interface NoteProps {
-    key: string;
+    key: NoteKey;
     drop: TextDrop;
+    x: number;
+    y: number;
+    title: string;
 }
+
 
 type State = (
     | { kind: 'not-there'; filename: string; }
@@ -20,7 +25,6 @@ type State = (
 
 
 const where = { x: 20, y: 100 };
-
 
 function makeState(_props: NoteProps): State {
     return { kind: 'have-no-idea', ...where };
@@ -38,7 +42,7 @@ export function thusNote() {
             await drop.willOverwrite(innerText);
         };
 
-        moving = enableMoving({x: 20, y: 40});
+        moving = enableMoving(this.props);
 
         async componentDidMount() {
 
@@ -62,10 +66,11 @@ export function thusNote() {
         }
 
         render() {
-            const { key, drop } = this.props;
+            const { key, drop, title } = this.props;
             const { state } = this;
+            const where = `${drop.dir.name}/${drop.filename}`;
             return <Resizable key={key} refin={this.moving.whenRootElement} className="note">
-                <div className="note-header" ref={this.moving.whenHandleElement}>{drop.dir.name}/{drop.filename}</div>
+                <div className="note-header" ref={this.moving.whenHandleElement} title={where}>{title}</div>
                 {(() => {
                     switch (state.kind) {
                         case 'have-no-idea': return <div>Loading...</div>;

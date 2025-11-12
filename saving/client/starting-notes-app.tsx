@@ -7,7 +7,7 @@ import { willOpenKnownDb } from './known-database';
 import { NoteProps } from './note';
 import { NotesAppProps, thusNotesApp } from './notes-app';
 import { NotesGlob } from './notes-glob';
-import { NotesWorkspace } from './notes-workspace';
+import { defaultsSetNoteConfig, NotesWorkspace } from './notes-workspace';
 import { readPathFromQueryStringOr, readStringFromQueryStringOr } from './reading-query-string';
 import { willClaimDir } from './setting-up-notes-app';
 import { TextDrop } from './text-drop';
@@ -31,9 +31,9 @@ async function run() {
     const workspace = droppedWorkspace.data;
     const workspaceDir = droppedWorkspace.dir;
     const notes = workspace.notes.map(config => {
-        const { path, key } = config;
+        const { path, key, x, y, title } = defaultsSetNoteConfig(config);
         const drop = new TextDrop(workspaceDir, path);
-        const note: NoteProps = { key, drop };
+        const note: NoteProps = { key, drop, x, y, title };
         return note;
     });
     const glob: NotesGlob = { db };
