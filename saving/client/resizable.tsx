@@ -94,6 +94,25 @@ export class Resizable extends React.Component<ResizableProps> {
                     this.props.onChanged({ y, height, width });
                 },
             }),
+            enableMoving(topLeftElement, contentElement, {
+                readPos: element => {
+                    const { top, left, height, width } = element.getBoundingClientRect();
+                    return { top, left, height, width };
+                },
+                applyDelta: (element, { top, left, width, height }, dx, dy) => {
+                    element.style.left = (left + dx) + 'px';
+                    element.style.top = (top + dy) + 'px';
+                    element.style.width = (width - dx) + 'px';
+                    element.style.height = (height - dy) + 'px';
+                },
+                reportPos: ({ top: y, left: x, height, width }, dx, dy) => {
+                    x += dx;
+                    y += dy;
+                    width -= dx;
+                    height -= dy;
+                    this.props.onChanged({ x, y, height, width });
+                },
+            }),
             enableMoving(topElement, contentElement, {
                 readPos: element => {
                     const { top, height } = element.getBoundingClientRect();
