@@ -64,7 +64,7 @@ export class Resizable extends React.Component<ResizableProps> {
                 applyDelta: (element, { top, height }, _dx, dy) => {
                     element.style.top = (top + dy) + 'px';
                     element.style.height = (height - dy) + 'px';
-                }
+                },
             }),
             enableMoving(rightElement, contentElement, {
                 readPos: element => {
