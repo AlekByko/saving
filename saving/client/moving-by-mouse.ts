@@ -10,11 +10,12 @@ export function enableMouseMoving(
     const rootElement = rootElementOrNull;
     rootElement.style.left = startAt.x + 'px';
     rootElement.style.top = startAt.y + 'px';
+    let startX = 0;
+    let startY = 0;
+    let left = 0;
+    let top = 0;
 
-    const thisRect = rootElement.getBoundingClientRect();
 
-    let x = thisRect.left;
-    let y = thisRect.top
 
     function whenMouseUp(_e: MouseEvent): void {
         document.removeEventListener('mousemove', whenMouseMove);
@@ -24,24 +25,23 @@ export function enableMouseMoving(
     function whenMouseMove(e: MouseEvent): void {
         e.preventDefault();
         e.stopPropagation();
-        let dx = e.pageX - lastX;
-        let dy = e.pageY - lastY;
-        lastX = e.pageX;
-        lastY = e.pageY;
-        x += dx;
-        y += dy;
-        rootElement.style.left = x + 'px';
-        rootElement.style.top = y + 'px';
+        const dx = e.pageX - startX;
+        const dy = e.pageY - startY;
+        rootElement.style.left = (left + dx) + 'px';
+        rootElement.style.top = (top + dy) + 'px';
     }
 
-    let lastX = 0;
-    let lastY = 0;
+
     function whenMouseDown(e: MouseEvent): void {
 
         if (e.currentTarget !== e.target) return; // only allow moving if clicked on the element and not on any of its children
 
-        lastX = e.pageX;
-        lastY = e.pageY;
+        startX = e.pageX;
+        startY = e.pageY;
+        const rect = rootElement.getBoundingClientRect();
+        left = rect.left;
+        top = rect.top;
+
         document.addEventListener('mousemove', whenMouseMove);
         document.addEventListener('mouseup', whenMouseUp);
     }
