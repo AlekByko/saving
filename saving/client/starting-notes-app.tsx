@@ -33,10 +33,10 @@ async function run() {
 
     const workspace = droppedWorkspace.data;
     const workspaceDir = droppedWorkspace.dir;
-    async function onChangedBox(key: NoteKey, box: Box) {
+    async function onChangedBox(key: NoteKey, box: Partial<Box>) {
         const found = workspace.notes.find(x => x.key === key);
         if (isUndefined(found)) return;
-        found.box = box;
+        found.box = { ...found.box, ...box };
         await droppedWorkspace.willSave(workspace);
     }
     const notes = workspace.notes.map(config => {

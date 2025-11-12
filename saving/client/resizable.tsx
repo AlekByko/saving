@@ -44,6 +44,7 @@ export function enableMoving<Pos>(
 }
 export interface ResizableProps {
     className?: string;
+    box: Box;
     onChanged: (box: Partial<Box>) => void;
     refin: (element: HTMLElement | null) => void;
 }
@@ -59,6 +60,11 @@ export class Resizable extends React.Component<ResizableProps> {
     componentDidMount(): void {
         const { contentElement, topElement, rightElement, bottomElement, leftElement } = this;
         if (isNull(contentElement) || isNull(topElement) || isNull(rightElement) || isNull(bottomElement) || isNull(leftElement)) return;
+        const {x, y, width, height} = this.props.box;
+        contentElement.style.left = x + 'px';
+        contentElement.style.top = y + 'px';
+        contentElement.style.width = width + 'px';
+        contentElement.style.height = height + 'px';
         this.dispose.push(...[
             enableMoving(topElement, contentElement, {
                 readPos: element => {

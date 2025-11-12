@@ -1,6 +1,5 @@
 import React, { FormEventHandler } from 'react';
 import { broke, fail, isNull } from '../shared/core';
-import { BeingBox, henceBeingBox } from '../shared/shapes';
 import { enableMoving } from './moving-by-mouse';
 import { NoteKey } from './notes-workspace';
 import { Box } from './reading-query-string';
@@ -10,12 +9,12 @@ import { TextDrop } from './text-drop';
 const plainTextOnly = 'plaintext-only' as never;
 
 export interface NoteProps {
-    /** @deprecated cannot be just `key` because React */
+    /** cannot be just `key` because React */
     noteKey: NoteKey;
     drop: TextDrop;
     box: Box;
     title: string;
-    onChangedBox: (key: NoteKey, box: Box) => void;
+    onChangedBox: (key: NoteKey, box: Partial<Box>) => void;
 }
 
 
@@ -32,7 +31,7 @@ const where = { x: 20, y: 100 };
 function makeState(_props: NoteProps): State {
     return { kind: 'have-no-idea', ...where };
 }
-const beingBox: BeingBox = henceBeingBox({ x: 100, y: 100, width: 200, height: 400 });
+
 export function thusNote() {
     return class Note extends React.Component<NoteProps, State> {
 
@@ -46,8 +45,6 @@ export function thusNote() {
         };
 
         whenChangedBox = (box: Partial<Box>) => {
-            beingBox.defaultize(box);
-            beingBox.roundize(box);
             const { noteKey } = this.props;
             this.props.onChangedBox(noteKey, box)
         };
@@ -79,10 +76,10 @@ export function thusNote() {
         }
 
         render() {
-            const { noteKey, drop, title } = this.props;
+            const { noteKey, drop, title, box } = this.props;
             const { state } = this;
             const where = `${drop.dir.name}/${drop.filename}`;
-            return <Resizable key={noteKey} refin={this.moving.whenRootElement} className="note" onChanged={this.whenChangedBox}>
+            return <Resizable key={noteKey} refin={this.moving.whenRootElement} className="note" onChanged={this.whenChangedBox} box={box}>
                 <div className="note-header" ref={this.moving.whenHandleElement} title={where}>{title}</div>
                 {(() => {
                     switch (state.kind) {
