@@ -28,6 +28,13 @@ export function thusNotesApp() {
             found.box = { ...found.box, ...box };
             this.props.onChangedWorkspace();
         }
+        whenChangingTitle = (key: NoteKey, title: string) => {
+            const { workspace } = this.props;
+            const found = workspace.notes.find(x => x.key === key);
+            if (isUndefined(found)) return;
+            found.title = title;
+            this.props.onChangedWorkspace();
+        }
         whenAddingNote: MouseEventHandler<HTMLButtonElement> = _e => {
             const title = prompt('Name:');
             if (isNull(title)) return;
@@ -61,7 +68,7 @@ export function thusNotesApp() {
             const { workspaceDir } = this.props;
             const { path, key, box, title } = normalizeNoteConfig(config);
             const drop = new TextDrop(workspaceDir, path);
-            const note: NoteProps = { noteKey: key, drop, box, title, onChangedBox: this.whenChangingBox };
+            const note: NoteProps = { noteKey: key, drop, box, title, onChangedBox: this.whenChangingBox, onChangedTitle: this.whenChangingTitle };
             return note;
         }
 

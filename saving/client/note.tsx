@@ -1,5 +1,5 @@
-import React, { FormEventHandler } from 'react';
-import { broke, fail, isNull } from '../shared/core';
+import React, { FormEventHandler, MouseEventHandler } from 'react';
+import { isNull } from '../shared/core';
 import { NoteKey } from './notes-workspace';
 import { Box } from './reading-query-string';
 import { Resizable } from './resizable';
@@ -14,21 +14,15 @@ export interface NoteProps {
     box: Box;
     title: string;
     onChangedBox: (key: NoteKey, box: Partial<Box>) => void;
+    onChangedTitle: (key: NoteKey, title: string) => void;
 }
 
 
-type State = (
-    | { kind: 'not-there'; filename: string; }
-    | { kind: 'have-no-idea' }
-    | { kind: 'there'; text: string; }
-) & { x: number; y: number; };
+interface State { text: string; title: string; }
 
-
-
-const where = { x: 20, y: 100 };
-
-function makeState(_props: NoteProps): State {
-    return { kind: 'have-no-idea', ...where };
+function makeState(props: NoteProps): State {
+    const { title } = props;
+    return { text: 'Loading...', title };
 }
 
 export function enableMoving<Pos>(
@@ -92,6 +86,21 @@ export function thusNote() {
         private contentElement: HTMLElement | null = null;
 
         dispose = [] as Act[];
+
+        whenChangingTitle: MouseEventHandler<HTMLDivElement> = _e => {
+            this.setState(state => {
+                const { title: olderTitle } = state;
+                const newerTitle = prompt('Title', olderTitle);
+                if (isNull(newerTitle)) return null;
+                return { ...state, title: newerTitle } satisfies State;
+            }, () => {
+                const { noteKey, onChangedTitle } = this.props;
+                const { title } = this.state;
+                onChangedTitle(noteKey, title);
+            });
+
+        };
+
         async componentDidMount(): Promise<void> {
             const { contentElement, headerElement } = this;
             if (isNull(contentElement) || isNull(headerElement)) return;
@@ -123,19 +132,9 @@ export function thusNote() {
             const { drop } = this.props;
             const text = await drop.willLoad();
             if (isNull(text)) {
-                this.setState({ kind: 'not-there', filename: drop.filename, ...where });
+                this.setState({ text: 'Not there...' });
             } else {
-                this.setState({ kind: 'there', text, ...where });
-            }
-        }
-
-        componentDidUpdate(_olderProps: Readonly<NoteProps>, _olderState: Readonly<State>): void {
-            const { state } = this;
-            switch (state.kind) {
-                case 'have-no-idea': return fail('Still no idea? What?');
-                case 'not-there': return;
-                case 'there': return;
-                default: return broke(state);
+                this.setState({ text });
             }
         }
 
@@ -144,22 +143,15 @@ export function thusNote() {
         }
 
         render() {
-            const { noteKey, drop, title, box } = this.props;
-            const { state } = this;
+            const { noteKey, drop, box } = this.props;
+            const { title, text } = this.state;
             const where = `${drop.dir.name}/${drop.filename}`;
             return <Resizable key={noteKey} refin={el => this.contentElement = el} className="note" onChanged={this.whenChangedBox} box={box}>
-                <div className="note-header" ref={el => this.headerElement = el} title={where}>{title}</div>
-                {(() => {
-                    switch (state.kind) {
-                        case 'have-no-idea': return <div>Loading...</div>;
-                        case 'not-there': return <div>Not there</div>;
-                        case 'there': return <div
-                            className="note-content"
-                            contentEditable={plainTextOnly}
-                            onInput={this.whenChangedContent}>{state.text}</div>
-                        default: return broke(state);
-                    }
-                })()}
+                <div className="note-header" ref={el => this.headerElement = el} title={where} onDoubleClick={this.whenChangingTitle}>{title}</div>
+                <div
+                    className="note-content"
+                    contentEditable={plainTextOnly}
+                    onInput={this.whenChangedContent}>{text}</div>
             </Resizable>;
         }
     };
