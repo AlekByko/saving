@@ -1,24 +1,46 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
+import { isUndefined } from '../shared/core';
 import { NoteProps, thusNote } from './note';
 import { NotesGlob } from './notes-glob';
+import { normalizeNoteConfig, NoteKey, NotesWorkspace } from './notes-workspace';
+import { Box } from './reading-query-string';
+import { TextDrop } from './text-drop';
 
 export interface NotesAppProps {
-    notes: NoteProps[];
+    workspace: NotesWorkspace;
+    workspaceDir: FileSystemDirectoryHandle;
     glob: NotesGlob;
+    onChangedWorkspace(): void;
 }
 
 interface State {
     notes: NoteProps[];
 }
 
-function makeState({ notes }: NotesAppProps): State {
-    return { notes };
-}
 
 export function thusNotesApp() {
     const Note = thusNote();
     return class NotesApp extends React.Component<NotesAppProps, State> {
-        state = makeState(this.props);
+        whenChangingBox = (key: NoteKey, box: Partial<Box>) => {
+            const { workspace } = this.props;
+            const found = workspace.notes.find(x => x.key === key);
+            if (isUndefined(found)) return;
+            found.box = { ...found.box, ...box };
+            this.props.onChangedWorkspace();
+        }
+        whenAddingNote: MouseEventHandler<HTMLButtonElement> = _e => {
+
+        };
+        private makeState({ workspace, workspaceDir }: NotesAppProps): State {
+            const notes = workspace.notes.map(config => {
+                const { path, key, box, title } = normalizeNoteConfig(config);
+                const drop = new TextDrop(workspaceDir, path);
+                const note: NoteProps = { noteKey: key, drop, box, title, onChangedBox: this.whenChangingBox };
+                return note;
+            });
+            return { notes };
+        }
+        state = this.makeState(this.props);
 
         render() {
             const { notes } = this.state;
@@ -27,7 +49,7 @@ export function thusNotesApp() {
                     return <Note {...note} />;
                 })}
                 <div className="notes-toolbar">
-                    Nothing here
+                    <button onClick={this.whenAddingNote}>Add</button>
                 </div>
             </div>;
         }

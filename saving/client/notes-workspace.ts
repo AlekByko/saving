@@ -1,11 +1,15 @@
 import { asDefinedOr } from '../shared/core';
 import { BeingBox, Box, henceBeingBox } from '../shared/shapes';
+import { makeSeed } from './randomizing';
 
 export interface NotesWorkspace {
     notes: NoteConfig[];
 }
 
 export type NoteKey = string & As<'note-key'>;
+export function makeNoteKey(): NoteKey {
+    return makeSeed() + "" as NoteKey;
+}
 
 export interface NoteConfig {
     key: NoteKey;
