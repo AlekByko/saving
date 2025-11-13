@@ -1,22 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { isNonNull, isNull } from '../shared/core';
+import { isNull } from '../shared/core';
 import { knownNotesDirRef } from './file-system-entries';
 import { thusJsonDrop } from './json-drop';
 import { willOpenKnownDb } from './known-database';
 import { NotesAppProps, thusNotesApp } from './notes-app';
 import { NotesGlob } from './notes-glob';
 import { NotesWorkspace } from './notes-workspace';
-import { readPathFromQueryStringOr, readStringFromQueryStringOr } from './reading-query-string';
+import { readAndSetAppTitle } from './reading-and-setting-app-title';
+import { readPathFromQueryStringOr } from './reading-query-string';
 import { willClaimDir } from './setting-up-notes-app';
 
 async function run() {
     const db = await willOpenKnownDb();
 
-    const title = readStringFromQueryStringOr(/[?&]title=([-_\w\d]+)/ig, null);
-    if (isNonNull(title)) {
-        document.title = title;
-    }
+    readAndSetAppTitle();
 
     const workspacePath = readPathFromQueryStringOr('workspace', null);
     if (isNull(workspacePath)) return alert(`No workspace path.`);

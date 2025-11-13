@@ -1,18 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { compareStrings, isNonNull, isNull } from '../shared/core';
+import { compareStrings, isNull } from '../shared/core';
 import { knownVidsDirRef } from './file-system-entries';
 import { willOpenKnownDb } from './known-database';
-import { readNumberFromQueryString, readPathFromQueryStringOr, readStringFromQueryStringOr } from './reading-query-string';
+import { readAndSetAppTitle } from './reading-and-setting-app-title';
+import { readNumberFromQueryString, readPathFromQueryStringOr } from './reading-query-string';
 import { willReadAllFileHandles } from './reading-writing-files';
 import { willClaimDir } from './setting-up-notes-app';
 import { thusVidApp, VidAppProps } from './vid-app';
 if (window.sandbox === 'starting-vids-app') {
 
-    const title = readStringFromQueryStringOr(/[?&]title=([-_\w\d]+)/ig, null);
-    if (isNonNull(title)) {
-        document.title = title;
-    }
+    readAndSetAppTitle();
+
     const skip = readNumberFromQueryString(/[?&]skip=(\d+)/, 0);
     const count = readNumberFromQueryString(/[?&]count=(\d+)/, 0);
     const vidsDirPath = readPathFromQueryStringOr('vidsDir', null);
