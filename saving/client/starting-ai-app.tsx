@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { isNonNull, isNull, isUndefined } from '../shared/core';
+import { fail, isNonNull, isNull, isUndefined } from '../shared/core';
 import { thusAiApp } from './ai-app';
 import { AiWorkspace } from './ai-workspace';
 import { CuiWorkflow, findNodesThat } from './comfyui-info';
@@ -44,12 +44,22 @@ if (window.sandbox === 'starting-ai-app') {
         if (isNull(workspacePath)) return alert(`No workspace.`);
         console.log({ workspacePath });
 
-        const droppedWorkspace = await thusJsonDrop<AiWorkspace>().willTryMake(configsDir, workspacePath);
+        const droppedWorkspace = await thusJsonDrop<AiWorkspace>({
+            makeDefault: () => {
+                const workflowPath = prompt('Workflow path:');
+                if (isNull(workflowPath)) {
+                    alert(`No workflow path.`);
+                    return fail(`No workflow path.`);
+                }
+                return { template: 'Make image.', workflowPath };
+            }
+        }).willTryMake(configsDir, workspacePath);
         if (isNull(droppedWorkspace)) return alert(`No workspace drop.`);
         const workspace = droppedWorkspace.data;
         const { workflowPath } = workspace;
 
-        const droppedWorkflow = await thusJsonDrop<CuiWorkflow>().willTryMake(configsDir, workflowPath);
+        const droppedWorkflow = await thusJsonDrop<CuiWorkflow>({
+        }).willTryMake(configsDir, workflowPath);
         if (isNull(droppedWorkflow)) return alert(`No workflow drop.`);
         const workflow = droppedWorkflow.data;
 

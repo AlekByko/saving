@@ -23,7 +23,11 @@ async function run() {
     const rootElement = document.getElementById('root')!;
     const notesDir = await willClaimDir(db, rootElement, knownNotesDirRef);
 
-    const droppedWorkspaceOrNot = await thusJsonDrop<NotesWorkspace>().willTryMake(notesDir, workspacePath);
+    const droppedWorkspaceOrNot = await thusJsonDrop<NotesWorkspace>({
+        makeDefault: () => {
+            return { notes: [] };
+        }
+    }).willTryMake(notesDir, workspacePath);
     if (isNull(droppedWorkspaceOrNot)) return alert(`No workspace at: ${workspacePath}`);
     const droppedWorkspace = droppedWorkspaceOrNot;
 

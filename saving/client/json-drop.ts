@@ -3,7 +3,9 @@ import { parseJsonOr } from './reading-from-file-handles';
 import { willGetFileHandlePermittedOr, willGetSubdirAndFilename, willSaveFile } from './reading-writing-files';
 
 /** Abstraction for something stored in the file system. */
-export function thusJsonDrop<Json extends object>() {
+export function thusJsonDrop<Json extends object>(defaults: {
+    makeDefault?: () => Json;
+}) {
 
     async function willLoad(handle: FileSystemFileHandle) {
         const file = await handle.getFile();
@@ -39,8 +41,16 @@ export function thusJsonDrop<Json extends object>() {
             const file = await willGetFileHandlePermittedOr(fileDir, fileName, true, null);
             if (isNull(file)) return null;
             const data = await willLoad(file);
-            if (isUndefined(data)) return null;
-            return new JsonDrop(data, fileDir, file);
+
+            if (isUndefined(data)) {
+                if (isUndefined(defaults.makeDefault)) return null;
+                const made = defaults.makeDefault();
+                const json = JSON.stringify(made, null, 4);
+                await willSaveFile(file, json);
+                return new JsonDrop(made, fileDir, file)
+            } else {
+                return new JsonDrop(data, fileDir, file);
+            }
         }
 
     };
