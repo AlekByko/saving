@@ -1,4 +1,4 @@
-import { KnownPickedDirRef } from '../shared/identities';
+import { KnownPickedDirRef } from './known-db-stores';
 
 export interface KnownPickedDirEntry {
     name: KnownPickedDirRef;
@@ -6,13 +6,5 @@ export interface KnownPickedDirEntry {
 }
 
 export const knownConfigsDirRef = 'base-dir' as KnownPickedDirRef;
-export const knownSnapsDirRef = 'recorded-dir' as KnownPickedDirRef;
-export const knownCapsDirRef = 'caps-dir' as KnownPickedDirRef;
 export const knownNotesDirRef = 'notes-dir' as KnownPickedDirRef;
-export const knownTrainingSetDirRef = 'known-training-set-dir' as KnownPickedDirRef;
-export const knownOutputDirRef = 'output-dir' as KnownPickedDirRef;
-export const knownEdConfigDirRef = 'config-dir' as KnownPickedDirRef;
-export const knownArchiveDirRef = 'archive-dir' as KnownPickedDirRef;
-export const knownMatesDirRef = 'pairs-dir' as KnownPickedDirRef;
-export const knownFacesDirRef = 'faces-dir' as KnownPickedDirRef;
 export const knownVidsDirRef = 'vids-dir' as KnownPickedDirRef;

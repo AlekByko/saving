@@ -12,5 +12,5 @@
         "types": [],
         "declaration": true,
     },
-    "include": ["*.ts"]
+    "include": ["*.d.ts", "*.ts"]
 }

@@ -1,4 +1,3 @@
-
 export function isFalse<T extends ([false] extends [T] ? any : never)>(value: T): value is T & false {
     return value === false;
 }

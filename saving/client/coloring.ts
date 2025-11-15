@@ -33,26 +33,6 @@ export function setXyzByRgb(r: number, g: number, b: number, xyz: Xyz): void {
     xyz[2] = z;
 }
 
-/*
-function XYZtoRGB([X, Y, Z]) {
-    //X, Y and Z input refer to a D65/2° standard illuminant.
-    //sR, sG and sB (standard RGB) output range = 0 ÷ 255
-
-    let var_X = X / 100
-    let var_Y = Y / 100
-    let var_Z = Z / 100
-
-    var_R = var_X * 3.2406 + var_Y * -1.5372 + var_Z * -0.4986
-    var_G = var_X * -0.9689 + var_Y * 1.8758 + var_Z * 0.0415
-    var_B = var_X * 0.0557 + var_Y * -0.2040 + var_Z * 1.0570
-
-    return [var_R, var_G, var_B]
-        .map(n => n > 0.0031308
-            ? 1.055 * Math.pow(n, (1 / 2.4)) - 0.055
-            : 12.92 * n)
-        .map(n => n * 255)
-}
-*/
 
 const ref_X = 95.047;
 const ref_Y = 100.000;
@@ -71,19 +51,3 @@ export function setLabByXyz([x, y, z]: Xyz, lab: Lab): void {
     lab[1] = CIE_a;
     lab[2] = CIE_b;
 }
-
-/*
-function LABtoXYZ([l, a, b]) {
-
-    const var_Y = (l + 16) / 116
-    const var_X = a / 500 + var_Y
-    const var_Z = var_Y - b / 200
-
-    const [X, Y, Z] = [var_X, var_Y, var_Z]
-        .map(n => Math.pow(n, 3) > 0.008856
-            ? Math.pow(n, 3)
-            : (n - 16 / 116) / 7.787)
-
-    return [X * ref_X, Y * ref_Y, Z * ref_Z]
-}
-*/

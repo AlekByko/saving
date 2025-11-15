@@ -70,7 +70,7 @@ export async function willStart(element: HTMLElement) {
                 const x = `${note} ${pitch.toFixed(2)} Hz`;
                 element.textContent = x;
             } else {
-                element.textContent = 'SHIT';
+                element.textContent = 'BLIP';
             }
 
             requestAnimationFrame(update);

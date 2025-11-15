@@ -1,4 +1,4 @@
-import { StoreName } from '../shared/identities';
+import { StoreName } from './known-db-stores';
 
 export function willFindAllInStoreOf<T, Query>(
     db: IDBDatabase,

@@ -3,7 +3,7 @@ import re
 
 #########################################################
 ### YOU MAY NOT BUILD/RETURN TEMPLATES IN EVALUATUION ###
-### OR ELSE ALL HELLS COME LOOSE AND YOU ARE FUCKED   ###
+### OR ELSE ALL HELLS COME LOOSE AND YOU ARE DUCKED   ###
 #########################################################
 
 def evaluateToken(vars, token):

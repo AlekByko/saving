@@ -422,9 +422,9 @@ chunklist_rAg0a80ac4F_session91717477_b500000.m3u8
         const text = `#EXTM3U
 #EXT-X-INDEPENDENT-SEGMENTS
 #EXT-X-STREAM-INF:AVERAGE-BANDWIDTH=1810000,BANDWIDTH=2260000,RESOLUTION=1280x720,FRAME-RATE=30.000,CODECS="avc1.42c01f,mp4a.40.2",CLOSED-CAPTIONS=NONE
-https://streaming-edge-front.livemediahost.com/edge2-cad/cam_obs/rocket-bunnyy-flu_v1/tracks-v2a2/index.ll.m3u8?filter.tracks=v4v3v2v1a1a2&multitrack=true&token=eyJpdiI6IkpJZGJGcHZwSlJZaHltenhhTXpJZ2c9PSIsInZhbHVlIjoiaFRPMzBuYkpuXC9uWmt1Mm90RGFPM1E9PSIsIm1hYyI6IjI3ZjgzYmU3ZWE0ZjRkMmY2Nzk3ZjNhNDgwZGYwMWE2OGZiY2U3ZWE0NzhhNjU2ZDFjZWUxNjdiMWUxNjI2NTEifQ%3D%3D
+https://streaming-edge-front.livemediahost.com/edge2-cad/cam_obs/rocket-flu_v1/tracks-v2a2/index.ll.m3u8?filter.tracks=v4v3v2v1a1a2&multitrack=true&token=eyJpdiI6IkpJZGJGcHZwSlJZaHltenhhTXpJZ2c9PSIsInZhbHVlIjoiaFRPMzBuYkpuXC9uWmt1Mm90RGFPM1E9PSIsIm1hYyI6IjI3ZjgzYmU3ZWE0ZjRkMmY2Nzk3ZjNhNDgwZGYwMWE2OGZiY2U3ZWE0NzhhNjU2ZDFjZWUxNjdiMWUxNjI2NTEifQ%3D%3D
 #EXT-X-STREAM-INF:AVERAGE-BANDWIDTH=340000,BANDWIDTH=420000,RESOLUTION=426x240,FRAME-RATE=30.000,CODECS="avc1.42c01f,mp4a.40.2",CLOSED-CAPTIONS=NONE
-https://streaming-edge-front.livemediahost.com/edge2-cad/cam_obs/rocket-bunnyy-flu_v1/tracks-v1a2/index.ll.m3u8?filter.tracks=v4v3v2v1a1a2&multitrack=true&token=eyJpdiI6IkpJZGJGcHZwSlJZaHltenhhTXpJZ2c9PSIsInZhbHVlIjoiaFRPMzBuYkpuXC9uWmt1Mm90RGFPM1E9PSIsIm1hYyI6IjI3ZjgzYmU3ZWE0ZjRkMmY2Nzk3ZjNhNDgwZGYwMWE2OGZiY2U3ZWE0NzhhNjU2ZDFjZWUxNjdiMWUxNjI2NTEifQ%3D%3D
+https://streaming-edge-front.livemediahost.com/edge2-cad/cam_obs/rocket-flu_v1/tracks-v1a2/index.ll.m3u8?filter.tracks=v4v3v2v1a1a2&multitrack=true&token=eyJpdiI6IkpJZGJGcHZwSlJZaHltenhhTXpJZ2c9PSIsInZhbHVlIjoiaFRPMzBuYkpuXC9uWmt1Mm90RGFPM1E9PSIsIm1hYyI6IjI3ZjgzYmU3ZWE0ZjRkMmY2Nzk3ZjNhNDgwZGYwMWE2OGZiY2U3ZWE0NzhhNjU2ZDFjZWUxNjdiMWUxNjI2NTEifQ%3D%3D
 `;
         diagnose(readM3U8, text, 0, false);
     }

@@ -1,7 +1,7 @@
 import React, { MouseEventHandler } from 'react';
 import ReactDOM from 'react-dom';
 import { isNonNull, isNull } from '../shared/core';
-import { KnownPickedDirRef } from '../shared/identities';
+import { KnownPickedDirRef } from './known-db-stores';
 import { willSaveDirRef, willTryLoadDirRef } from './reading-writing-files';
 
 

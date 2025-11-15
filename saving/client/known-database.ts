@@ -1,6 +1,5 @@
 import { isNonNull } from '../shared/core';
-import { StoreName } from '../shared/identities';
-import { knownDbStores } from "./known-settings";
+import { knownDbStores, StoreName } from "./known-db-stores";
 
 export function willOpenKnownDb(): Promise<IDBDatabase> {
     return new Promise<IDBDatabase>((resolve, reject) => {
@@ -21,15 +20,9 @@ export function willOpenKnownDb(): Promise<IDBDatabase> {
 export function makeSureDbStoresCreated(
     db: IDBDatabase,
 ) {
-    const { dirs, words, tags } = knownDbStores;
+    const { dirs } = knownDbStores;
     if (!db.objectStoreNames.contains(dirs.storeName)) {
         db.createObjectStore(dirs.storeName, { keyPath: dirs.keyPath });
-    }
-    if (!db.objectStoreNames.contains(words.storeName)) {
-        db.createObjectStore(words.storeName, { keyPath: words.keyPath });
-    }
-    if (!db.objectStoreNames.contains(tags.storeName)) {
-        db.createObjectStore(tags.storeName, { keyPath: tags.keyPath });
     }
 }
 

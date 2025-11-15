@@ -56,3 +56,11 @@ type WillUse<T> = (value: T) => Promise<void>;
 type Sorting<T> = (values: T[]) => T[];
 type Germinate<T> = (value: T, imda: ImageData) => void;
 
+interface FileSystemDirectoryHandle {
+    move(dir: FileSystemDirectoryHandle): Promise<void>;
+}
+interface FileSystemFileHandle {
+    remove(): Promise<void>;
+    move(dir: FileSystemDirectoryHandle): Promise<void>;
+}
+type As<S extends string> = { [P in S]: S; }

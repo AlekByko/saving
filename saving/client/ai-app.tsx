@@ -1,7 +1,7 @@
 import React, { ChangeEventHandler, MouseEventHandler } from 'react';
-import { makeSeed } from './ed-backend';
 import { executeTemplate } from './executing-templates';
 import { InferenceParams } from './inference-params';
+import { makeSeed } from './randomizing';
 
 
 export interface AiAppProps {

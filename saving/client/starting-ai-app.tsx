@@ -4,20 +4,20 @@ import { fail, isNonNull, isNull, isUndefined } from '../shared/core';
 import { thusAiApp } from './ai-app';
 import { AiWorkspace } from './ai-workspace';
 import { CuiWorkflow, findNodesThat } from './comfyui-info';
-import { makeSeed } from './ed-backend';
 import { knownConfigsDirRef } from './file-system-entries';
 import { thusJsonDrop } from './json-drop';
 import { willOpenKnownDb } from './known-database';
+import { makeSeed } from './randomizing';
 import { readPathFromQueryStringOr, readStringFromQueryStringOr } from './reading-query-string';
 import { willTryLoadDirRef } from './reading-writing-files';
 
 if (window.sandbox === 'starting-ai-app') {
 
-    function dump(...shits: any[] & { 0: string }) {
-        const [title, ...rest] = shits;
+    function dump(...things: any[] & { 0: string }) {
+        const [title, ...rest] = things;
         console.groupCollapsed(title);
-        for (const shit of rest) {
-            console.log(shit);
+        for (const thing of rest) {
+            console.log(thing);
         }
         console.groupEnd();
     }

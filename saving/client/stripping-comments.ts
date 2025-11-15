@@ -61,7 +61,7 @@ d // efg`, `a `+
 d `);
 
     console.log(stripAllComments(`
-a b c _/* fffuck!!!!
+a b c _/* ddduck!!!!
 */_ d _/**/_ e
 `));
     console.log(stripAllComments(`/**/`));

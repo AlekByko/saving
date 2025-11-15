@@ -33,7 +33,7 @@ export function toBucketsOf<N, B>(groups: N[][], toBucket: () => B): Buckets<N, 
 }
 
 export function groupPairedOver<T, N>(
-    nameOf: (cam: T) => N,
+    nameOf: (value: T) => N,
     whenUsed: (value: T, isPaired: boolean) => void,
 ) {
     return function groupPaired(all: T[], buckets: Buckets<N, T[]>): T[] {

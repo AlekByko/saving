@@ -40,7 +40,7 @@ def strip_comments(text: str) -> str:
 
 def try_slash_star():
     raw = """a b c/*
-    fuck off
+    duck off
 */ d e
     """
     fixed = strip_slash_star_comments(raw)
@@ -52,8 +52,8 @@ def try_rest_line():
 // test
 // another test
 // yet another test
-fucker
-shit
+tester
+test
 """
     text = strip_rest_line_comments(text, '//')
     print(text)
