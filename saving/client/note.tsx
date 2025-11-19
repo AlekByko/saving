@@ -15,6 +15,7 @@ export interface NoteProps {
     title: string;
     onChangedBox: (key: NoteKey, box: Partial<NoteBox>) => void;
     onChangedTitle: (key: NoteKey, title: string) => void;
+    onDeleting: (key: NoteKey) => void;
 }
 
 
@@ -112,6 +113,9 @@ export function thusNote() {
             this.whenScrolledDebounced(() => {
                 onChangedBox(noteKey, { scrollLeft, scrollTop });
             });
+        };
+        whenDeleting: MouseEventHandler<HTMLButtonElement> = _e => {
+            this.props.onDeleting(this.props.noteKey);
         }
 
         async componentDidMount(): Promise<void> {
@@ -163,7 +167,7 @@ export function thusNote() {
             const { title, text } = this.state;
             const where = `${drop.dir.name}/${drop.filename}`;
             return <Resizable key={noteKey} refin={el => this.noteElement = el} className="note" onChanged={this.whenChangedBox} box={box}>
-                <div className="note-header" ref={el => this.headerElement = el} title={where} onDoubleClick={this.whenChangingTitle}>{title}</div>
+                <div className="note-header" ref={el => this.headerElement = el} title={where} onDoubleClick={this.whenChangingTitle}>{title}<button onClick={this.whenDeleting}>X</button></div>
                 <div
                     className="note-content"
                     ref={el => this.textElement = el}

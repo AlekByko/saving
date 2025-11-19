@@ -53,6 +53,18 @@ export function thusNotesApp() {
                 return { ...state, notes } satisfies State;
             }, () => this.props.onChangedWorkspace());
         };
+        whenDeleting = (key: NoteKey) => {
+            const { workspace } = this.props;
+            const foundAt = workspace.notes.findIndex(x => x.key === key);
+            if (foundAt < 0) return console.log('No note to delete: ' + key);
+            this.setState(state => {
+                workspace.notes.splice(foundAt, 1);
+
+                let { notes } = state;
+                notes = notes.filter(x => x.noteKey !== key);
+                return { ...state, notes } satisfies State;
+            }, () => this.props.onChangedWorkspace());
+        }
 
         private makeState(): State {
             const { workspace } = this.props;
@@ -72,6 +84,7 @@ export function thusNotesApp() {
                 noteKey: key, drop, box, title,
                 onChangedBox: this.whenChangingBox,
                 onChangedTitle: this.whenChangingTitle,
+                onDeleting: this.whenDeleting,
             };
             return note;
         }
