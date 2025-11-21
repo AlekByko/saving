@@ -6,7 +6,7 @@ import { thusJsonDrop } from './json-drop';
 import { willOpenKnownDb } from './known-database';
 import { NotesAppProps, thusNotesApp } from './notes-app';
 import { NotesGlob } from './notes-glob';
-import { NotesWorkspace } from './notes-workspace';
+import { defaultizeNotesWorkspace, NotesWorkspace } from './notes-workspace';
 import { readAndSetAppTitle } from './reading-and-setting-app-title';
 import { readPathFromQueryStringOr } from './reading-query-string';
 import { willClaimDir } from './setting-up-notes-app';
@@ -23,15 +23,17 @@ async function run() {
     const rootElement = document.getElementById('root')!;
     const notesDir = await willClaimDir(db, rootElement, knownNotesDirRef);
 
-    const droppedWorkspaceOrNot = await thusJsonDrop<NotesWorkspace>({
+    const droppedWorkspaceOrNot = await thusJsonDrop<Partial<NotesWorkspace>>({
         makeDefault: () => {
-            return { notes: [] };
+            return { notes: [], x: 0, y: 0 } satisfies NotesWorkspace;
         }
     }).willTryMake(notesDir, workspacePath);
     if (isNull(droppedWorkspaceOrNot)) return alert(`No workspace at: ${workspacePath}`);
     const droppedWorkspace = droppedWorkspaceOrNot;
 
     const workspace = droppedWorkspace.data;
+    defaultizeNotesWorkspace(workspace);
+
     const workspaceDir = droppedWorkspace.dir;
     async function onChangedWorkspace() {
         droppedWorkspace.willSave(workspace);

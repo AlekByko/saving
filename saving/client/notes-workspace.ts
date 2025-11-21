@@ -3,6 +3,13 @@ import { Box } from '../shared/shapes';
 
 export interface NotesWorkspace {
     notes: NoteConfig[];
+    x: number;
+    y: number;
+}
+export function defaultizeNotesWorkspace(workspace: Partial<NotesWorkspace>): asserts workspace is NotesWorkspace {
+    workspace.notes = asDefinedOr(workspace.notes, []);
+    workspace.x = asDefinedOr(workspace.x, 0);
+    workspace.y = asDefinedOr(workspace.y, 0);
 }
 
 export type NoteKey = string & As<'note-key'>;

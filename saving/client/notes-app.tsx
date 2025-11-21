@@ -71,12 +71,15 @@ export function thusNotesApp() {
         componentDidMount(): void {
             const { notesElement, notesCanvasElement } = this;
             if (isNull(notesElement) || isNull(notesCanvasElement)) return;
+            const {workspace} = this.props;
+            notesCanvasElement.style.left = workspace.x + 'px';
+            notesCanvasElement.style.top = workspace.y + 'px';
             const nomore = enableMoving(notesElement, notesCanvasElement, {
                 readPos: element => {
                     const { top: y, left: x } = element.getBoundingClientRect();
                     notesElement.classList.add(grabbingClassName);
                     const pos = { x, y };
-                    console.log({ x, y });
+                    // console.log({ x, y });
                     return pos;
                 },
                 applyDelta: (element, pos, dx, dy) => {
@@ -86,6 +89,10 @@ export function thusNotesApp() {
                 reportPos: (pos, dx, dy) => {
                     console.log({ pos, dx, dy });
                     notesElement.classList.remove(grabbingClassName);
+                    const { workspace } = this.props;
+                    workspace.x = pos.x + dx;
+                    workspace.y = pos.y + dy;
+                    this.props.onChangedWorkspace();
                 }
             });
             this.nomores.push(nomore);
