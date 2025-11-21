@@ -17,7 +17,7 @@ interface State {
     notes: NoteProps[];
 }
 
-
+const grabbingClassName = 'as-grabbing';
 export function thusNotesApp() {
     const Note = thusNote();
     return class NotesApp extends React.Component<NotesAppProps, State> {
@@ -74,7 +74,7 @@ export function thusNotesApp() {
             const nomore = enableMoving(notesElement, notesCanvasElement, {
                 readPos: element => {
                     const { top: y, left: x } = element.getBoundingClientRect();
-
+                    notesElement.classList.add(grabbingClassName);
                     const pos = { x, y };
                     console.log({ x, y });
                     return pos;
@@ -85,6 +85,7 @@ export function thusNotesApp() {
                 },
                 reportPos: (pos, dx, dy) => {
                     console.log({ pos, dx, dy });
+                    notesElement.classList.remove(grabbingClassName);
                 }
             });
             this.nomores.push(nomore);

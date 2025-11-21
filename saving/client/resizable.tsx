@@ -14,6 +14,8 @@ export function enableMoving<Pos>(
 ) {
 
     function whenMousedown(e: MouseEvent) {
+        e.preventDefault();
+        e.stopPropagation();
         const startX = e.pageX;
         const startY = e.pageY;
         const startPos = defaults.readPos(contentElement);
@@ -30,6 +32,8 @@ export function enableMoving<Pos>(
         }
 
         function whenMousemove(e: MouseEvent) {
+            e.preventDefault();
+            e.stopPropagation();
             const dx = e.pageX - startX;
             const dy = e.pageY - startY;
             defaults.applyDelta(contentElement, startPos, dx, dy);
@@ -79,8 +83,9 @@ export class Resizable extends React.Component<ResizableProps> {
         this.dispose.push(...[
             enableMoving(topRightElement, contentElement, {
                 readPos: element => {
-                    const { top, height, width } = element.getBoundingClientRect();
-                    return { top, height, width };
+                    const { top: boxY, height, width } = element.getBoundingClientRect();
+                    const { top: canvasY } = element.parentElement!.getBoundingClientRect();
+                    return { top: boxY - canvasY, height, width };
                 },
                 applyDelta: (element, { top, height, width }, dx, dy) => {
                     element.style.top = (top + dy) + 'px';
@@ -111,8 +116,9 @@ export class Resizable extends React.Component<ResizableProps> {
             }),
             enableMoving(topLeftElement, contentElement, {
                 readPos: element => {
-                    const { top, left, height, width } = element.getBoundingClientRect();
-                    return { top, left, height, width };
+                    const { top: boxY, left: boxX, height, width } = element.getBoundingClientRect();
+                    const { top: canvasY, left: canvasX } = element.parentElement!.getBoundingClientRect();
+                    return { top: boxY - canvasY, left: boxX - canvasX, height, width };
                 },
                 applyDelta: (element, { top, left, width, height }, dx, dy) => {
                     element.style.left = (left + dx) + 'px';
@@ -130,8 +136,9 @@ export class Resizable extends React.Component<ResizableProps> {
             }),
             enableMoving(bottomLeftElement, contentElement, {
                 readPos: element => {
-                    const { left, height, width } = element.getBoundingClientRect();
-                    return { left, height, width };
+                    const { left: boxX, height, width } = element.getBoundingClientRect();
+                    const { left: canvasX } = element.parentElement!.getBoundingClientRect();
+                    return { left: boxX - canvasX, height, width };
                 },
                 applyDelta: (element, { left, width, height }, dx, dy) => {
                     element.style.left = (left + dx) + 'px';
@@ -147,8 +154,9 @@ export class Resizable extends React.Component<ResizableProps> {
             }),
             enableMoving(topElement, contentElement, {
                 readPos: element => {
-                    const { top, height } = element.getBoundingClientRect();
-                    return { top, height };
+                    const { top: boxY, height } = element.getBoundingClientRect();
+                    const { top: canvasY } = element.parentElement!.getBoundingClientRect();
+                    return { top: boxY - canvasY, height };
                 },
                 applyDelta: (element, { top, height }, _dx, dy) => {
                     element.style.top = (top + dy) + 'px';
@@ -188,8 +196,9 @@ export class Resizable extends React.Component<ResizableProps> {
             }),
             enableMoving(leftElement, contentElement, {
                 readPos: element => {
-                    const { left, width } = element.getBoundingClientRect();
-                    return { left, width };
+                    const { left: boxX, width } = element.getBoundingClientRect();
+                    const { left: canvasX } = element.parentElement!.getBoundingClientRect();
+                    return { left: boxX - canvasX, width };
                 },
                 applyDelta: (element, { left, width }, dx, _dy) => {
                     element.style.left = (left + dx) + 'px';
