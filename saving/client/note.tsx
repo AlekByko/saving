@@ -125,6 +125,7 @@ export function thusNote() {
             this.props.onDeleting(this.props.noteKey);
         }
 
+
         async componentDidMount(): Promise<void> {
             const { noteElement, headerElement, textElement } = this;
             if (isNull(noteElement) || isNull(headerElement) || isNull(textElement)) return;
@@ -133,6 +134,11 @@ export function thusNote() {
             noteElement.style.top = y + 'px';
             noteElement.style.width = width + 'px';
             noteElement.style.height = height + 'px';
+
+            textElement.addEventListener('mousedown', e => {
+                e.stopPropagation();
+                console.log('stopped');
+            });
 
             const nomoreMoving = enableMoving(headerElement, noteElement, {
                 readPos: element => {
