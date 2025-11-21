@@ -37,6 +37,9 @@ export function enableMoving<Pos>(
 ) {
 
     function whenMousedown(e: MouseEvent) {
+        e.stopPropagation();
+        e.preventDefault();
+
         const startX = e.pageX;
         const startY = e.pageY;
         const startPos = defaults.readPos(contentElement);
@@ -53,6 +56,8 @@ export function enableMoving<Pos>(
         }
 
         function whenMousemove(e: MouseEvent) {
+            e.stopPropagation();
+            e.preventDefault();
             const dx = e.pageX - startX;
             const dy = e.pageY - startY;
             defaults.applyDelta(contentElement, startPos, dx, dy);
@@ -89,7 +94,9 @@ export function thusNote() {
 
         dispose = [] as Act[];
 
-        whenChangingTitle: MouseEventHandler<HTMLDivElement> = _e => {
+        whenChangingTitle: MouseEventHandler<HTMLDivElement> = e => {
+            e.preventDefault();
+            e.stopPropagation();
             this.setState(state => {
                 const { title: olderTitle } = state;
                 const newerTitle = prompt('Title', olderTitle);
@@ -126,24 +133,28 @@ export function thusNote() {
             noteElement.style.top = y + 'px';
             noteElement.style.width = width + 'px';
             noteElement.style.height = height + 'px';
-            this.dispose.push(...[
-                enableMoving(headerElement, noteElement, {
-                    readPos: element => {
-                        const { top, left } = element.getBoundingClientRect();
-                        return { top, left };
-                    },
-                    applyDelta: (element, { top, left }, dx, dy) => {
-                        element.style.left = (left + dx) + 'px';
-                        element.style.top = (top + dy) + 'px';
-                    },
-                    reportPos: ({ left: x, top: y }, dx, dy) => {
-                        x += dx;
-                        y += dy;
-                        const { noteKey } = this.props;
-                        this.props.onChangedBox(noteKey, { y, x });
-                    },
-                }),
-            ]);
+
+            const nomoreMoving = enableMoving(headerElement, noteElement, {
+                readPos: element => {
+                    const childAt = element.getBoundingClientRect();
+                    const parentAt = element.parentElement!.getBoundingClientRect();
+                    const x = childAt.left - parentAt.left;
+                    const y = childAt.top - parentAt.top;
+                    return { x, y };
+                },
+                applyDelta: (element, { x, y }, dx, dy) => {
+                    element.style.left = (x + dx) + 'px';
+                    element.style.top = (y + dy) + 'px';
+                },
+                reportPos: ({ x, y }, dx, dy) => {
+                    x += dx;
+                    y += dy;
+                    const { noteKey } = this.props;
+                    this.props.onChangedBox(noteKey, { y, x });
+                },
+            });
+
+            this.dispose.push(nomoreMoving);
 
 
             const { drop } = this.props;

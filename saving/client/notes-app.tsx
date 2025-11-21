@@ -1,6 +1,6 @@
 import React, { MouseEventHandler } from 'react';
 import { isNull, isUndefined } from '../shared/core';
-import { NoteProps, thusNote } from './note';
+import { enableMoving, NoteProps, thusNote } from './note';
 import { NotesGlob } from './notes-glob';
 import { makeDefaultNoteBox, makeNoteKey, normalizeNoteConfig, NoteConfig, NoteKey, NotesWorkspace } from './notes-workspace';
 import { Box } from './reading-query-string';
@@ -65,6 +65,35 @@ export function thusNotesApp() {
                 return { ...state, notes } satisfies State;
             }, () => this.props.onChangedWorkspace());
         }
+        notesCanvasElement: HTMLDivElement | null = null;
+        notesElement: HTMLDivElement | null = null;
+        nomores: Act[] = [];
+        componentDidMount(): void {
+            const { notesElement, notesCanvasElement } = this;
+            if (isNull(notesElement) || isNull(notesCanvasElement)) return;
+            const nomore = enableMoving(notesElement, notesCanvasElement, {
+                readPos: element => {
+                    const { top: y, left: x } = element.getBoundingClientRect();
+
+                    const pos = { x, y };
+                    console.log({ x, y });
+                    return pos;
+                },
+                applyDelta: (element, pos, dx, dy) => {
+                    element.style.top = (pos.y + dy) + 'px';
+                    element.style.left = (pos.x + dx) + 'px';
+                },
+                reportPos: (pos, dx, dy) => {
+                    console.log({ pos, dx, dy });
+                }
+            });
+            this.nomores.push(nomore);
+        }
+        componentWillUnmount(): void {
+            this.nomores.forEach(nomore => {
+                nomore();
+            });
+        }
 
         private makeState(): State {
             const { workspace } = this.props;
@@ -91,10 +120,12 @@ export function thusNotesApp() {
 
         render() {
             const { notes } = this.state;
-            return <div className="notes">
-                {notes.map(note => {
-                    return <Note {...note} />;
-                })}
+            return <div className="notes" ref={el => this.notesElement = el}>
+                <div className="notes-canvas" ref={el => this.notesCanvasElement = el}>
+                    {notes.map(note => {
+                        return <Note {...note} />;
+                    })}
+                </div>
                 <div className="notes-toolbar">
                     <button onClick={this.whenAddingNote}>Add</button>
                 </div>
