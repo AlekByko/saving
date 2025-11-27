@@ -56,9 +56,9 @@ export function defaultizeNotesWorkspaceConfig(
 }
 
 
-export type NoteKey = string & As<'note-key'>;
-export function makeNoteKey(): NoteKey {
-    return new Date().getTime() + "" as NoteKey;
+export type CardKey = string & As<'card-key'>;
+export function makeCardKey(): CardKey {
+    return new Date().getTime() + "" as CardKey;
 }
 
 export interface NoteBox extends Box {
@@ -66,12 +66,12 @@ export interface NoteBox extends Box {
     scrollTop: number;
 }
 export interface NoteConfig {
-    key: NoteKey;
+    key: CardKey;
     path: string;
     box: NoteBox;
     title: string;
 }
-export const defaultNoteBox: NoteBox = { x: 100, y: 100, width: 200, height: 400, scrollLeft: 0, scrollTop: 0 };
+export const  defaultNoteBox: NoteBox = { x: 100, y: 100, width: 200, height: 400, scrollLeft: 0, scrollTop: 0 };
 
 export function tryDefaultizeNoteConfig(config: DeepPartial<NoteConfig>): config is NoteConfig {
 

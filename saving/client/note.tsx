@@ -2,7 +2,7 @@ import React, { FormEventHandler, UIEventHandler } from 'react';
 import { isNonNull, isNull } from '../shared/core';
 import { thusBoxed } from './boxed';
 import { startListening } from './eventing';
-import { NoteBox, NoteKey } from './notes-workspace';
+import { CardKey, NoteBox } from './notes-workspace';
 import { debounceOver } from './scheduling';
 import { TextDrop } from './text-drop';
 
@@ -10,13 +10,13 @@ const plainTextOnly = 'plaintext-only' as never;
 
 export interface NoteProps {
     /** cannot be named just `key` because React */
-    noteKey: NoteKey;
+    noteKey: CardKey;
     drop: TextDrop;
     box: NoteBox;
     title: string;
-    onChangedBox: (key: NoteKey, box: Partial<NoteBox>) => void;
-    onChangedTitle: (key: NoteKey, title: string) => void;
-    onDeleting: (key: NoteKey) => void;
+    onChangedBox: (key: CardKey, box: Partial<NoteBox>) => void;
+    onChangedTitle: (key: CardKey, title: string) => void;
+    onDeleting: (key: CardKey) => void;
 }
 
 

@@ -3,7 +3,7 @@ import { isNull, isUndefined } from '../shared/core';
 import { startListening } from './eventing';
 import { enableMoving, NoteDefaults, NoteProps, thusNote } from './note';
 import { NotesGlob } from './notes-glob';
-import { defaultNoteBox, makeNoteKey, NoteConfig, NoteKey, NotesWorkspaceConfig } from './notes-workspace';
+import { CardKey, defaultNoteBox, makeCardKey, NoteConfig, NotesWorkspaceConfig } from './notes-workspace';
 import { Box } from './reading-query-string';
 import { TextDrop } from './text-drop';
 
@@ -22,14 +22,14 @@ const grabbingClassName = 'as-grabbing';
 export function thusNotesApp(defaults: NoteDefaults) {
     const Note = thusNote(defaults);
     return class NotesApp extends React.Component<NotesAppProps, State> {
-        whenChangingBox = (key: NoteKey, box: Partial<Box>) => {
+        whenChangingBox = (key: CardKey, box: Partial<Box>) => {
             const { workspace } = this.props;
             const found = workspace.notes.find(x => x.key === key);
             if (isUndefined(found)) return;
             found.box = { ...found.box, ...box };
             this.props.onChangedWorkspace();
         }
-        whenChangingTitle = (key: NoteKey, title: string) => {
+        whenChangingTitle = (key: CardKey, title: string) => {
             const { workspace } = this.props;
             const found = workspace.notes.find(x => x.key === key);
             if (isUndefined(found)) return;
@@ -43,7 +43,7 @@ export function thusNotesApp(defaults: NoteDefaults) {
         };
 
         createNote(x: number, y: number, title: string) {
-            const key = makeNoteKey();
+            const key = makeCardKey();
             const path = `${key}.txt`;
             const config: NoteConfig = {
                 key, path, box: { ...defaultNoteBox, x, y }, title,
@@ -57,7 +57,7 @@ export function thusNotesApp(defaults: NoteDefaults) {
                 return { ...state, notes } satisfies State;
             }, () => this.props.onChangedWorkspace());
         }
-        whenDeleting = (key: NoteKey) => {
+        whenDeleting = (key: CardKey) => {
             const { workspace } = this.props;
             const foundAt = workspace.notes.findIndex(x => x.key === key);
             if (foundAt < 0) return console.log('No note to delete: ' + key);
