@@ -25,6 +25,12 @@ export type LikeUndefined<T> = undefined extends T ? any : never;
 export function asDefinedOr<T extends LikeUndefined<T>, Or>(value: T, or: Or): Or | Exclude<T, undefined> {
     return value === undefined ? or : value;
 }
+export function asDefinedOrMake<T extends LikeUndefined<T>, Or>(value: T, make: () => Or): Or | Exclude<T, undefined> {
+    return value === undefined ? make() : value;
+}
+export function makeObject(): {} {
+    return {};
+}
 export function asDefinedOrOtherwise<T extends LikeUndefined<T>, W, Or>(value: T, or: Or, otherwise: (or: Or) => W): W | Exclude<T, undefined> {
     return value === undefined ? otherwise(or) : value;
 }
@@ -622,3 +628,26 @@ export function defaultAndWhine<V extends number, D>(name: string, defaulted: D,
     }
 }
 export function sure<T>(_: () => T) {}
+export function sureNever(_: never): void {}
+export function defaultizeArray<T>(
+    values: (DeepPartial<T> | undefined)[],
+    defaultize: (value: DeepPartial<T>) => asserts value is T,
+): asserts values is T[] {
+    for (let index = 0; index < values.length; index ++) {
+        const value = values[index];
+        if (isUndefined(value)) {
+            values.splice(index, 1);
+            index -= 1;
+            continue;
+        }
+        defaultize(value);
+    }
+}
+
+export type Primitive = string | number | boolean | null | undefined;
+export type DeepPartial<T> = {
+    [P in keyof T]?:
+        T[P] extends Primitive ? T[P] :
+       // T[P] extends any[] ? DeepPartial<T[P][number]>[] :
+        DeepPartial<T[P]>;
+}

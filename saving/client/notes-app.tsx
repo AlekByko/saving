@@ -1,14 +1,14 @@
 import React, { MouseEventHandler } from 'react';
-import { isNull, isUndefined } from '../shared/core';
+import { DeepPartial, isNull, isUndefined } from '../shared/core';
 import { startListening } from './eventing';
 import { enableMoving, NoteDefaults, NoteProps, thusNote } from './note';
 import { NotesGlob } from './notes-glob';
-import { makeDefaultNoteBox, makeNoteKey, normalizeNoteConfig, NoteConfig, NoteKey, NotesWorkspace } from './notes-workspace';
+import { defaultizeNoteConfig, makeNoteKey, NoteConfig, NoteKey, NotesWorkspaceConfig } from './notes-workspace';
 import { Box } from './reading-query-string';
 import { TextDrop } from './text-drop';
 
 export interface NotesAppProps {
-    workspace: NotesWorkspace;
+    workspace: NotesWorkspaceConfig;
     workspaceDir: FileSystemDirectoryHandle;
     glob: NotesGlob;
     onChangedWorkspace(): void;
@@ -45,12 +45,10 @@ export function thusNotesApp(defaults: NoteDefaults) {
         createNote(x: number, y: number, title: string) {
             const key = makeNoteKey();
             const path = `${key}.txt`;
-            const box = makeDefaultNoteBox();
-            box.x = x;
-            box.y = y;
-            const config: NoteConfig = {
-                key, path, box, title,
+            const config: DeepPartial<NoteConfig> = {
+                key, path, box: { x, y }, title,
             };
+            defaultizeNoteConfig(config);
             const { workspace } = this.props;
             const note = this.makeNote(config);
             this.setState(state => {
@@ -135,7 +133,7 @@ export function thusNotesApp(defaults: NoteDefaults) {
 
         private makeNote(config: NoteConfig) {
             const { workspaceDir } = this.props;
-            const { path, key, box, title } = normalizeNoteConfig(config);
+            const { path, key, box, title } = config;
             const drop = new TextDrop(workspaceDir, path);
             const note: NoteProps = {
                 noteKey: key, drop, box, title,

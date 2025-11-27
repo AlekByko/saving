@@ -7,7 +7,7 @@ import { thusJsonDrop } from './json-drop';
 import { willOpenKnownDb } from './known-database';
 import { NotesAppProps, thusNotesApp } from './notes-app';
 import { NotesGlob } from './notes-glob';
-import { defaultizeNotesWorkspace, NotesWorkspace } from './notes-workspace';
+import { defaultizeNotesWorkspaceConfig, NotesWorkspaceConfig } from './notes-workspace';
 import { readAndSetAppTitle } from './reading-and-setting-app-title';
 import { readPathFromQueryStringOr } from './reading-query-string';
 import { willClaimDir } from './setting-up-notes-app';
@@ -24,17 +24,17 @@ async function run() {
     const rootElement = document.getElementById('root')!;
     const notesDir = await willClaimDir(db, rootElement, knownNotesDirRef);
 
-    const droppedWorkspaceOrNot = await thusJsonDrop<Partial<NotesWorkspace>>({
+    const droppedWorkspaceOrNot = await thusJsonDrop<Partial<NotesWorkspaceConfig>>({
         makeDefault: () => {
-            return { notes: [], x: 0, y: 0, keybindings: [] } satisfies NotesWorkspace;
+            return { notes: [], x: 0, y: 0, keybindings: [] } satisfies NotesWorkspaceConfig;
         }
     }).willTryMake(notesDir, workspacePath);
     if (isNull(droppedWorkspaceOrNot)) return alert(`No workspace at: ${workspacePath}`);
     const droppedWorkspace = droppedWorkspaceOrNot;
 
     const workspace = droppedWorkspace.data;
-    defaultizeNotesWorkspace(workspace);
-    const payloadByChord = workspace.keybindings.toMap(x => x.chord, x => x.payload, newer => newer);
+    defaultizeNotesWorkspaceConfig(workspace);
+    const keybindingByChord = workspace.keybindings.toMap(x => x.chord, x => x, newer => newer);
 
     const workspaceDir = droppedWorkspace.dir;
     async function onChangedWorkspace() {
@@ -46,11 +46,11 @@ async function run() {
     const NotesApp = thusNotesApp({
         makeInsert: e => {
             const chord = makeChordOfKeyboardEvent(e);
-            const payload = payloadByChord.get(chord);
-            if (isUndefined(payload)) return null;
+            const keybinding = keybindingByChord.get(chord);
+            if (isUndefined(keybinding)) return null;
             e.preventDefault();
             e.stopPropagation();
-            const node = document.createTextNode(payload.text);
+            const node = document.createTextNode(keybinding.text);
             return node;
         }
     });
