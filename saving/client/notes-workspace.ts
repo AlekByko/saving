@@ -1,4 +1,4 @@
-import { asDefinedOr, asDefinedOrMake, DeepPartial, defaultizeArray, fail, isUndefined, sureNever } from '../shared/core';
+import { asDefinedOr, asDefinedOrMake, DeepPartial, defaultizeArray, isUndefined, otherwise } from '../shared/core';
 import { Box } from '../shared/shapes';
 
 
@@ -11,37 +11,22 @@ export interface TextNotesKeybindingConfig {
 export type NotesKeybindingConfig = TextNotesKeybindingConfig;
 export interface Unrepairable { kind: 'unrepairable' }
 
-export function defaultizeNotesKeybindingConfig(
-    config: DeepPartial<NotesKeybindingConfig> | Unrepairable
-): asserts config is NotesKeybindingConfig | Unrepairable {
-    const unrepairable = config as Unrepairable;
+export function tryDefaultizeNotesKeybindingConfig(
+    config: DeepPartial<NotesKeybindingConfig>
+): config is NotesKeybindingConfig {
+    if (isUndefined(config.kind)) return false;
     switch (config.kind) {
         case 'text-notes-keybinding': {
-            if (isUndefined(config.chord)) {
-                unrepairable.kind = 'unrepairable';
-                return;
-            }
-            if (isUndefined(config.text)) {
-                unrepairable.kind = 'unrepairable';
-                return;
-            }
+            if (isUndefined(config.chord)) return false;
+            if (isUndefined(config.text)) return false;
             if (100 < 1) void ({
                 kind: config.kind,
                 chord: config.chord,
                 text: config.text,
             } satisfies TextNotesKeybindingConfig);
-            break;
+            return true;
         }
-        case undefined:
-        case 'unrepairable': {
-            unrepairable.kind = 'unrepairable';
-            break;
-        }
-        default: {
-            sureNever(config);
-            unrepairable.kind = 'unrepairable'
-            break;
-        }
+        default: return otherwise(config.kind, false);
     }
 }
 
@@ -57,9 +42,9 @@ export function defaultizeNotesWorkspaceConfig(
     config.x = asDefinedOr(config.x, 0);
     config.y = asDefinedOr(config.y, 0);
     config.notes = asDefinedOrMake(config.notes, () => []);
-    defaultizeArray(config.notes, defaultizeNoteConfig);
+    defaultizeArray(config.notes, tryDefaultizeNoteConfig);
     config.keybindings = asDefinedOrMake(config.keybindings, () => []);
-    defaultizeArray(config.keybindings, defaultizeNotesKeybindingConfig);
+    defaultizeArray(config.keybindings, tryDefaultizeNotesKeybindingConfig);
     if (100 < 1) {
         void ({
             x: config.x,
@@ -86,12 +71,12 @@ export interface NoteConfig {
     box: NoteBox;
     title: string;
 }
-const defaultBox: NoteBox = { x: 100, y: 100, width: 200, height: 400, scrollLeft: 0, scrollTop: 0 };
+export const defaultNoteBox: NoteBox = { x: 100, y: 100, width: 200, height: 400, scrollLeft: 0, scrollTop: 0 };
 
-export function defaultizeNoteConfig(config: DeepPartial<NoteConfig>): asserts config is NoteConfig {
+export function tryDefaultizeNoteConfig(config: DeepPartial<NoteConfig>): config is NoteConfig {
 
-    if (isUndefined(config.path)) return fail('No path in note.');
-    config.key = asDefinedOrMake(config.key, makeNoteKey);
+    if (isUndefined(config.path)) return false;
+    if (isUndefined(config.key)) return false;
     config.box = config.box ?? {};
     defaultizeNoteBox(config.box);
 
@@ -105,6 +90,7 @@ export function defaultizeNoteConfig(config: DeepPartial<NoteConfig>): asserts c
             title: config.title,
         } satisfies NoteConfig);
     }
+    return true;
 }
 
 

@@ -631,16 +631,15 @@ export function sure<T>(_: () => T) {}
 export function sureNever(_: never): void {}
 export function defaultizeArray<T>(
     values: (DeepPartial<T> | undefined)[],
-    defaultize: (value: DeepPartial<T>) => asserts value is T,
+    tryDefaultize: (value: DeepPartial<T>) => value is T,
 ): asserts values is T[] {
     for (let index = 0; index < values.length; index ++) {
         const value = values[index];
-        if (isUndefined(value)) {
+        if (isUndefined(value) || !tryDefaultize(value)) {
             values.splice(index, 1);
             index -= 1;
             continue;
         }
-        defaultize(value);
     }
 }
 
