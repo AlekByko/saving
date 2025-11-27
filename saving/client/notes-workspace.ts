@@ -1,4 +1,4 @@
-import { asDefinedOr, asDefinedOrMake, DeepPartial, defaultizeArray, isUndefined, otherwise } from '../shared/core';
+import { asDefinedOr, asDefinedOrMake, DeepPartial, defaultizeArray, isDefined, isUndefined, otherwise } from '../shared/core';
 import { Box } from '../shared/shapes';
 
 
@@ -65,16 +65,22 @@ export interface NoteBox extends Box {
     scrollLeft: number;
     scrollTop: number;
 }
+export type CardConfig = NoteConfig | AreaConfig;
 export interface NoteConfig {
+    kind: 'note';
     key: CardKey;
     path: string;
     box: NoteBox;
     title: string;
 }
-export const  defaultNoteBox: NoteBox = { x: 100, y: 100, width: 200, height: 400, scrollLeft: 0, scrollTop: 0 };
+export interface AreaConfig {
+    kind: 'area';
+}
+export const defaultNoteBox: NoteBox = { x: 100, y: 100, width: 200, height: 400, scrollLeft: 0, scrollTop: 0 };
 
-export function tryDefaultizeNoteConfig(config: DeepPartial<NoteConfig>): config is NoteConfig {
-
+function tryDefaultizeNoteConfig(config: DeepPartial<NoteConfig>): config is NoteConfig {
+    if (isDefined(config.kind) && config.kind !== 'note') return false;
+    config.kind = 'note';
     if (isUndefined(config.path)) return false;
     if (isUndefined(config.key)) return false;
     config.box = config.box ?? {};
@@ -84,6 +90,7 @@ export function tryDefaultizeNoteConfig(config: DeepPartial<NoteConfig>): config
 
     if (100 < 1) {
         void ({
+            kind: config.kind,
             key: config.key,
             path: config.path,
             box: config.box,
@@ -91,6 +98,27 @@ export function tryDefaultizeNoteConfig(config: DeepPartial<NoteConfig>): config
         } satisfies NoteConfig);
     }
     return true;
+}
+
+function tryDefaultizeAreaConfig(config: DeepPartial<AreaConfig>): config is AreaConfig {
+    if (isUndefined(config.kind) || config.kind !== 'area') return false;
+    if (100 < 1) void ({
+        kind: config.kind,
+    } satisfies AreaConfig);
+    return true;
+}
+
+export function tryDefaultizeCardConfig(config: DeepPartial<CardConfig>): config is CardConfig {
+    if (isUndefined(config.kind)) config.kind = 'note';
+    switch (config.kind) {
+        case 'note': {
+            return tryDefaultizeNoteConfig(config);
+        }
+        case 'area': {
+            return tryDefaultizeAreaConfig(config);
+        }
+        default: return false;
+    }
 }
 
 

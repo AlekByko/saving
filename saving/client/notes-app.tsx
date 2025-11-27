@@ -50,7 +50,7 @@ export function thusNotesApp(defaults: NoteDefaults) {
             const cardKey = makeCardKey();
             const path = `${cardKey}.txt`;
             const config: NoteConfig = {
-                key: cardKey, path, box: { ...defaultNoteBox, x, y }, title,
+                kind: 'note', key: cardKey, path, box: { ...defaultNoteBox, x, y }, title,
             };
             const { workspace } = this.props;
             const note = this.makeNoteProps(config);
